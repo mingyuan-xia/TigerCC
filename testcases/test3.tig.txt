@@ -1,0 +1,107 @@
+.686
+.model flat, stdcall
+option casemap :none   ; case sensitive
+include windows.inc
+include user32.inc
+include kernel32.inc
+include masm32.inc
+.data
+stringConst0 db 04eh,06fh,062h,06fh,064h,079h,0
+stringConst1 db 053h,06fh,06dh,065h,062h,06fh,064h,079h,0
+__scope6_fp dd ?
+__scope0_fp dd ?
+.code
+extrn tg_print :near
+extrn tg_newrecord :near
+extrn tg_getchar :near
+extrn tg_newarray :near
+extrn tg_finalize :near
+extrn tg_ord :near
+extrn tg_chr :near
+extrn tg_printi :near
+extrn tg_streq :near
+extrn tg_strneq :near
+main PROC C
+	call scope0
+	call tg_finalize
+	call ExitProcess
+	ret 0
+main endp
+scope0:
+label0:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __scope0_fp
+sub esp,04h
+mov __scope0_fp,ebp
+;$0=call scope6of #0 args
+
+call scope6
+;frame_leave
+
+mov [ebp-04h],eax
+mov eax,ebx
+add esp,04h
+pop __scope0_fp
+pop ebp
+ret
+
+scope6:
+label1:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __scope6_fp
+sub esp,08h
+mov __scope6_fp,ebp
+;$1=newrecord[#2]
+
+mov ebx,02h
+push ebx
+call tg_newrecord
+add esp,04h
+;$1.field[#0]=#
+
+mov ecx,00h
+lea edx,stringConst0
+mov ebx,ecx
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edx
+;$1.field[#1]=#1000
+
+mov esi,01h
+mov edi,03e8h
+mov ebx,esi
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edi
+;rec1=$1
+
+mov [ebp-08h],eax
+;rec1.field[#0]=#
+
+mov ecx,00h
+lea edx,stringConst1
+mov ebx,ecx
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edx
+;frame_leaverec1
+
+mov [ebp-04h],eax
+mov eax,eax
+add esp,08h
+pop __scope6_fp
+pop ebp
+ret
+
+
+
+end

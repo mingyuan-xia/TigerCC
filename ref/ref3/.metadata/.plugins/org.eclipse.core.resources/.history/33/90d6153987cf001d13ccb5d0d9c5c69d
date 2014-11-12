@@ -1,0 +1,161 @@
+//==========================================================================
+//
+//  File:        TigerLexer.java
+//  Location:    TigerCompiler <SableCC 3>
+//  Description: The custom lexer for Tiger language
+//  Version:     2008.12.22.
+//  License:     BSD License
+//
+//  Copyright(C) F.R.C., All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in the
+//        documentation and/or other materials provided with the distribution.
+//      * Neither the name of the <organization> nor the
+//        names of its contributors may be used to endorse or promote products
+//        derived from this software without specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY F.R.C. "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//  DISCLAIMED. IN NO EVENT SHALL F.R.C. BE LIABLE FOR ANY
+//  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//==========================================================================
+
+package Lexer;
+
+import java.io.*;
+import Syntax.lexer.*;
+import Syntax.node.*;
+
+public class TigerLexer extends Lexer {
+
+    private int CommentLevel;
+    private TComment Comment;
+    private StringBuffer CommentText;
+
+    private TString StringLiteral;
+    private StringBuffer StringLiteralText;
+
+    public TigerLexer(PushbackReader in) {
+        super(in);
+    }
+
+    //define a filter that recognizes nested comments and escaped string literal.
+    @Override
+    protected void filter() {
+        //in the comment state.
+        if (state.equals(State.COMMENT)) {
+            //the token is supposed to be a comment.
+            if (Comment == null) {
+                //keep a reference to it and set the count to one.
+                Comment = (TComment) token;
+                CommentText = new StringBuffer(Comment.getText());
+                CommentLevel = 1;
+
+                // continue to scan the input.
+                token = null;
+            }
+            //in the comment state.
+            else {
+                //accumulate the text.
+                CommentText.append(token.getText());
+                if (token instanceof TComment) {
+                    CommentLevel += 1;
+                }
+                else if (token instanceof TCommentEnd) {
+                    CommentLevel -= 1;
+                }
+                if (CommentLevel > 0) {
+                    //continue to scan the input.
+                    token = null;
+                }
+                else {
+                    assert CommentLevel == 0;
+
+                    Comment.setText(CommentText.toString());
+
+                    //return a comment with the full text.
+                    token = Comment;
+
+                    //go back to normal.
+                    state = State.NORMAL;
+
+                    //release this reference.
+                    Comment = null;
+                }
+            }
+        }
+        //if we are in the string state.
+        else if (state.equals(State.STRING)) {
+            //the token is supposed to be a string literal.
+            if (StringLiteral == null) {
+                //keep a reference to it.
+                StringLiteral = (TString) token;
+                StringLiteralText = new StringBuffer();
+
+                //continue to scan the input.
+                token = null;
+            }
+            //in the string state.
+            else {
+                if (token instanceof TEscapeChar) {
+                    char c = token.getText().charAt(1);
+                    if (c == 'n') {
+                        c = '\n';
+                    }
+                    else if (c == 't') {
+                        c = '\t';
+                    }
+                    StringLiteralText.append(c);
+
+                    //continue to scan the input.
+                    token = null;
+                }
+                else if (token instanceof TControlChar) {
+                    StringLiteralText.append((char) ((int) (token.getText().charAt(2)) - 0x40));
+
+                    //continue to scan the input.
+                    token = null;
+                }
+                else if (token instanceof TGraphChar) {
+                    StringLiteralText.append((char) (Integer.parseInt(token.getText().substring(1))));
+
+                    //continue to scan the input.
+                    token = null;
+                }
+                else if (token instanceof TSimpleChar) {
+                    StringLiteralText.append(token.getText());
+
+                    //continue to scan the input.
+                    token = null;
+                }
+                else if (token instanceof TLineContinuer) {
+                    //continue to scan the input.
+                    token = null;
+                }
+                else if (token instanceof TStringEnd) {
+                    StringLiteral.setText(StringLiteralText.toString());
+
+                    //return a string literal with the full text.
+                    token = StringLiteral;
+
+                    //go back to normal.
+                    state = State.NORMAL;
+
+                    //release this reference.
+                    StringLiteral = null;
+                }
+            }
+        }
+    }
+}

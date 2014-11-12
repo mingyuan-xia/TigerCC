@@ -1,0 +1,164 @@
+package Parser;
+import java_cup.runtime.*;
+import AbsSytree.*;
+import util.ErrorMsg;
+
+parser code {:
+   public void parserPanic(String message, Object info) {
+
+      ErrorMsg.instance.err("Parser panic:"+message+info);
+   }
+
+   public void syntax_error(Symbol cur_token){
+      parserPanic("Syntax error", cur_token);
+   }
+:};
+
+terminal String IDENTIFIER, INTEGER, STRING;
+terminal ARRAY, BREAK, DO, ELSE, END, FOR, FUNCTION,
+         IF, IN, LET, NIL, OF, THEN, TO, TYPE, VAR, WHILE,
+         COMMA, COLON, SEMICOLON, LPARENTHESE, RPARENTHESE, LBRACKET, RBRACKET, LBRACE, RBRACE,
+         DOT, ADD, SUB, MUL, DIV, EQ, NEQ, LESS, LESSEQ,
+         GREATER, GREATEREQ, AND, OR, ASSIGN, UMINUS;
+
+non terminal AbsSynNode program;
+non terminal AbsSynNode expr;
+non terminal AbsSynNode lvalue;
+non terminal SynExprList expr_list;
+non terminal SynExprList opt_expr_list;
+non terminal SynExprSeq expr_seq;
+non terminal SynExprSeq opt_expr_seq;
+non terminal SynFieldList field_list;
+non terminal SynFieldList opt_field_list;
+non terminal AbsSynNode decl;
+non terminal SynDeclList decl_list;
+non terminal SynTypeDecl type_decl;
+non terminal SynTypeDeclList type_decl_list;
+non terminal AbsSynNode type;
+non terminal SynTypeField type_field;
+non terminal SynTypeFieldList type_field_list;
+non terminal SynTypeFieldList opt_type_field_list;
+non terminal SynVarDecl var_decl;
+non terminal SynFuncDecl func_decl;
+non terminal SynFuncDeclList func_decl_list;
+
+precedence right FUNCTION, TYPE;
+precedence right OF;
+precedence right DO, ELSE, THEN;
+precedence nonassoc ASSIGN;
+precedence left OR;
+precedence left AND;
+precedence nonassoc EQ , NEQ , LESS , LESSEQ , GREATER , GREATEREQ;
+precedence left ADD, SUB;
+precedence left MUL, DIV;
+precedence left UMINUS;
+precedence left LPARENTHESE;
+
+start with program;
+
+program   ::= expr:e {: RESULT = e; :}
+         	;
+expr      ::= STRING:s				                                      {: RESULT = new SynString(s); :}
+		  	| INTEGER:i			                                          {: RESULT = new SynInteger(i); :}
+		  	| NIL                                                         {: RESULT = new SynNil(); :}
+		  	| lvalue:lv                                                   {: RESULT = lv; :}
+		  	| SUB expr:e                                                  {: RESULT = new SynSubExpr(e); :} %prec UMINUS
+			
+		  	| expr:el AND:s expr:er     {: RESULT = new SynBinaryOp(el, sym.AND, er); :} %prec AND
+		  	| expr:el OR:s expr:er      {: RESULT = new SynBinaryOp(el, sym.OR, er); :} %prec OR
+			| expr:el ADD:s expr:er  	{: RESULT = new SynBinaryOp(el, sym.ADD, er); :} %prec ADD
+		  	| expr:el SUB:s expr:er     {: RESULT = new SynBinaryOp(el, sym.SUB, er); :} %prec SUB
+		  	| expr:el MUL:s expr:er     {: RESULT = new SynBinaryOp(el, sym.MUL, er); :} %prec MUL
+		  	| expr:el DIV:s expr:er     {: RESULT = new SynBinaryOp(el, sym.DIV, er); :} %prec DIV
+		  	| expr:el EQ:s expr:er      {: RESULT = new SynBinaryOp(el, sym.EQ, er); :} %prec EQ
+		  	| expr:el NEQ:s expr:er     {: RESULT = new SynBinaryOp(el, sym.NEQ, er); :} %prec NEQ
+		  	| expr:el LESS:s expr:er    {: RESULT = new SynBinaryOp(el, sym.LESS, er); :} %prec LESS
+		  	| expr:el LESSEQ:s expr:er  {: RESULT = new SynBinaryOp(el, sym.LESSEQ, er); :} %prec LESSEQ
+		  	| expr:el GREATER:s expr:er {: RESULT = new SynBinaryOp(el, sym.GREATER, er); :} %prec GREATER
+		  	| expr:el GREATEREQ:s expr:er {: RESULT = new SynBinaryOp(el, sym.GREATEREQ, er); :} %prec GREATEREQ
+
+			| lvalue:lv ASSIGN expr:e                                     {: RESULT = new SynAssign(lv, e); :}
+		  	| IDENTIFIER:fname LPARENTHESE opt_expr_list:elist RPARENTHESE {: RESULT = new SynCall(fname, elist); :}
+		  	| LPARENTHESE opt_expr_seq:eseq RPARENTHESE                   {: RESULT = (eseq == null ? new SynVoid() : eseq); :}
+		  	| IDENTIFIER:rname LBRACE opt_field_list:flist RBRACE         {: RESULT = new SynRecord(rname, flist); :}
+		  	| IDENTIFIER:aname LBRACKET expr:index RBRACKET OF expr:val   {: RESULT = new SynArray(aname, index, val); :}
+		  	| IF expr:cond THEN expr:e                                    {: RESULT = new SynIf(cond, e, null); :}
+			| IF expr:cond THEN expr:te ELSE expr:ee                      {: RESULT = new SynIf(cond, te, ee); :}
+		  	| WHILE expr:cond DO expr:e                                   {: RESULT = new SynWhile(cond, e); :}
+		  	| FOR IDENTIFIER:iname ASSIGN expr:efrom TO expr:eto DO expr:e {: RESULT = new SynFor(iname, efrom, eto, e); :}
+   		    | BREAK                                                       {: RESULT = new SynBreak(); :}
+		  	| LET decl_list:decl IN opt_expr_seq:eseq END                 {: RESULT = new SynAgg(decl, eseq); :}
+		  	;
+		  	
+lvalue    ::= IDENTIFIER:id                      {: RESULT = new SynVarRef(id); :}
+			| lvalue:lv DOT IDENTIFIER:id        {: RESULT = new SynRecordRef(lv, id); :}
+			| lvalue:lv LBRACKET expr:e RBRACKET {: RESULT = new SynArrayRef(lv, e); :}
+			| IDENTIFIER:id LBRACKET expr:e RBRACKET {:RESULT = new SynArrayRef(new SynVarRef(id), e); :}
+			;
+
+expr_list  ::= expr:e                   {: RESULT = new SynExprList(e); :}
+			| expr_list:el COMMA expr:e {: RESULT = el.append(e); :}
+			;
+			
+opt_expr_list::=                        {: RESULT = (SynExprList)null; :}
+			| expr_list:el              {: RESULT = el; :}
+			;
+			
+expr_seq   ::= expr:e                        {: RESULT = new SynExprSeq(e); :}
+			| expr_seq:eseq SEMICOLON expr:e {: RESULT = eseq.append(e); :}
+			;
+			
+opt_expr_seq ::=                         {: RESULT = (SynExprSeq)null; :}
+			| expr_seq:eseq              {: RESULT = eseq; :}
+			;
+	
+field_list   ::= IDENTIFIER:id EQ expr:e                  {: RESULT = new SynFieldList(id, e); :}
+			| field_list:fl COMMA IDENTIFIER:id EQ expr:e {: RESULT = fl.append(id, e); :}
+			;
+			
+opt_field_list ::=                        {: RESULT = (SynFieldList)null; :}
+			| field_list:fl               {: RESULT = fl; :}
+			;
+			
+decl 	  ::= type_decl_list:tdecl             {: RESULT = tdecl; :}
+			| var_decl:vdecl              {: RESULT = vdecl; :}
+			| func_decl_list:fdecl             {: RESULT = fdecl; :}
+			;
+			
+decl_list	  ::= decl:d                  {: RESULT = new SynDeclList(d); :}
+			| decl_list:dl decl:d 	        {: RESULT = dl.append(d); :}
+			;
+			
+type_decl   ::= TYPE IDENTIFIER:id EQ type:ty {: RESULT = new SynTypeDecl(id, ty); :}
+			;
+			
+type_decl_list ::= type_decl:tdecl {: RESULT = new SynTypeDeclList(tdecl); :}
+			| type_decl_list:tdlist type_decl:tdecl {: RESULT = tdlist.append(tdecl); :}
+			;
+			
+type      ::= IDENTIFIER:tyid                      {: RESULT = new SynTypeID(tyid); :}
+			| LBRACE opt_type_field_list:tyfl RBRACE {: RESULT = new SynRecordType(tyfl); :}
+			| ARRAY OF IDENTIFIER:tyid             {: RESULT = new SynArrayType(new SynTypeID(tyid)); :}
+			;
+			
+type_field	  ::= IDENTIFIER:name COLON IDENTIFIER:tyid {: RESULT = new SynTypeField(name, tyid); :}
+			;
+			
+type_field_list  ::= type_field :tyf                    {: RESULT = new SynTypeFieldList(tyf); :}
+			| type_field_list:tyfl COMMA type_field:tyf {: RESULT = tyfl.append(tyf); :}
+			;
+			
+opt_type_field_list::=             {: RESULT = null; :}
+			| type_field_list:tyfl {: RESULT = tyfl; :}
+			;
+			
+var_decl    ::= VAR IDENTIFIER:vname ASSIGN expr:e                     {: RESULT = new SynVarDecl(vname, e); :}
+			| VAR IDENTIFIER:vname COLON IDENTIFIER:tyid ASSIGN expr:e {: RESULT = new SynVarDecl(vname, tyid, e); :}
+			;
+			
+func_decl   ::= FUNCTION IDENTIFIER:fname LPARENTHESE opt_type_field_list:tyfl RPARENTHESE EQ expr:e                     {: RESULT = new SynFuncDecl(fname, tyfl, e); :}
+			| FUNCTION IDENTIFIER:fname LPARENTHESE opt_type_field_list:tyfl RPARENTHESE COLON IDENTIFIER:tyid EQ expr:e {: RESULT = new SynFuncDecl(fname, tyid, tyfl, e); :}
+			; 
+func_decl_list ::= func_decl:fdecl {: RESULT = new SynFuncDeclList(fdecl); :}
+			| func_decl_list:fdlist func_decl:fdecl {: RESULT = fdlist.append(fdecl); :}
+			;

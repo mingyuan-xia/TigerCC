@@ -1,0 +1,351 @@
+//==========================================================================
+//
+//  File:        Tiger.sablecc3
+//  Location:    TigerCompiler <SableCC 3>
+//  Description: The SableCC syntax file for Tiger language
+//  Version:     2008.12.23.
+//  License:     BSD License
+//
+//  Copyright(C) F.R.C., All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in the
+//        documentation and/or other materials provided with the distribution.
+//      * Neither the name of the the copyright holders nor the
+//        names of its contributors may be used to endorse or promote products
+//        derived from this software without specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
+//  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//==========================================================================
+
+Package Syntax;
+
+Helpers
+    //Identifier
+    digit_char                = ['0' .. '9'];
+    letter_char               = ['A' .. 'Z'] | ['a' .. 'z'] | '_';
+    ident_start_char          = letter_char;
+    ident_char                = letter_char | digit_char;
+     
+    //Whitespace
+    space                     = ' ';
+    tab                       = 0x9;
+    cr                        = 0xD;
+    lf                        = 0xA;
+    formfeed                  = 0xC;
+
+    //Comment
+    comment_head              = '/*';
+    comment_tail              = '*/';
+
+    //Numeric Literal
+    digit                     = ['0' .. '9'];
+
+    //String Literal
+    backslash                 = '\';
+    quote                     = 0x22;
+
+States
+    normal,
+    comment,
+    string;
+
+Tokens
+    //Keywords
+    {normal}    array         = 'array';
+    {normal}    break         = 'break';
+    {normal}    do            = 'do';
+    {normal}    else          = 'else';
+    {normal}    end           = 'end';
+    {normal}    for           = 'for';
+    {normal}    function      = 'function';
+    {normal}    if            = 'if';
+    {normal}    in            = 'in';
+    {normal}    let           = 'let';
+    {normal}    nil           = 'nil';
+    {normal}    of            = 'of';
+    {normal}    then          = 'then';
+    {normal}    to            = 'to';
+    {normal}    type          = 'type';
+    {normal}    var           = 'var';
+    {normal}    while         = 'while';
+
+    //Operators
+    {normal}    comma         = ',';
+    {normal}    colon         = ':';
+    {normal}    semicolon     = ';';
+    {normal}    l_paren       = '(';
+    {normal}    r_paren       = ')';
+    {normal}    l_brack       = '[';
+    {normal}    r_brack       = ']';
+    {normal}    l_curly       = '{';
+    {normal}    r_curly       = '}';
+    {normal}    dot           = '.';
+    {normal}    plus          = '+';
+    {normal}    minus         = '-';
+    {normal}    multiply      = '*';
+    {normal}    divide        = '/';
+    {normal}    equals        = '=';
+    {normal}    not_equals    = '<>';
+    {normal}    less          = '<';
+    {normal}    less_or_equal = '<=';
+    {normal}    greater       = '>';
+    {normal}    greater_or_equal
+                              = '>=';
+    {normal}    and           = '&';
+    {normal}    or            = '|';
+    {normal}    assign        = ':=';
+
+    //Identifier
+    {normal}    id            = ident_start_char ident_char*;
+
+    //Whitespace
+    {normal}    whitespace    = space | tab | cr | lf | formfeed;
+
+    //Numeric Literal
+    {normal}    int           = digit+;
+
+    //Comment
+    {normal->comment, comment}
+                comment       = comment_head;
+    {comment}   comment_body  = [0x00 .. 0xFFFF];
+    {comment}   comment_end   = comment_tail;
+
+    //String Literal
+    {normal->string}
+                str           = quote;
+    {string}    escape_char   = backslash ('n' | 't' | quote | backslash);
+    {string}    control_char  = backslash 0x5E [0x40 .. 0x5F];
+    {string}    graph_char    = backslash digit digit digit;
+    {string}    simple_char   = [[0x20 .. 0x7E] - [quote + backslash]] | [0x80 .. 0xFFFF];
+    {string}    line_continuer= backslash (space | tab | cr | lf | formfeed)+ backslash;
+    {string}    str_end       = quote;
+
+Ignored Tokens
+    whitespace,
+    comment;
+
+Productions
+    //Concrete Syntax Tree
+
+    grammar                   {-> expr}
+                              =              expr                                {-> expr.expr}
+                              ;
+    
+    expr                      {-> expr}
+                              = {if_then}    if [c]:expr then [t]:expr           {-> New expr.if (c.expr, t.expr, New expr.seq([]))}
+                              | {if_then_else}
+                                             if [c]:expr then [t]:expr6 else [f]:expr
+                                                                                 {-> New expr.if (c.expr, t.expr, f.expr)}
+                                // "if .. then .." is equivalent to "if .. then .. else ()" 
+                              | {array}      id l_brack [i]:expr r_brack of [init]:expr
+                                                                                 {-> New expr.array (id, i.expr, init.expr)}
+                              | {while}      while [c]:expr do [t]:expr          {-> New expr.while (c.expr, t.expr)}
+                              | {for}        for id assign [low]:expr to [upper]:expr do [t]:expr
+                                                                                 {-> New expr.for (id, low.expr, upper.expr, t.expr)}
+                              | {expr}       [s]:expr5                           {-> s.expr}
+                              ;
+
+    expr6                     {-> expr}
+                              = {if_then_else}
+                                             if [c]:expr then [t]:expr6 else [f]:expr6
+                                                                                 {-> New expr.if (c.expr, t.expr, f.expr)}
+                              | {array}      id l_brack [i]:expr r_brack of [init]:expr6
+                                                                                 {-> New expr.array (id, i.expr, init.expr)}
+                              | {while}      while [c]:expr do [t]:expr6        {-> New expr.while (c.expr, t.expr)}
+                              | {for}        for id assign [low]:expr to [upper]:expr do [t]:expr6
+                                                                                 {-> New expr.for (id, low.expr, upper.expr, t.expr)}
+                              | {expr}       [s]:expr5                           {-> s.expr}
+                              ;
+
+    expr5                     {-> expr}
+                              = {assign1}    [l]:lvalue assign [r]:expr41        {-> New expr.assign (l.lvalue, r.expr)}
+                              | {assign2}    [l]:lvalue assign [r]:expr42        {-> New expr.assign (l.lvalue, r.expr)}
+                              | {expr}       [s]:expr3                           {-> s.expr}
+                              ;
+
+    expr42                    {-> expr}
+                              = {or2}        [l]:expr42 or [r]:expr3             {-> New expr.or (l.expr, r.expr) }
+                              | {or1}        [l]:expr3 or [r]:expr3              {-> New expr.or (l.expr, r.expr) }
+                              ;
+
+    expr41                    {-> expr}
+                              = {and2}       [l]:expr41 and [r]:expr3            {-> New expr.and (l.expr, r.expr) }
+                              | {and1}       [l]:expr3 and [r]:expr3             {-> New expr.and (l.expr, r.expr) }
+                              ;
+
+    expr3                     {-> expr}
+                              = {equals}     [l]:expr2 equals [r]:expr2          {-> New expr.equals (l.expr, r.expr) }
+                              | {not_equals} [l]:expr2 not_equals [r]:expr2      {-> New expr.not_equals (l.expr, r.expr) }
+                              | {less}       [l]:expr2 less [r]:expr2            {-> New expr.less (l.expr, r.expr) }
+                              | {less_or_equal}
+                                             [l]:expr2 less_or_equal [r]:expr2   {-> New expr.less_or_equal (l.expr, r.expr) }
+                              | {greater}    [l]:expr2 greater [r]:expr2         {-> New expr.greater (l.expr, r.expr) }
+                              | {greater_or_equal}
+                                             [l]:expr2 greater_or_equal [r]:expr2
+                                                                                 {-> New expr.greater_or_equal (l.expr, r.expr) }
+                              | {expr}       [s]:expr2                           {-> s.expr}
+                              ;
+
+    expr2                     {-> expr}
+                              = {plus}       [l]:expr2 plus [r]:expr1            {-> New expr.plus (l.expr, r.expr) }
+                              | {minus}      [l]:expr2 minus [r]:expr1           {-> New expr.minus (l.expr, r.expr) }
+                              | {expr}       [s]:expr1                           {-> s.expr}
+                              ;
+
+    expr1                     {-> expr}
+                              = {multiply}   [l]:expr1 multiply [r]:expr0        {-> New expr.multiply (l.expr, r.expr) }
+                              | {divide}     [l]:expr1 divide [r]:expr0          {-> New expr.divide (l.expr, r.expr) }
+                              | {expr}       [s]:expr0                           {-> s.expr}
+                              ;
+
+    expr0                     {-> expr}
+                              = {str}        str                                 {-> New expr.str (str)}
+                              | {int}        int                                 {-> New expr.int (int)}
+                              | {nil}        nil                                 {-> New expr.nil ()}
+                              | {lvalue}     lvalue                              {-> New expr.lvalue (lvalue)}
+                              | {negitive}   minus [expr]:expr0                  {-> New expr.negitive (expr.expr)}
+                              | {method}     id l_paren expr_list? r_paren       {-> New expr.method (id, [expr_list.expr])}
+                              | {seq}        l_paren expr_seq? r_paren           {-> New expr.seq ([expr_seq.expr])}
+                              | {record}     id l_curly field_list? r_curly      {-> New expr.record (id, [field_list.field])}
+                              | {break}      break                               {-> New expr.break ()}
+                              | {let}        let declaration_list in expr_seq? end
+                                                                                 {-> New expr.let ([declaration_list.declaration], New expr.seq([expr_seq.expr]))}
+                              ;
+
+    expr_seq                  {-> expr+}
+                              = {single}     expr                                {-> [expr]}
+                              | {list}       expr_seq semicolon expr             {-> [expr_seq.expr, expr]}
+                              ;
+
+    expr_list                 {-> expr+}
+                              = {single}     expr                                {-> [expr]}
+                              | {list}       expr_list comma expr                {-> [expr_list.expr, expr]}
+                              ;
+
+    field_list                {-> field+}
+                              = {single}     field                               {-> [field]}
+                              | {list}       field_list comma field              {-> [field_list.field, field]}
+                              ;
+
+    lvalue                    {-> lvalue}
+                              = {single}     id
+                              | {multi}      multi_lvalue                        {-> multi_lvalue.lvalue}
+                              ;
+
+    multi_lvalue              {-> lvalue}
+                              = {list}       lvalue dot id                       {-> New lvalue.list (lvalue, id)}
+                              | {single}     id l_brack expr r_brack             {-> New lvalue.array (New lvalue.single (id), expr)}
+                              | {multi}      multi_lvalue l_brack expr r_brack   {-> New lvalue.array (multi_lvalue.lvalue, expr)}
+                              ;
+    
+    field                     {-> field}
+                              =              id equals expr                      {-> New field (id, expr)}
+                              ;
+
+    declaration_list          {-> declaration+}
+                              = {single}     declaration                         {-> [declaration]}
+                              | {list}       declaration_list declaration        {-> [declaration_list.declaration, declaration]}
+                              ;
+
+    declaration               {-> declaration}
+                              = {type}       type id equals type_combination     {-> New declaration.type (id, type_combination)}
+                              | {variable_nontyped}
+                                             var id assign expr                  {-> New declaration.variable (id, Null, expr)}
+                              | {variable_typed}
+                                             var id colon simple_type_combination assign expr
+                                                                                 {-> New declaration.variable (id, simple_type_combination.type_combination, expr)}
+                              | {method_procedure}
+                                             function id l_paren type_fields? r_paren equals expr
+                                                                                 {-> New declaration.method (id, [type_fields.type_field], Null, expr)}
+                              | {method_function}
+                                             function id l_paren type_fields? r_paren colon simple_type_combination equals expr
+                                                                                 {-> New declaration.method (id, [type_fields.type_field], simple_type_combination.type_combination, expr)}
+                              ;
+
+    simple_type_combination   {-> type_combination}
+                              = {single}     id                                  {-> New type_combination.single (id)}
+                              ;
+                              
+    type_combination          {-> type_combination}
+                              = {simple_type_combination}
+                                             simple_type_combination             {-> simple_type_combination.type_combination}
+                              | {array}      array of simple_type_combination    {-> New type_combination.array (simple_type_combination.type_combination)}
+                              | {record}     l_curly type_fields? r_curly        {-> New type_combination.record ([type_fields.type_field])}
+                              ;
+
+    type_fields               {-> type_field+}
+                              = {single}     type_field                          {-> [type_field]}    
+                              | {list}       type_fields comma type_field        {-> [type_fields.type_field, type_field]}
+                              ;
+
+    type_field                {-> type_field}
+                              =              [v]:id colon [t]:simple_type_combination
+                                                                                 {-> New type_field (v, t.type_combination)}
+                              ;
+
+Abstract Syntax Tree
+    expr                      = {str}        str
+                              | {int}        int
+                              | {nil}        
+                              | {lvalue}     lvalue
+                              | {negitive}   expr
+                              | {plus}       [l]:expr [r]:expr
+                              | {minus}      [l]:expr [r]:expr
+                              | {multiply}   [l]:expr [r]:expr
+                              | {divide}     [l]:expr [r]:expr
+                              | {equals}     [l]:expr [r]:expr
+                              | {not_equals} [l]:expr [r]:expr
+                              | {less}       [l]:expr [r]:expr
+                              | {less_or_equal}
+                                             [l]:expr [r]:expr
+                              | {greater}    [l]:expr [r]:expr
+                              | {greater_or_equal}
+                                             [l]:expr [r]:expr
+                              | {and}        [l]:expr [r]:expr
+                              | {or}         [l]:expr [r]:expr
+                              | {assign}     [l]:lvalue [r]:expr
+                              | {method}     id expr*
+                              | {seq}        expr*
+                              | {record}     id field*
+                              | {array}      id [i]:expr [init]:expr
+                              | {if}         [c]:expr [t]:expr [f]:expr
+                              | {while}      [c]:expr [t]:expr
+                              | {for}        id [low]:expr [upper]:expr [t]:expr
+                              | {break}      
+                              | {let}        declaration+ expr
+                              ;
+
+    lvalue                    = {single}     id
+                              | {list}       lvalue id
+                              | {array}      lvalue expr
+                              ;
+
+    field                     =              id expr
+                              ;
+
+    declaration               = {type}       id type_combination
+                              | {variable}   id type_combination? expr
+                              | {method}     id type_field* type_combination? expr
+                              ;
+
+    type_combination          = {single}     id
+                              | {array}      type_combination
+                              | {record}     type_field*
+                              ;
+
+    type_field                =              [v]:id [t]:type_combination
+                              ;

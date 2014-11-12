@@ -1,0 +1,15 @@
+let
+	function f1(a:int):int =
+		(a:=a+1;f2(1))
+	function f2(a:int):int = 
+		(a:=a+1;f1(a+1))
+	var a := f1(1)
+	var b := a
+	function f3(a:int):string =
+		(a:=a+1;f1("a"))
+	function f1(a:string):string =
+		(a:="ss";f3(1))
+	var a := f1("a")
+in
+	(a ;b)
+end

@@ -1,0 +1,4 @@
+1216141690453	Rename type 'TokenDeliverer'
+1216141695546	Rename type 'TokenReceiver'
+1216143761109	Rename type 'CardsDelivererAlreadyFinishedException'
+1216145106109	Extract method 'PrintInfo'

@@ -1,0 +1,2192 @@
+Tiger to JVM ByteCode Compiler
+Copyright(C) F.R.C., All rights reserved.
+Licensed under BSD
+
+Lexer Dumping...
+
+Line=1, Column=1, Token=TLet, Text=let
+Line=1, Column=4, Token=TWhitespace
+Line=3, Column=2, Token=TType, Text=type
+Line=3, Column=6, Token=TWhitespace
+Line=3, Column=7, Token=TId, Text=any
+Line=3, Column=10, Token=TWhitespace
+Line=3, Column=11, Token=TEquals, Text==
+Line=3, Column=12, Token=TWhitespace
+Line=3, Column=13, Token=TLCurly, Text={
+Line=3, Column=14, Token=TId, Text=any
+Line=3, Column=17, Token=TWhitespace
+Line=3, Column=18, Token=TColon, Text=:
+Line=3, Column=19, Token=TWhitespace
+Line=3, Column=20, Token=TId, Text=int
+Line=3, Column=23, Token=TRCurly, Text=}
+Line=3, Column=24, Token=TWhitespace
+Line=4, Column=2, Token=TVar, Text=var
+Line=4, Column=5, Token=TWhitespace
+Line=4, Column=6, Token=TId, Text=buffer
+Line=4, Column=12, Token=TWhitespace
+Line=4, Column=13, Token=TAssign, Text=:=
+Line=4, Column=15, Token=TWhitespace
+Line=4, Column=16, Token=TId, Text=getchar
+Line=4, Column=23, Token=TLParen, Text=(
+Line=4, Column=24, Token=TRParen, Text=)
+Line=4, Column=25, Token=TWhitespace
+Line=6, Column=1, Token=TFunction, Text=function
+Line=6, Column=9, Token=TWhitespace
+Line=6, Column=10, Token=TId, Text=readint
+Line=6, Column=17, Token=TLParen, Text=(
+Line=6, Column=18, Token=TId, Text=any
+Line=6, Column=21, Token=TColon, Text=:
+Line=6, Column=22, Token=TWhitespace
+Line=6, Column=23, Token=TId, Text=any
+Line=6, Column=26, Token=TRParen, Text=)
+Line=6, Column=27, Token=TWhitespace
+Line=6, Column=28, Token=TColon, Text=:
+Line=6, Column=29, Token=TWhitespace
+Line=6, Column=30, Token=TId, Text=int
+Line=6, Column=33, Token=TWhitespace
+Line=6, Column=34, Token=TEquals, Text==
+Line=6, Column=35, Token=TWhitespace
+Line=7, Column=2, Token=TLet, Text=let
+Line=7, Column=5, Token=TWhitespace
+Line=7, Column=6, Token=TVar, Text=var
+Line=7, Column=9, Token=TWhitespace
+Line=7, Column=10, Token=TId, Text=i
+Line=7, Column=11, Token=TWhitespace
+Line=7, Column=12, Token=TAssign, Text=:=
+Line=7, Column=14, Token=TWhitespace
+Line=7, Column=15, Token=TInt, Text=0
+Line=7, Column=16, Token=TWhitespace
+Line=8, Column=6, Token=TFunction, Text=function
+Line=8, Column=14, Token=TWhitespace
+Line=8, Column=15, Token=TId, Text=isdigit
+Line=8, Column=22, Token=TLParen, Text=(
+Line=8, Column=23, Token=TId, Text=s
+Line=8, Column=24, Token=TWhitespace
+Line=8, Column=25, Token=TColon, Text=:
+Line=8, Column=26, Token=TWhitespace
+Line=8, Column=27, Token=TId, Text=string
+Line=8, Column=33, Token=TRParen, Text=)
+Line=8, Column=34, Token=TWhitespace
+Line=8, Column=35, Token=TColon, Text=:
+Line=8, Column=36, Token=TWhitespace
+Line=8, Column=37, Token=TId, Text=int
+Line=8, Column=40, Token=TWhitespace
+Line=8, Column=41, Token=TEquals, Text==
+Line=8, Column=42, Token=TWhitespace
+Line=9, Column=11, Token=TId, Text=ord
+Line=9, Column=14, Token=TLParen, Text=(
+Line=9, Column=15, Token=TId, Text=buffer
+Line=9, Column=21, Token=TRParen, Text=)
+Line=9, Column=22, Token=TGreaterOrEqual, Text=>=
+Line=9, Column=24, Token=TId, Text=ord
+Line=9, Column=27, Token=TLParen, Text=(
+Line=9, Column=28, Token=TStr, Text=0
+Line=9, Column=31, Token=TRParen, Text=)
+Line=9, Column=32, Token=TWhitespace
+Line=9, Column=33, Token=TAnd, Text=&
+Line=9, Column=34, Token=TWhitespace
+Line=9, Column=35, Token=TId, Text=ord
+Line=9, Column=38, Token=TLParen, Text=(
+Line=9, Column=39, Token=TId, Text=buffer
+Line=9, Column=45, Token=TRParen, Text=)
+Line=9, Column=46, Token=TLessOrEqual, Text=<=
+Line=9, Column=48, Token=TId, Text=ord
+Line=9, Column=51, Token=TLParen, Text=(
+Line=9, Column=52, Token=TStr, Text=9
+Line=9, Column=55, Token=TRParen, Text=)
+Line=9, Column=56, Token=TWhitespace
+Line=10, Column=6, Token=TFunction, Text=function
+Line=10, Column=14, Token=TWhitespace
+Line=10, Column=15, Token=TId, Text=skipto
+Line=10, Column=21, Token=TLParen, Text=(
+Line=10, Column=22, Token=TRParen, Text=)
+Line=10, Column=23, Token=TWhitespace
+Line=10, Column=24, Token=TEquals, Text==
+Line=10, Column=25, Token=TWhitespace
+Line=11, Column=8, Token=TWhile, Text=while
+Line=11, Column=13, Token=TWhitespace
+Line=11, Column=14, Token=TId, Text=buffer
+Line=11, Column=20, Token=TEquals, Text==
+Line=11, Column=21, Token=TStr, Text= 
+Line=11, Column=24, Token=TWhitespace
+Line=11, Column=25, Token=TOr, Text=|
+Line=11, Column=26, Token=TWhitespace
+Line=11, Column=27, Token=TId, Text=buffer
+Line=11, Column=33, Token=TEquals, Text==
+Line=11, Column=34, Token=TStr, Text=
+
+Line=11, Column=38, Token=TWhitespace
+Line=12, Column=10, Token=TDo, Text=do
+Line=12, Column=12, Token=TWhitespace
+Line=12, Column=13, Token=TId, Text=buffer
+Line=12, Column=19, Token=TWhitespace
+Line=12, Column=20, Token=TAssign, Text=:=
+Line=12, Column=22, Token=TWhitespace
+Line=12, Column=23, Token=TId, Text=getchar
+Line=12, Column=30, Token=TLParen, Text=(
+Line=12, Column=31, Token=TRParen, Text=)
+Line=12, Column=32, Token=TWhitespace
+Line=13, Column=3, Token=TIn, Text=in
+Line=13, Column=5, Token=TWhitespace
+Line=13, Column=6, Token=TId, Text=skipto
+Line=13, Column=12, Token=TLParen, Text=(
+Line=13, Column=13, Token=TRParen, Text=)
+Line=13, Column=14, Token=TSemicolon, Text=;
+Line=13, Column=15, Token=TWhitespace
+Line=14, Column=6, Token=TId, Text=any
+Line=14, Column=9, Token=TDot, Text=.
+Line=14, Column=10, Token=TId, Text=any
+Line=14, Column=13, Token=TWhitespace
+Line=14, Column=14, Token=TAssign, Text=:=
+Line=14, Column=16, Token=TWhitespace
+Line=14, Column=17, Token=TId, Text=isdigit
+Line=14, Column=24, Token=TLParen, Text=(
+Line=14, Column=25, Token=TId, Text=buffer
+Line=14, Column=31, Token=TRParen, Text=)
+Line=14, Column=32, Token=TSemicolon, Text=;
+Line=14, Column=33, Token=TWhitespace
+Line=15, Column=6, Token=TWhile, Text=while
+Line=15, Column=11, Token=TWhitespace
+Line=15, Column=12, Token=TId, Text=isdigit
+Line=15, Column=19, Token=TLParen, Text=(
+Line=15, Column=20, Token=TId, Text=buffer
+Line=15, Column=26, Token=TRParen, Text=)
+Line=15, Column=27, Token=TWhitespace
+Line=16, Column=8, Token=TDo, Text=do
+Line=16, Column=10, Token=TWhitespace
+Line=16, Column=11, Token=TLParen, Text=(
+Line=16, Column=12, Token=TId, Text=i
+Line=16, Column=13, Token=TWhitespace
+Line=16, Column=14, Token=TAssign, Text=:=
+Line=16, Column=16, Token=TWhitespace
+Line=16, Column=17, Token=TId, Text=i
+Line=16, Column=18, Token=TMultiply, Text=*
+Line=16, Column=19, Token=TInt, Text=10
+Line=16, Column=21, Token=TPlus, Text=+
+Line=16, Column=22, Token=TId, Text=ord
+Line=16, Column=25, Token=TLParen, Text=(
+Line=16, Column=26, Token=TId, Text=buffer
+Line=16, Column=32, Token=TRParen, Text=)
+Line=16, Column=33, Token=TMinus, Text=-
+Line=16, Column=34, Token=TId, Text=ord
+Line=16, Column=37, Token=TLParen, Text=(
+Line=16, Column=38, Token=TStr, Text=0
+Line=16, Column=41, Token=TRParen, Text=)
+Line=16, Column=42, Token=TSemicolon, Text=;
+Line=16, Column=43, Token=TWhitespace
+Line=16, Column=44, Token=TId, Text=buffer
+Line=16, Column=50, Token=TWhitespace
+Line=16, Column=51, Token=TAssign, Text=:=
+Line=16, Column=53, Token=TWhitespace
+Line=16, Column=54, Token=TId, Text=getchar
+Line=16, Column=61, Token=TLParen, Text=(
+Line=16, Column=62, Token=TRParen, Text=)
+Line=16, Column=63, Token=TRParen, Text=)
+Line=16, Column=64, Token=TSemicolon, Text=;
+Line=16, Column=65, Token=TWhitespace
+Line=17, Column=6, Token=TId, Text=i
+Line=17, Column=7, Token=TWhitespace
+Line=18, Column=2, Token=TEnd, Text=end
+Line=18, Column=5, Token=TWhitespace
+Line=20, Column=2, Token=TType, Text=type
+Line=20, Column=6, Token=TWhitespace
+Line=20, Column=7, Token=TId, Text=list
+Line=20, Column=11, Token=TWhitespace
+Line=20, Column=12, Token=TEquals, Text==
+Line=20, Column=13, Token=TWhitespace
+Line=20, Column=14, Token=TLCurly, Text={
+Line=20, Column=15, Token=TId, Text=first
+Line=20, Column=20, Token=TColon, Text=:
+Line=20, Column=21, Token=TWhitespace
+Line=20, Column=22, Token=TId, Text=int
+Line=20, Column=25, Token=TComma, Text=,
+Line=20, Column=26, Token=TWhitespace
+Line=20, Column=27, Token=TId, Text=rest
+Line=20, Column=31, Token=TColon, Text=:
+Line=20, Column=32, Token=TWhitespace
+Line=20, Column=33, Token=TId, Text=list
+Line=20, Column=37, Token=TRCurly, Text=}
+Line=20, Column=38, Token=TWhitespace
+Line=22, Column=2, Token=TFunction, Text=function
+Line=22, Column=10, Token=TWhitespace
+Line=22, Column=11, Token=TId, Text=readlist
+Line=22, Column=19, Token=TLParen, Text=(
+Line=22, Column=20, Token=TRParen, Text=)
+Line=22, Column=21, Token=TWhitespace
+Line=22, Column=22, Token=TColon, Text=:
+Line=22, Column=23, Token=TWhitespace
+Line=22, Column=24, Token=TId, Text=list
+Line=22, Column=28, Token=TWhitespace
+Line=22, Column=29, Token=TEquals, Text==
+Line=22, Column=30, Token=TWhitespace
+Line=23, Column=5, Token=TLet, Text=let
+Line=23, Column=8, Token=TWhitespace
+Line=23, Column=9, Token=TVar, Text=var
+Line=23, Column=12, Token=TWhitespace
+Line=23, Column=13, Token=TId, Text=any
+Line=23, Column=16, Token=TWhitespace
+Line=23, Column=17, Token=TAssign, Text=:=
+Line=23, Column=19, Token=TWhitespace
+Line=23, Column=20, Token=TId, Text=any
+Line=23, Column=23, Token=TLCurly, Text={
+Line=23, Column=24, Token=TId, Text=any
+Line=23, Column=27, Token=TEquals, Text==
+Line=23, Column=28, Token=TInt, Text=0
+Line=23, Column=29, Token=TRCurly, Text=}
+Line=23, Column=30, Token=TWhitespace
+Line=24, Column=9, Token=TVar, Text=var
+Line=24, Column=12, Token=TWhitespace
+Line=24, Column=13, Token=TId, Text=i
+Line=24, Column=14, Token=TWhitespace
+Line=24, Column=15, Token=TAssign, Text=:=
+Line=24, Column=17, Token=TWhitespace
+Line=24, Column=18, Token=TId, Text=readint
+Line=24, Column=25, Token=TLParen, Text=(
+Line=24, Column=26, Token=TId, Text=any
+Line=24, Column=29, Token=TRParen, Text=)
+Line=24, Column=30, Token=TWhitespace
+Line=25, Column=6, Token=TIn, Text=in
+Line=25, Column=8, Token=TWhitespace
+Line=25, Column=9, Token=TIf, Text=if
+Line=25, Column=11, Token=TWhitespace
+Line=25, Column=12, Token=TId, Text=any
+Line=25, Column=15, Token=TDot, Text=.
+Line=25, Column=16, Token=TId, Text=any
+Line=25, Column=19, Token=TWhitespace
+Line=26, Column=10, Token=TThen, Text=then
+Line=26, Column=14, Token=TWhitespace
+Line=26, Column=15, Token=TId, Text=list
+Line=26, Column=19, Token=TLCurly, Text={
+Line=26, Column=20, Token=TId, Text=first
+Line=26, Column=25, Token=TEquals, Text==
+Line=26, Column=26, Token=TId, Text=i
+Line=26, Column=27, Token=TComma, Text=,
+Line=26, Column=28, Token=TId, Text=rest
+Line=26, Column=32, Token=TEquals, Text==
+Line=26, Column=33, Token=TId, Text=readlist
+Line=26, Column=41, Token=TLParen, Text=(
+Line=26, Column=42, Token=TRParen, Text=)
+Line=26, Column=43, Token=TRCurly, Text=}
+Line=26, Column=44, Token=TWhitespace
+Line=27, Column=10, Token=TElse, Text=else
+Line=27, Column=14, Token=TWhitespace
+Line=27, Column=15, Token=TNil, Text=nil
+Line=27, Column=18, Token=TWhitespace
+Line=28, Column=5, Token=TEnd, Text=end
+Line=28, Column=8, Token=TWhitespace
+Line=30, Column=2, Token=TFunction, Text=function
+Line=30, Column=10, Token=TWhitespace
+Line=30, Column=11, Token=TId, Text=merge
+Line=30, Column=16, Token=TLParen, Text=(
+Line=30, Column=17, Token=TId, Text=a
+Line=30, Column=18, Token=TColon, Text=:
+Line=30, Column=19, Token=TWhitespace
+Line=30, Column=20, Token=TId, Text=list
+Line=30, Column=24, Token=TComma, Text=,
+Line=30, Column=25, Token=TWhitespace
+Line=30, Column=26, Token=TId, Text=b
+Line=30, Column=27, Token=TColon, Text=:
+Line=30, Column=28, Token=TWhitespace
+Line=30, Column=29, Token=TId, Text=list
+Line=30, Column=33, Token=TRParen, Text=)
+Line=30, Column=34, Token=TWhitespace
+Line=30, Column=35, Token=TColon, Text=:
+Line=30, Column=36, Token=TWhitespace
+Line=30, Column=37, Token=TId, Text=list
+Line=30, Column=41, Token=TWhitespace
+Line=30, Column=42, Token=TEquals, Text==
+Line=30, Column=43, Token=TWhitespace
+Line=31, Column=4, Token=TIf, Text=if
+Line=31, Column=6, Token=TWhitespace
+Line=31, Column=7, Token=TId, Text=a
+Line=31, Column=8, Token=TEquals, Text==
+Line=31, Column=9, Token=TNil, Text=nil
+Line=31, Column=12, Token=TWhitespace
+Line=31, Column=13, Token=TThen, Text=then
+Line=31, Column=17, Token=TWhitespace
+Line=31, Column=18, Token=TId, Text=b
+Line=31, Column=19, Token=TWhitespace
+Line=32, Column=4, Token=TElse, Text=else
+Line=32, Column=8, Token=TWhitespace
+Line=32, Column=9, Token=TIf, Text=if
+Line=32, Column=11, Token=TWhitespace
+Line=32, Column=12, Token=TId, Text=b
+Line=32, Column=13, Token=TEquals, Text==
+Line=32, Column=14, Token=TNil, Text=nil
+Line=32, Column=17, Token=TWhitespace
+Line=32, Column=18, Token=TThen, Text=then
+Line=32, Column=22, Token=TWhitespace
+Line=32, Column=23, Token=TId, Text=a
+Line=32, Column=24, Token=TWhitespace
+Line=33, Column=4, Token=TElse, Text=else
+Line=33, Column=8, Token=TWhitespace
+Line=33, Column=9, Token=TIf, Text=if
+Line=33, Column=11, Token=TWhitespace
+Line=33, Column=12, Token=TId, Text=a
+Line=33, Column=13, Token=TDot, Text=.
+Line=33, Column=14, Token=TId, Text=first
+Line=33, Column=19, Token=TWhitespace
+Line=33, Column=20, Token=TLess, Text=<
+Line=33, Column=21, Token=TWhitespace
+Line=33, Column=22, Token=TId, Text=b
+Line=33, Column=23, Token=TDot, Text=.
+Line=33, Column=24, Token=TId, Text=first
+Line=33, Column=29, Token=TWhitespace
+Line=34, Column=7, Token=TThen, Text=then
+Line=34, Column=11, Token=TWhitespace
+Line=34, Column=12, Token=TId, Text=list
+Line=34, Column=16, Token=TLCurly, Text={
+Line=34, Column=17, Token=TId, Text=first
+Line=34, Column=22, Token=TEquals, Text==
+Line=34, Column=23, Token=TId, Text=a
+Line=34, Column=24, Token=TDot, Text=.
+Line=34, Column=25, Token=TId, Text=first
+Line=34, Column=30, Token=TComma, Text=,
+Line=34, Column=31, Token=TId, Text=rest
+Line=34, Column=35, Token=TEquals, Text==
+Line=34, Column=36, Token=TId, Text=merge
+Line=34, Column=41, Token=TLParen, Text=(
+Line=34, Column=42, Token=TId, Text=a
+Line=34, Column=43, Token=TDot, Text=.
+Line=34, Column=44, Token=TId, Text=rest
+Line=34, Column=48, Token=TComma, Text=,
+Line=34, Column=49, Token=TId, Text=b
+Line=34, Column=50, Token=TRParen, Text=)
+Line=34, Column=51, Token=TRCurly, Text=}
+Line=34, Column=52, Token=TWhitespace
+Line=35, Column=7, Token=TElse, Text=else
+Line=35, Column=11, Token=TWhitespace
+Line=35, Column=12, Token=TId, Text=list
+Line=35, Column=16, Token=TLCurly, Text={
+Line=35, Column=17, Token=TId, Text=first
+Line=35, Column=22, Token=TEquals, Text==
+Line=35, Column=23, Token=TId, Text=b
+Line=35, Column=24, Token=TDot, Text=.
+Line=35, Column=25, Token=TId, Text=first
+Line=35, Column=30, Token=TComma, Text=,
+Line=35, Column=31, Token=TId, Text=rest
+Line=35, Column=35, Token=TEquals, Text==
+Line=35, Column=36, Token=TId, Text=merge
+Line=35, Column=41, Token=TLParen, Text=(
+Line=35, Column=42, Token=TId, Text=a
+Line=35, Column=43, Token=TComma, Text=,
+Line=35, Column=44, Token=TId, Text=b
+Line=35, Column=45, Token=TDot, Text=.
+Line=35, Column=46, Token=TId, Text=rest
+Line=35, Column=50, Token=TRParen, Text=)
+Line=35, Column=51, Token=TRCurly, Text=}
+Line=35, Column=52, Token=TWhitespace
+Line=37, Column=2, Token=TFunction, Text=function
+Line=37, Column=10, Token=TWhitespace
+Line=37, Column=11, Token=TId, Text=printint
+Line=37, Column=19, Token=TLParen, Text=(
+Line=37, Column=20, Token=TId, Text=i
+Line=37, Column=21, Token=TColon, Text=:
+Line=37, Column=22, Token=TWhitespace
+Line=37, Column=23, Token=TId, Text=int
+Line=37, Column=26, Token=TRParen, Text=)
+Line=37, Column=27, Token=TWhitespace
+Line=37, Column=28, Token=TEquals, Text==
+Line=37, Column=29, Token=TWhitespace
+Line=38, Column=3, Token=TLet, Text=let
+Line=38, Column=6, Token=TWhitespace
+Line=38, Column=7, Token=TFunction, Text=function
+Line=38, Column=15, Token=TWhitespace
+Line=38, Column=16, Token=TId, Text=f
+Line=38, Column=17, Token=TLParen, Text=(
+Line=38, Column=18, Token=TId, Text=i
+Line=38, Column=19, Token=TColon, Text=:
+Line=38, Column=20, Token=TId, Text=int
+Line=38, Column=23, Token=TRParen, Text=)
+Line=38, Column=24, Token=TWhitespace
+Line=38, Column=25, Token=TEquals, Text==
+Line=38, Column=26, Token=TWhitespace
+Line=38, Column=27, Token=TIf, Text=if
+Line=38, Column=29, Token=TWhitespace
+Line=38, Column=30, Token=TId, Text=i
+Line=38, Column=31, Token=TGreater, Text=>
+Line=38, Column=32, Token=TInt, Text=0
+Line=38, Column=33, Token=TWhitespace
+Line=39, Column=10, Token=TThen, Text=then
+Line=39, Column=14, Token=TWhitespace
+Line=39, Column=15, Token=TLParen, Text=(
+Line=39, Column=16, Token=TId, Text=f
+Line=39, Column=17, Token=TLParen, Text=(
+Line=39, Column=18, Token=TId, Text=i
+Line=39, Column=19, Token=TDivide, Text=/
+Line=39, Column=20, Token=TInt, Text=10
+Line=39, Column=22, Token=TRParen, Text=)
+Line=39, Column=23, Token=TSemicolon, Text=;
+Line=39, Column=24, Token=TWhitespace
+Line=39, Column=25, Token=TId, Text=print
+Line=39, Column=30, Token=TLParen, Text=(
+Line=39, Column=31, Token=TId, Text=chr
+Line=39, Column=34, Token=TLParen, Text=(
+Line=39, Column=35, Token=TId, Text=i
+Line=39, Column=36, Token=TMinus, Text=-
+Line=39, Column=37, Token=TId, Text=i
+Line=39, Column=38, Token=TDivide, Text=/
+Line=39, Column=39, Token=TInt, Text=10
+Line=39, Column=41, Token=TMultiply, Text=*
+Line=39, Column=42, Token=TInt, Text=10
+Line=39, Column=44, Token=TPlus, Text=+
+Line=39, Column=45, Token=TId, Text=ord
+Line=39, Column=48, Token=TLParen, Text=(
+Line=39, Column=49, Token=TStr, Text=0
+Line=39, Column=52, Token=TRParen, Text=)
+Line=39, Column=53, Token=TRParen, Text=)
+Line=39, Column=54, Token=TRParen, Text=)
+Line=39, Column=55, Token=TRParen, Text=)
+Line=39, Column=56, Token=TWhitespace
+Line=40, Column=4, Token=TIn, Text=in
+Line=40, Column=6, Token=TWhitespace
+Line=40, Column=7, Token=TIf, Text=if
+Line=40, Column=9, Token=TWhitespace
+Line=40, Column=10, Token=TId, Text=i
+Line=40, Column=11, Token=TLess, Text=<
+Line=40, Column=12, Token=TInt, Text=0
+Line=40, Column=13, Token=TWhitespace
+Line=40, Column=14, Token=TThen, Text=then
+Line=40, Column=18, Token=TWhitespace
+Line=40, Column=19, Token=TLParen, Text=(
+Line=40, Column=20, Token=TId, Text=print
+Line=40, Column=25, Token=TLParen, Text=(
+Line=40, Column=26, Token=TStr, Text=-
+Line=40, Column=29, Token=TRParen, Text=)
+Line=40, Column=30, Token=TSemicolon, Text=;
+Line=40, Column=31, Token=TWhitespace
+Line=40, Column=32, Token=TId, Text=f
+Line=40, Column=33, Token=TLParen, Text=(
+Line=40, Column=34, Token=TMinus, Text=-
+Line=40, Column=35, Token=TId, Text=i
+Line=40, Column=36, Token=TRParen, Text=)
+Line=40, Column=37, Token=TRParen, Text=)
+Line=40, Column=38, Token=TWhitespace
+Line=41, Column=7, Token=TElse, Text=else
+Line=41, Column=11, Token=TWhitespace
+Line=41, Column=12, Token=TIf, Text=if
+Line=41, Column=14, Token=TWhitespace
+Line=41, Column=15, Token=TId, Text=i
+Line=41, Column=16, Token=TGreater, Text=>
+Line=41, Column=17, Token=TInt, Text=0
+Line=41, Column=18, Token=TWhitespace
+Line=41, Column=19, Token=TThen, Text=then
+Line=41, Column=23, Token=TWhitespace
+Line=41, Column=24, Token=TId, Text=f
+Line=41, Column=25, Token=TLParen, Text=(
+Line=41, Column=26, Token=TId, Text=i
+Line=41, Column=27, Token=TRParen, Text=)
+Line=41, Column=28, Token=TWhitespace
+Line=42, Column=7, Token=TElse, Text=else
+Line=42, Column=11, Token=TWhitespace
+Line=42, Column=12, Token=TId, Text=print
+Line=42, Column=17, Token=TLParen, Text=(
+Line=42, Column=18, Token=TStr, Text=0
+Line=42, Column=21, Token=TRParen, Text=)
+Line=42, Column=22, Token=TWhitespace
+Line=43, Column=3, Token=TEnd, Text=end
+Line=43, Column=6, Token=TWhitespace
+Line=45, Column=2, Token=TFunction, Text=function
+Line=45, Column=10, Token=TWhitespace
+Line=45, Column=11, Token=TId, Text=printlist
+Line=45, Column=20, Token=TLParen, Text=(
+Line=45, Column=21, Token=TId, Text=l
+Line=45, Column=22, Token=TColon, Text=:
+Line=45, Column=23, Token=TWhitespace
+Line=45, Column=24, Token=TId, Text=list
+Line=45, Column=28, Token=TRParen, Text=)
+Line=45, Column=29, Token=TWhitespace
+Line=45, Column=30, Token=TEquals, Text==
+Line=45, Column=31, Token=TWhitespace
+Line=46, Column=4, Token=TIf, Text=if
+Line=46, Column=6, Token=TWhitespace
+Line=46, Column=7, Token=TId, Text=l
+Line=46, Column=8, Token=TEquals, Text==
+Line=46, Column=9, Token=TNil, Text=nil
+Line=46, Column=12, Token=TWhitespace
+Line=46, Column=13, Token=TThen, Text=then
+Line=46, Column=17, Token=TWhitespace
+Line=46, Column=18, Token=TId, Text=print
+Line=46, Column=23, Token=TLParen, Text=(
+Line=46, Column=24, Token=TStr, Text=
+
+Line=46, Column=28, Token=TRParen, Text=)
+Line=46, Column=29, Token=TWhitespace
+Line=47, Column=4, Token=TElse, Text=else
+Line=47, Column=8, Token=TWhitespace
+Line=47, Column=9, Token=TLParen, Text=(
+Line=47, Column=10, Token=TId, Text=printint
+Line=47, Column=18, Token=TLParen, Text=(
+Line=47, Column=19, Token=TId, Text=l
+Line=47, Column=20, Token=TDot, Text=.
+Line=47, Column=21, Token=TId, Text=first
+Line=47, Column=26, Token=TRParen, Text=)
+Line=47, Column=27, Token=TSemicolon, Text=;
+Line=47, Column=28, Token=TWhitespace
+Line=47, Column=29, Token=TId, Text=print
+Line=47, Column=34, Token=TLParen, Text=(
+Line=47, Column=35, Token=TStr, Text= 
+Line=47, Column=38, Token=TRParen, Text=)
+Line=47, Column=39, Token=TSemicolon, Text=;
+Line=47, Column=40, Token=TWhitespace
+Line=47, Column=41, Token=TId, Text=printlist
+Line=47, Column=50, Token=TLParen, Text=(
+Line=47, Column=51, Token=TId, Text=l
+Line=47, Column=52, Token=TDot, Text=.
+Line=47, Column=53, Token=TId, Text=rest
+Line=47, Column=57, Token=TRParen, Text=)
+Line=47, Column=58, Token=TRParen, Text=)
+Line=47, Column=59, Token=TWhitespace
+Line=49, Column=4, Token=TVar, Text=var
+Line=49, Column=7, Token=TWhitespace
+Line=49, Column=8, Token=TId, Text=list1
+Line=49, Column=13, Token=TWhitespace
+Line=49, Column=14, Token=TAssign, Text=:=
+Line=49, Column=16, Token=TWhitespace
+Line=49, Column=17, Token=TId, Text=readlist
+Line=49, Column=25, Token=TLParen, Text=(
+Line=49, Column=26, Token=TRParen, Text=)
+Line=49, Column=27, Token=TWhitespace
+Line=50, Column=4, Token=TVar, Text=var
+Line=50, Column=7, Token=TWhitespace
+Line=50, Column=8, Token=TId, Text=list2
+Line=50, Column=13, Token=TWhitespace
+Line=50, Column=14, Token=TAssign, Text=:=
+Line=50, Column=16, Token=TWhitespace
+Line=50, Column=17, Token=TLParen, Text=(
+Line=50, Column=18, Token=TId, Text=buffer
+Line=50, Column=24, Token=TAssign, Text=:=
+Line=50, Column=26, Token=TId, Text=getchar
+Line=50, Column=33, Token=TLParen, Text=(
+Line=50, Column=34, Token=TRParen, Text=)
+Line=50, Column=35, Token=TSemicolon, Text=;
+Line=50, Column=36, Token=TWhitespace
+Line=50, Column=37, Token=TId, Text=readlist
+Line=50, Column=45, Token=TLParen, Text=(
+Line=50, Column=46, Token=TRParen, Text=)
+Line=50, Column=47, Token=TRParen, Text=)
+Line=50, Column=48, Token=TWhitespace
+Line=53, Column=3, Token=TComment, Text=/* BODY OF MAIN PROGRAM */
+Line=53, Column=29, Token=TWhitespace
+Line=54, Column=2, Token=TIn, Text=in
+Line=54, Column=4, Token=TWhitespace
+Line=54, Column=5, Token=TId, Text=printlist
+Line=54, Column=14, Token=TLParen, Text=(
+Line=54, Column=15, Token=TId, Text=merge
+Line=54, Column=20, Token=TLParen, Text=(
+Line=54, Column=21, Token=TId, Text=list1
+Line=54, Column=26, Token=TComma, Text=,
+Line=54, Column=27, Token=TId, Text=list2
+Line=54, Column=32, Token=TRParen, Text=)
+Line=54, Column=33, Token=TRParen, Text=)
+Line=54, Column=34, Token=TWhitespace
+Line=55, Column=1, Token=TEnd, Text=end
+Line=55, Column=4, Token=TWhitespace
+
+Parser Dumping...
+
+[1, 1]
+ALetExpr
+
+    [3, 2]
+    ATypeDeclaration
+
+        [3, 7]
+        id ( any )
+
+        [3, 13]
+        ARecordTypeCombination
+
+            [3, 14]
+            ATypeField
+
+                [3, 14]
+                id ( any )
+
+                [3, 20]
+                ASingleTypeCombination
+
+                    [3, 20]
+                    id ( int )
+
+    [4, 2]
+    AVariableDeclaration
+
+        [4, 6]
+        id ( buffer )
+
+        [4, 16]
+        AMethodExpr
+
+            [4, 16]
+            id ( getchar )
+
+    [6, 1]
+    AMethodDeclaration
+
+        [6, 10]
+        id ( readint )
+
+        [6, 18]
+        ATypeField
+
+            [6, 18]
+            id ( any )
+
+            [6, 23]
+            ASingleTypeCombination
+
+                [6, 23]
+                id ( any )
+
+        [6, 30]
+        ASingleTypeCombination
+
+            [6, 30]
+            id ( int )
+
+        [7, 2]
+        ALetExpr
+
+            [7, 6]
+            AVariableDeclaration
+
+                [7, 10]
+                id ( i )
+
+                [7, 15]
+                AIntExpr
+
+                    [7, 15]
+                    int ( 0 )
+
+            [8, 6]
+            AMethodDeclaration
+
+                [8, 15]
+                id ( isdigit )
+
+                [8, 23]
+                ATypeField
+
+                    [8, 23]
+                    id ( s )
+
+                    [8, 27]
+                    ASingleTypeCombination
+
+                        [8, 27]
+                        id ( string )
+
+                [8, 37]
+                ASingleTypeCombination
+
+                    [8, 37]
+                    id ( int )
+
+                [9, 11]
+                AAndExpr
+
+                    [9, 11]
+                    AGreaterOrEqualExpr
+
+                        [9, 11]
+                        AMethodExpr
+
+                            [9, 11]
+                            id ( ord )
+
+                            [9, 15]
+                            ALvalueExpr
+
+                                [9, 15]
+                                ASingleLvalue
+
+                                    [9, 15]
+                                    id ( buffer )
+
+                        [9, 24]
+                        AMethodExpr
+
+                            [9, 24]
+                            id ( ord )
+
+                            [9, 28]
+                            AStrExpr
+
+                                [9, 28]
+                                str ( "0" )
+
+                    [9, 35]
+                    ALessOrEqualExpr
+
+                        [9, 35]
+                        AMethodExpr
+
+                            [9, 35]
+                            id ( ord )
+
+                            [9, 39]
+                            ALvalueExpr
+
+                                [9, 39]
+                                ASingleLvalue
+
+                                    [9, 39]
+                                    id ( buffer )
+
+                        [9, 48]
+                        AMethodExpr
+
+                            [9, 48]
+                            id ( ord )
+
+                            [9, 52]
+                            AStrExpr
+
+                                [9, 52]
+                                str ( "9" )
+
+            [10, 6]
+            AMethodDeclaration
+
+                [10, 15]
+                id ( skipto )
+
+                [11, 8]
+                AWhileExpr
+
+                    [11, 14]
+                    AOrExpr
+
+                        [11, 14]
+                        AEqualsExpr
+
+                            [11, 14]
+                            ALvalueExpr
+
+                                [11, 14]
+                                ASingleLvalue
+
+                                    [11, 14]
+                                    id ( buffer )
+
+                            [11, 21]
+                            AStrExpr
+
+                                [11, 21]
+                                str ( " " )
+
+                        [11, 27]
+                        AEqualsExpr
+
+                            [11, 27]
+                            ALvalueExpr
+
+                                [11, 27]
+                                ASingleLvalue
+
+                                    [11, 27]
+                                    id ( buffer )
+
+                            [11, 34]
+                            AStrExpr
+
+                                [11, 34]
+                                str ( "
+" )
+
+                    [12, 13]
+                    AAssignExpr
+
+                        [12, 13]
+                        ASingleLvalue
+
+                            [12, 13]
+                            id ( buffer )
+
+                        [12, 23]
+                        AMethodExpr
+
+                            [12, 23]
+                            id ( getchar )
+
+            [13, 6]
+            ASeqExpr
+
+                [13, 6]
+                AMethodExpr
+
+                    [13, 6]
+                    id ( skipto )
+
+                [14, 6]
+                AAssignExpr
+
+                    [14, 6]
+                    AListLvalue
+
+                        [14, 6]
+                        ASingleLvalue
+
+                            [14, 6]
+                            id ( any )
+
+                        [14, 10]
+                        id ( any )
+
+                    [14, 17]
+                    AMethodExpr
+
+                        [14, 17]
+                        id ( isdigit )
+
+                        [14, 25]
+                        ALvalueExpr
+
+                            [14, 25]
+                            ASingleLvalue
+
+                                [14, 25]
+                                id ( buffer )
+
+                [15, 6]
+                AWhileExpr
+
+                    [15, 12]
+                    AMethodExpr
+
+                        [15, 12]
+                        id ( isdigit )
+
+                        [15, 20]
+                        ALvalueExpr
+
+                            [15, 20]
+                            ASingleLvalue
+
+                                [15, 20]
+                                id ( buffer )
+
+                    [16, 11]
+                    ASeqExpr
+
+                        [16, 12]
+                        AAssignExpr
+
+                            [16, 12]
+                            ASingleLvalue
+
+                                [16, 12]
+                                id ( i )
+
+                            [16, 17]
+                            AMinusExpr
+
+                                [16, 17]
+                                APlusExpr
+
+                                    [16, 17]
+                                    AMultiplyExpr
+
+                                        [16, 17]
+                                        ALvalueExpr
+
+                                            [16, 17]
+                                            ASingleLvalue
+
+                                                [16, 17]
+                                                id ( i )
+
+                                        [16, 19]
+                                        AIntExpr
+
+                                            [16, 19]
+                                            int ( 10 )
+
+                                    [16, 22]
+                                    AMethodExpr
+
+                                        [16, 22]
+                                        id ( ord )
+
+                                        [16, 26]
+                                        ALvalueExpr
+
+                                            [16, 26]
+                                            ASingleLvalue
+
+                                                [16, 26]
+                                                id ( buffer )
+
+                                [16, 34]
+                                AMethodExpr
+
+                                    [16, 34]
+                                    id ( ord )
+
+                                    [16, 38]
+                                    AStrExpr
+
+                                        [16, 38]
+                                        str ( "0" )
+
+                        [16, 44]
+                        AAssignExpr
+
+                            [16, 44]
+                            ASingleLvalue
+
+                                [16, 44]
+                                id ( buffer )
+
+                            [16, 54]
+                            AMethodExpr
+
+                                [16, 54]
+                                id ( getchar )
+
+                [17, 6]
+                ALvalueExpr
+
+                    [17, 6]
+                    ASingleLvalue
+
+                        [17, 6]
+                        id ( i )
+
+    [20, 2]
+    ATypeDeclaration
+
+        [20, 7]
+        id ( list )
+
+        [20, 14]
+        ARecordTypeCombination
+
+            [20, 15]
+            ATypeField
+
+                [20, 15]
+                id ( first )
+
+                [20, 22]
+                ASingleTypeCombination
+
+                    [20, 22]
+                    id ( int )
+
+            [20, 27]
+            ATypeField
+
+                [20, 27]
+                id ( rest )
+
+                [20, 33]
+                ASingleTypeCombination
+
+                    [20, 33]
+                    id ( list )
+
+    [22, 2]
+    AMethodDeclaration
+
+        [22, 11]
+        id ( readlist )
+
+        [22, 24]
+        ASingleTypeCombination
+
+            [22, 24]
+            id ( list )
+
+        [23, 5]
+        ALetExpr
+
+            [23, 9]
+            AVariableDeclaration
+
+                [23, 13]
+                id ( any )
+
+                [23, 20]
+                ARecordExpr
+
+                    [23, 20]
+                    id ( any )
+
+                    [23, 24]
+                    AField
+
+                        [23, 24]
+                        id ( any )
+
+                        [23, 28]
+                        AIntExpr
+
+                            [23, 28]
+                            int ( 0 )
+
+            [24, 9]
+            AVariableDeclaration
+
+                [24, 13]
+                id ( i )
+
+                [24, 18]
+                AMethodExpr
+
+                    [24, 18]
+                    id ( readint )
+
+                    [24, 26]
+                    ALvalueExpr
+
+                        [24, 26]
+                        ASingleLvalue
+
+                            [24, 26]
+                            id ( any )
+
+            [25, 9]
+            ASeqExpr
+
+                [25, 9]
+                AIfExpr
+
+                    [25, 12]
+                    ALvalueExpr
+
+                        [25, 12]
+                        AListLvalue
+
+                            [25, 12]
+                            ASingleLvalue
+
+                                [25, 12]
+                                id ( any )
+
+                            [25, 16]
+                            id ( any )
+
+                    [26, 15]
+                    ARecordExpr
+
+                        [26, 15]
+                        id ( list )
+
+                        [26, 20]
+                        AField
+
+                            [26, 20]
+                            id ( first )
+
+                            [26, 26]
+                            ALvalueExpr
+
+                                [26, 26]
+                                ASingleLvalue
+
+                                    [26, 26]
+                                    id ( i )
+
+                        [26, 28]
+                        AField
+
+                            [26, 28]
+                            id ( rest )
+
+                            [26, 33]
+                            AMethodExpr
+
+                                [26, 33]
+                                id ( readlist )
+
+                    [27, 15]
+                    ANilExpr
+
+    [30, 2]
+    AMethodDeclaration
+
+        [30, 11]
+        id ( merge )
+
+        [30, 17]
+        ATypeField
+
+            [30, 17]
+            id ( a )
+
+            [30, 20]
+            ASingleTypeCombination
+
+                [30, 20]
+                id ( list )
+
+        [30, 26]
+        ATypeField
+
+            [30, 26]
+            id ( b )
+
+            [30, 29]
+            ASingleTypeCombination
+
+                [30, 29]
+                id ( list )
+
+        [30, 37]
+        ASingleTypeCombination
+
+            [30, 37]
+            id ( list )
+
+        [31, 4]
+        AIfExpr
+
+            [31, 7]
+            AEqualsExpr
+
+                [31, 7]
+                ALvalueExpr
+
+                    [31, 7]
+                    ASingleLvalue
+
+                        [31, 7]
+                        id ( a )
+
+                [31, 9]
+                ANilExpr
+
+            [31, 18]
+            ALvalueExpr
+
+                [31, 18]
+                ASingleLvalue
+
+                    [31, 18]
+                    id ( b )
+
+            [32, 9]
+            AIfExpr
+
+                [32, 12]
+                AEqualsExpr
+
+                    [32, 12]
+                    ALvalueExpr
+
+                        [32, 12]
+                        ASingleLvalue
+
+                            [32, 12]
+                            id ( b )
+
+                    [32, 14]
+                    ANilExpr
+
+                [32, 23]
+                ALvalueExpr
+
+                    [32, 23]
+                    ASingleLvalue
+
+                        [32, 23]
+                        id ( a )
+
+                [33, 9]
+                AIfExpr
+
+                    [33, 12]
+                    ALessExpr
+
+                        [33, 12]
+                        ALvalueExpr
+
+                            [33, 12]
+                            AListLvalue
+
+                                [33, 12]
+                                ASingleLvalue
+
+                                    [33, 12]
+                                    id ( a )
+
+                                [33, 14]
+                                id ( first )
+
+                        [33, 22]
+                        ALvalueExpr
+
+                            [33, 22]
+                            AListLvalue
+
+                                [33, 22]
+                                ASingleLvalue
+
+                                    [33, 22]
+                                    id ( b )
+
+                                [33, 24]
+                                id ( first )
+
+                    [34, 12]
+                    ARecordExpr
+
+                        [34, 12]
+                        id ( list )
+
+                        [34, 17]
+                        AField
+
+                            [34, 17]
+                            id ( first )
+
+                            [34, 23]
+                            ALvalueExpr
+
+                                [34, 23]
+                                AListLvalue
+
+                                    [34, 23]
+                                    ASingleLvalue
+
+                                        [34, 23]
+                                        id ( a )
+
+                                    [34, 25]
+                                    id ( first )
+
+                        [34, 31]
+                        AField
+
+                            [34, 31]
+                            id ( rest )
+
+                            [34, 36]
+                            AMethodExpr
+
+                                [34, 36]
+                                id ( merge )
+
+                                [34, 42]
+                                ALvalueExpr
+
+                                    [34, 42]
+                                    AListLvalue
+
+                                        [34, 42]
+                                        ASingleLvalue
+
+                                            [34, 42]
+                                            id ( a )
+
+                                        [34, 44]
+                                        id ( rest )
+
+                                [34, 49]
+                                ALvalueExpr
+
+                                    [34, 49]
+                                    ASingleLvalue
+
+                                        [34, 49]
+                                        id ( b )
+
+                    [35, 12]
+                    ARecordExpr
+
+                        [35, 12]
+                        id ( list )
+
+                        [35, 17]
+                        AField
+
+                            [35, 17]
+                            id ( first )
+
+                            [35, 23]
+                            ALvalueExpr
+
+                                [35, 23]
+                                AListLvalue
+
+                                    [35, 23]
+                                    ASingleLvalue
+
+                                        [35, 23]
+                                        id ( b )
+
+                                    [35, 25]
+                                    id ( first )
+
+                        [35, 31]
+                        AField
+
+                            [35, 31]
+                            id ( rest )
+
+                            [35, 36]
+                            AMethodExpr
+
+                                [35, 36]
+                                id ( merge )
+
+                                [35, 42]
+                                ALvalueExpr
+
+                                    [35, 42]
+                                    ASingleLvalue
+
+                                        [35, 42]
+                                        id ( a )
+
+                                [35, 44]
+                                ALvalueExpr
+
+                                    [35, 44]
+                                    AListLvalue
+
+                                        [35, 44]
+                                        ASingleLvalue
+
+                                            [35, 44]
+                                            id ( b )
+
+                                        [35, 46]
+                                        id ( rest )
+
+    [37, 2]
+    AMethodDeclaration
+
+        [37, 11]
+        id ( printint )
+
+        [37, 20]
+        ATypeField
+
+            [37, 20]
+            id ( i )
+
+            [37, 23]
+            ASingleTypeCombination
+
+                [37, 23]
+                id ( int )
+
+        [38, 3]
+        ALetExpr
+
+            [38, 7]
+            AMethodDeclaration
+
+                [38, 16]
+                id ( f )
+
+                [38, 18]
+                ATypeField
+
+                    [38, 18]
+                    id ( i )
+
+                    [38, 20]
+                    ASingleTypeCombination
+
+                        [38, 20]
+                        id ( int )
+
+                [38, 27]
+                AIfExpr
+
+                    [38, 30]
+                    AGreaterExpr
+
+                        [38, 30]
+                        ALvalueExpr
+
+                            [38, 30]
+                            ASingleLvalue
+
+                                [38, 30]
+                                id ( i )
+
+                        [38, 32]
+                        AIntExpr
+
+                            [38, 32]
+                            int ( 0 )
+
+                    [39, 15]
+                    ASeqExpr
+
+                        [39, 16]
+                        AMethodExpr
+
+                            [39, 16]
+                            id ( f )
+
+                            [39, 18]
+                            ADivideExpr
+
+                                [39, 18]
+                                ALvalueExpr
+
+                                    [39, 18]
+                                    ASingleLvalue
+
+                                        [39, 18]
+                                        id ( i )
+
+                                [39, 20]
+                                AIntExpr
+
+                                    [39, 20]
+                                    int ( 10 )
+
+                        [39, 25]
+                        AMethodExpr
+
+                            [39, 25]
+                            id ( print )
+
+                            [39, 31]
+                            AMethodExpr
+
+                                [39, 31]
+                                id ( chr )
+
+                                [39, 35]
+                                APlusExpr
+
+                                    [39, 35]
+                                    AMinusExpr
+
+                                        [39, 35]
+                                        ALvalueExpr
+
+                                            [39, 35]
+                                            ASingleLvalue
+
+                                                [39, 35]
+                                                id ( i )
+
+                                        [39, 37]
+                                        AMultiplyExpr
+
+                                            [39, 37]
+                                            ADivideExpr
+
+                                                [39, 37]
+                                                ALvalueExpr
+
+                                                    [39, 37]
+                                                    ASingleLvalue
+
+                                                        [39, 37]
+                                                        id ( i )
+
+                                                [39, 39]
+                                                AIntExpr
+
+                                                    [39, 39]
+                                                    int ( 10 )
+
+                                            [39, 42]
+                                            AIntExpr
+
+                                                [39, 42]
+                                                int ( 10 )
+
+                                    [39, 45]
+                                    AMethodExpr
+
+                                        [39, 45]
+                                        id ( ord )
+
+                                        [39, 49]
+                                        AStrExpr
+
+                                            [39, 49]
+                                            str ( "0" )
+
+                    [40, 4]
+                    ASeqExpr
+
+            [40, 7]
+            ASeqExpr
+
+                [40, 7]
+                AIfExpr
+
+                    [40, 10]
+                    ALessExpr
+
+                        [40, 10]
+                        ALvalueExpr
+
+                            [40, 10]
+                            ASingleLvalue
+
+                                [40, 10]
+                                id ( i )
+
+                        [40, 12]
+                        AIntExpr
+
+                            [40, 12]
+                            int ( 0 )
+
+                    [40, 19]
+                    ASeqExpr
+
+                        [40, 20]
+                        AMethodExpr
+
+                            [40, 20]
+                            id ( print )
+
+                            [40, 26]
+                            AStrExpr
+
+                                [40, 26]
+                                str ( "-" )
+
+                        [40, 32]
+                        AMethodExpr
+
+                            [40, 32]
+                            id ( f )
+
+                            [40, 34]
+                            ANegitiveExpr
+
+                                [40, 35]
+                                ALvalueExpr
+
+                                    [40, 35]
+                                    ASingleLvalue
+
+                                        [40, 35]
+                                        id ( i )
+
+                    [41, 12]
+                    AIfExpr
+
+                        [41, 15]
+                        AGreaterExpr
+
+                            [41, 15]
+                            ALvalueExpr
+
+                                [41, 15]
+                                ASingleLvalue
+
+                                    [41, 15]
+                                    id ( i )
+
+                            [41, 17]
+                            AIntExpr
+
+                                [41, 17]
+                                int ( 0 )
+
+                        [41, 24]
+                        AMethodExpr
+
+                            [41, 24]
+                            id ( f )
+
+                            [41, 26]
+                            ALvalueExpr
+
+                                [41, 26]
+                                ASingleLvalue
+
+                                    [41, 26]
+                                    id ( i )
+
+                        [42, 12]
+                        AMethodExpr
+
+                            [42, 12]
+                            id ( print )
+
+                            [42, 18]
+                            AStrExpr
+
+                                [42, 18]
+                                str ( "0" )
+
+    [45, 2]
+    AMethodDeclaration
+
+        [45, 11]
+        id ( printlist )
+
+        [45, 21]
+        ATypeField
+
+            [45, 21]
+            id ( l )
+
+            [45, 24]
+            ASingleTypeCombination
+
+                [45, 24]
+                id ( list )
+
+        [46, 4]
+        AIfExpr
+
+            [46, 7]
+            AEqualsExpr
+
+                [46, 7]
+                ALvalueExpr
+
+                    [46, 7]
+                    ASingleLvalue
+
+                        [46, 7]
+                        id ( l )
+
+                [46, 9]
+                ANilExpr
+
+            [46, 18]
+            AMethodExpr
+
+                [46, 18]
+                id ( print )
+
+                [46, 24]
+                AStrExpr
+
+                    [46, 24]
+                    str ( "
+" )
+
+            [47, 9]
+            ASeqExpr
+
+                [47, 10]
+                AMethodExpr
+
+                    [47, 10]
+                    id ( printint )
+
+                    [47, 19]
+                    ALvalueExpr
+
+                        [47, 19]
+                        AListLvalue
+
+                            [47, 19]
+                            ASingleLvalue
+
+                                [47, 19]
+                                id ( l )
+
+                            [47, 21]
+                            id ( first )
+
+                [47, 29]
+                AMethodExpr
+
+                    [47, 29]
+                    id ( print )
+
+                    [47, 35]
+                    AStrExpr
+
+                        [47, 35]
+                        str ( " " )
+
+                [47, 41]
+                AMethodExpr
+
+                    [47, 41]
+                    id ( printlist )
+
+                    [47, 51]
+                    ALvalueExpr
+
+                        [47, 51]
+                        AListLvalue
+
+                            [47, 51]
+                            ASingleLvalue
+
+                                [47, 51]
+                                id ( l )
+
+                            [47, 53]
+                            id ( rest )
+
+    [49, 4]
+    AVariableDeclaration
+
+        [49, 8]
+        id ( list1 )
+
+        [49, 17]
+        AMethodExpr
+
+            [49, 17]
+            id ( readlist )
+
+    [50, 4]
+    AVariableDeclaration
+
+        [50, 8]
+        id ( list2 )
+
+        [50, 17]
+        ASeqExpr
+
+            [50, 18]
+            AAssignExpr
+
+                [50, 18]
+                ASingleLvalue
+
+                    [50, 18]
+                    id ( buffer )
+
+                [50, 26]
+                AMethodExpr
+
+                    [50, 26]
+                    id ( getchar )
+
+            [50, 37]
+            AMethodExpr
+
+                [50, 37]
+                id ( readlist )
+
+    [54, 5]
+    ASeqExpr
+
+        [54, 5]
+        AMethodExpr
+
+            [54, 5]
+            id ( printlist )
+
+            [54, 15]
+            AMethodExpr
+
+                [54, 15]
+                id ( merge )
+
+                [54, 21]
+                ALvalueExpr
+
+                    [54, 21]
+                    ASingleLvalue
+
+                        [54, 21]
+                        id ( list1 )
+
+                [54, 27]
+                ALvalueExpr
+
+                    [54, 27]
+                    ASingleLvalue
+
+                        [54, 27]
+                        id ( list2 )
+
+
+Verifier Dumping...
+
+
+type int
+type string
+type <unit>
+type <anyrecord>
+val print : (s : string) -> <unit>
+val printi : (i : int) -> <unit>
+val flush : <unit> -> <unit>
+val getchar : <unit> -> string
+val ord : (s : string) -> int
+val chr : (i : int) -> string
+val size : (s : string) -> int
+val substring : (s : string, f : int, n : int) -> string
+val concat : (s1 : string, s2 : string) -> string
+val not : (i : int) -> int
+val exit : (i : int) -> <unit>
+
+    [1, 1]
+    type any = {any : int}
+    type list = {first : int; rest : list}
+    val readint : (any : any) -> int
+    val readlist : <unit> -> list
+    val merge : (a : list, b : list) -> list
+    val printint : (i : int) -> <unit>
+    val printlist : (l : list) -> <unit>
+    val buffer : string
+    val list1 : list
+    val list2 : list
+
+        [6, 1]
+        val any : any
+
+            [7, 2]
+            val isdigit : (s : string) -> int
+            val skipto : <unit> -> <unit>
+            val i : int
+
+                [8, 6]
+                val s : string
+
+                [10, 6]
+
+        [22, 2]
+
+            [23, 5]
+            val any : any
+            val i : int
+
+        [30, 2]
+        val a : list
+        val b : list
+
+        [37, 2]
+        val i : int
+
+            [38, 3]
+            val f : (i : int) -> <unit>
+
+                [38, 7]
+                val i : int
+
+        [45, 2]
+        val l : list
+
+
+Generator Dumping...
+
+primitive int : I
+primitive string : Ljava/lang/String;
+primitive <unit> : V
+primitive <anyrecord> : Ljava/lang/Object;
+method static TigerStandardLibrary.print : (Ljava/lang/String;)V
+method static TigerStandardLibrary.printi : (I)V
+method static TigerStandardLibrary.flush : ()V
+method static TigerStandardLibrary.getchar : ()Ljava/lang/String;
+method static TigerStandardLibrary.ord : (Ljava/lang/String;)I
+method static TigerStandardLibrary.chr : (I)Ljava/lang/String;
+method static TigerStandardLibrary.size : (Ljava/lang/String;)I
+method static TigerStandardLibrary.substring : (Ljava/lang/String;II)Ljava/lang/String;
+method static TigerStandardLibrary.concat : (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+method static TigerStandardLibrary.not : (I)I
+method static TigerStandardLibrary.exit : (I)V
+    [1, 1] merge$1 ALetExpr
+        [3, 2]
+        record merge$1$any
+        [4, 2]
+        variable merge$1.buffer : Ljava/lang/String;
+            [4, 16]
+            methodCall static TigerStandardLibrary.getchar : ()Ljava/lang/String;
+        [6, 1] merge$2 AMethodDeclaration
+        method merge$1.readint : (Lmerge$1$any;)I
+            parameter merge$2.any : Lmerge$1$any;
+            [7, 2] merge$3 ALetExpr
+                [7, 6]
+                variable merge$3.i : I
+                    [7, 15] AIntExpr : I
+                [8, 6] merge$4 AMethodDeclaration
+                method merge$3.isdigit : (Ljava/lang/String;)I
+                    parameter merge$4.s : Ljava/lang/String;
+                    [9, 11] AAndExpr : I
+                        [9, 11] AGreaterOrEqualExpr : I
+                            [9, 11]
+                            methodCall static TigerStandardLibrary.ord : (Ljava/lang/String;)I
+                                [9, 15] ALvalueExpr : Ljava/lang/String;
+                                    [9, 15]
+                                    variableCall (this : merge$4).(_Closure : merge$3).(_Closure : merge$2).(_Closure : merge$1).buffer : Ljava/lang/String;
+                            [9, 24]
+                            methodCall static TigerStandardLibrary.ord : (Ljava/lang/String;)I
+                                [9, 28] AStrExpr : Ljava/lang/String;
+                        [9, 35] ALessOrEqualExpr : I
+                            [9, 35]
+                            methodCall static TigerStandardLibrary.ord : (Ljava/lang/String;)I
+                                [9, 39] ALvalueExpr : Ljava/lang/String;
+                                    [9, 39]
+                                    variableCall (this : merge$4).(_Closure : merge$3).(_Closure : merge$2).(_Closure : merge$1).buffer : Ljava/lang/String;
+                            [9, 48]
+                            methodCall static TigerStandardLibrary.ord : (Ljava/lang/String;)I
+                                [9, 52] AStrExpr : Ljava/lang/String;
+                [10, 6] merge$5 AMethodDeclaration
+                method merge$3.skipto : ()V
+                    [11, 8] AWhileExpr : V
+                        [11, 14] AOrExpr : I
+                            [11, 14] AEqualsExpr : I
+                                [11, 14] ALvalueExpr : Ljava/lang/String;
+                                    [11, 14]
+                                    variableCall (this : merge$5).(_Closure : merge$3).(_Closure : merge$2).(_Closure : merge$1).buffer : Ljava/lang/String;
+                                [11, 21] AStrExpr : Ljava/lang/String;
+                            [11, 27] AEqualsExpr : I
+                                [11, 27] ALvalueExpr : Ljava/lang/String;
+                                    [11, 27]
+                                    variableCall (this : merge$5).(_Closure : merge$3).(_Closure : merge$2).(_Closure : merge$1).buffer : Ljava/lang/String;
+                                [11, 34] AStrExpr : Ljava/lang/String;
+                        [12, 13] AAssignExpr : V
+                            [12, 13]
+                            variableCall (this : merge$5).(_Closure : merge$3).(_Closure : merge$2).(_Closure : merge$1).buffer : Ljava/lang/String;
+                            [12, 23]
+                            methodCall static TigerStandardLibrary.getchar : ()Ljava/lang/String;
+                [13, 6] ASeqExpr : I
+                    [13, 6]
+                    methodCall (this : merge$3).skipto : ()V
+                    [14, 6] AAssignExpr : V
+                        [14, 6]
+                        variableCall (this : merge$3).(_Closure : merge$2).any : Lmerge$1$any;
+                        [14, 17]
+                        methodCall (this : merge$3).isdigit : (Ljava/lang/String;)I
+                            [14, 25] ALvalueExpr : Ljava/lang/String;
+                                [14, 25]
+                                variableCall (this : merge$3).(_Closure : merge$2).(_Closure : merge$1).buffer : Ljava/lang/String;
+                    [15, 6] AWhileExpr : V
+                        [15, 12]
+                        methodCall (this : merge$3).isdigit : (Ljava/lang/String;)I
+                            [15, 20] ALvalueExpr : Ljava/lang/String;
+                                [15, 20]
+                                variableCall (this : merge$3).(_Closure : merge$2).(_Closure : merge$1).buffer : Ljava/lang/String;
+                        [16, 11] ASeqExpr : V
+                            [16, 12] AAssignExpr : V
+                                [16, 12]
+                                variableCall (this : merge$3).i : I
+                                [16, 17] AMinusExpr : I
+                                    [16, 17] APlusExpr : I
+                                        [16, 17] AMultiplyExpr : I
+                                            [16, 17] ALvalueExpr : I
+                                                [16, 17]
+                                                variableCall (this : merge$3).i : I
+                                            [16, 19] AIntExpr : I
+                                        [16, 22]
+                                        methodCall static TigerStandardLibrary.ord : (Ljava/lang/String;)I
+                                            [16, 26] ALvalueExpr : Ljava/lang/String;
+                                                [16, 26]
+                                                variableCall (this : merge$3).(_Closure : merge$2).(_Closure : merge$1).buffer : Ljava/lang/String;
+                                    [16, 34]
+                                    methodCall static TigerStandardLibrary.ord : (Ljava/lang/String;)I
+                                        [16, 38] AStrExpr : Ljava/lang/String;
+                            [16, 44] AAssignExpr : V
+                                [16, 44]
+                                variableCall (this : merge$3).(_Closure : merge$2).(_Closure : merge$1).buffer : Ljava/lang/String;
+                                [16, 54]
+                                methodCall static TigerStandardLibrary.getchar : ()Ljava/lang/String;
+                    [17, 6] ALvalueExpr : I
+                        [17, 6]
+                        variableCall (this : merge$3).i : I
+        [20, 2]
+        record merge$1$list
+        [22, 2] merge$6 AMethodDeclaration
+        method merge$1.readlist : ()Lmerge$1$list;
+            [23, 5] merge$7 ALetExpr
+                [23, 9]
+                variable merge$7.any : Lmerge$1$any;
+                    [23, 20] ARecordExpr : Lmerge$1$any;
+                        [23, 28] AIntExpr : I
+                [24, 9]
+                variable merge$7.i : I
+                    [24, 18]
+                    methodCall (this : merge$7).(_Closure : merge$6).(_Closure : merge$1).readint : (Lmerge$1$any;)I
+                        [24, 26] ALvalueExpr : Lmerge$1$any;
+                            [24, 26]
+                            variableCall (this : merge$7).any : Lmerge$1$any;
+                [25, 9] ASeqExpr : Lmerge$1$list;
+                    [25, 9] AIfExpr : Lmerge$1$list;
+                        [25, 12] ALvalueExpr : I
+                            [25, 12]
+                            variableCall (this : merge$7).any : Lmerge$1$any;
+                        [26, 15] ARecordExpr : Lmerge$1$list;
+                            [26, 26] ALvalueExpr : I
+                                [26, 26]
+                                variableCall (this : merge$7).i : I
+                            [26, 33]
+                            methodCall (this : merge$7).(_Closure : merge$6).(_Closure : merge$1).readlist : ()Lmerge$1$list;
+                        [27, 15] ANilExpr : Ljava/lang/Object;
+        [30, 2] merge$8 AMethodDeclaration
+        method merge$1.merge : (Lmerge$1$list;Lmerge$1$list;)Lmerge$1$list;
+            parameter merge$8.a : Lmerge$1$list;
+            parameter merge$8.b : Lmerge$1$list;
+            [31, 4] AIfExpr : Lmerge$1$list;
+                [31, 7] AEqualsExpr : I
+                    [31, 7] ALvalueExpr : Lmerge$1$list;
+                        [31, 7]
+                        variableCall (this : merge$8).a : Lmerge$1$list;
+                    [31, 9] ANilExpr : Ljava/lang/Object;
+                [31, 18] ALvalueExpr : Lmerge$1$list;
+                    [31, 18]
+                    variableCall (this : merge$8).b : Lmerge$1$list;
+                [32, 9] AIfExpr : Lmerge$1$list;
+                    [32, 12] AEqualsExpr : I
+                        [32, 12] ALvalueExpr : Lmerge$1$list;
+                            [32, 12]
+                            variableCall (this : merge$8).b : Lmerge$1$list;
+                        [32, 14] ANilExpr : Ljava/lang/Object;
+                    [32, 23] ALvalueExpr : Lmerge$1$list;
+                        [32, 23]
+                        variableCall (this : merge$8).a : Lmerge$1$list;
+                    [33, 9] AIfExpr : Lmerge$1$list;
+                        [33, 12] ALessExpr : I
+                            [33, 12] ALvalueExpr : I
+                                [33, 12]
+                                variableCall (this : merge$8).a : Lmerge$1$list;
+                            [33, 22] ALvalueExpr : I
+                                [33, 22]
+                                variableCall (this : merge$8).b : Lmerge$1$list;
+                        [34, 12] ARecordExpr : Lmerge$1$list;
+                            [34, 23] ALvalueExpr : I
+                                [34, 23]
+                                variableCall (this : merge$8).a : Lmerge$1$list;
+                            [34, 36]
+                            methodCall (this : merge$8).(_Closure : merge$1).merge : (Lmerge$1$list;Lmerge$1$list;)Lmerge$1$list;
+                                [34, 42] ALvalueExpr : Lmerge$1$list;
+                                    [34, 42]
+                                    variableCall (this : merge$8).a : Lmerge$1$list;
+                                [34, 49] ALvalueExpr : Lmerge$1$list;
+                                    [34, 49]
+                                    variableCall (this : merge$8).b : Lmerge$1$list;
+                        [35, 12] ARecordExpr : Lmerge$1$list;
+                            [35, 23] ALvalueExpr : I
+                                [35, 23]
+                                variableCall (this : merge$8).b : Lmerge$1$list;
+                            [35, 36]
+                            methodCall (this : merge$8).(_Closure : merge$1).merge : (Lmerge$1$list;Lmerge$1$list;)Lmerge$1$list;
+                                [35, 42] ALvalueExpr : Lmerge$1$list;
+                                    [35, 42]
+                                    variableCall (this : merge$8).a : Lmerge$1$list;
+                                [35, 44] ALvalueExpr : Lmerge$1$list;
+                                    [35, 44]
+                                    variableCall (this : merge$8).b : Lmerge$1$list;
+        [37, 2] merge$9 AMethodDeclaration
+        method merge$1.printint : (I)V
+            parameter merge$9.i : I
+            [38, 3] merge$10 ALetExpr
+                [38, 7] merge$11 AMethodDeclaration
+                method merge$10.f : (I)V
+                    parameter merge$11.i : I
+                    [38, 27] AIfExpr : V
+                        [38, 30] AGreaterExpr : I
+                            [38, 30] ALvalueExpr : I
+                                [38, 30]
+                                variableCall (this : merge$11).i : I
+                            [38, 32] AIntExpr : I
+                        [39, 15] ASeqExpr : V
+                            [39, 16]
+                            methodCall (this : merge$11).(_Closure : merge$10).f : (I)V
+                                [39, 18] ADivideExpr : I
+                                    [39, 18] ALvalueExpr : I
+                                        [39, 18]
+                                        variableCall (this : merge$11).i : I
+                                    [39, 20] AIntExpr : I
+                            [39, 25]
+                            methodCall static TigerStandardLibrary.print : (Ljava/lang/String;)V
+                                [39, 31]
+                                methodCall static TigerStandardLibrary.chr : (I)Ljava/lang/String;
+                                    [39, 35] APlusExpr : I
+                                        [39, 35] AMinusExpr : I
+                                            [39, 35] ALvalueExpr : I
+                                                [39, 35]
+                                                variableCall (this : merge$11).i : I
+                                            [39, 37] AMultiplyExpr : I
+                                                [39, 37] ADivideExpr : I
+                                                    [39, 37] ALvalueExpr : I
+                                                        [39, 37]
+                                                        variableCall (this : merge$11).i : I
+                                                    [39, 39] AIntExpr : I
+                                                [39, 42] AIntExpr : I
+                                        [39, 45]
+                                        methodCall static TigerStandardLibrary.ord : (Ljava/lang/String;)I
+                                            [39, 49] AStrExpr : Ljava/lang/String;
+                        [40, 4] ASeqExpr : V
+                [40, 7] ASeqExpr : V
+                    [40, 7] AIfExpr : V
+                        [40, 10] ALessExpr : I
+                            [40, 10] ALvalueExpr : I
+                                [40, 10]
+                                variableCall (this : merge$10).(_Closure : merge$9).i : I
+                            [40, 12] AIntExpr : I
+                        [40, 19] ASeqExpr : V
+                            [40, 20]
+                            methodCall static TigerStandardLibrary.print : (Ljava/lang/String;)V
+                                [40, 26] AStrExpr : Ljava/lang/String;
+                            [40, 32]
+                            methodCall (this : merge$10).f : (I)V
+                                [40, 34] ANegitiveExpr : I
+                                    [40, 35] ALvalueExpr : I
+                                        [40, 35]
+                                        variableCall (this : merge$10).(_Closure : merge$9).i : I
+                        [41, 12] AIfExpr : V
+                            [41, 15] AGreaterExpr : I
+                                [41, 15] ALvalueExpr : I
+                                    [41, 15]
+                                    variableCall (this : merge$10).(_Closure : merge$9).i : I
+                                [41, 17] AIntExpr : I
+                            [41, 24]
+                            methodCall (this : merge$10).f : (I)V
+                                [41, 26] ALvalueExpr : I
+                                    [41, 26]
+                                    variableCall (this : merge$10).(_Closure : merge$9).i : I
+                            [42, 12]
+                            methodCall static TigerStandardLibrary.print : (Ljava/lang/String;)V
+                                [42, 18] AStrExpr : Ljava/lang/String;
+        [45, 2] merge$12 AMethodDeclaration
+        method merge$1.printlist : (Lmerge$1$list;)V
+            parameter merge$12.l : Lmerge$1$list;
+            [46, 4] AIfExpr : V
+                [46, 7] AEqualsExpr : I
+                    [46, 7] ALvalueExpr : Lmerge$1$list;
+                        [46, 7]
+                        variableCall (this : merge$12).l : Lmerge$1$list;
+                    [46, 9] ANilExpr : Ljava/lang/Object;
+                [46, 18]
+                methodCall static TigerStandardLibrary.print : (Ljava/lang/String;)V
+                    [46, 24] AStrExpr : Ljava/lang/String;
+                [47, 9] ASeqExpr : V
+                    [47, 10]
+                    methodCall (this : merge$12).(_Closure : merge$1).printint : (I)V
+                        [47, 19] ALvalueExpr : I
+                            [47, 19]
+                            variableCall (this : merge$12).l : Lmerge$1$list;
+                    [47, 29]
+                    methodCall static TigerStandardLibrary.print : (Ljava/lang/String;)V
+                        [47, 35] AStrExpr : Ljava/lang/String;
+                    [47, 41]
+                    methodCall (this : merge$12).(_Closure : merge$1).printlist : (Lmerge$1$list;)V
+                        [47, 51] ALvalueExpr : Lmerge$1$list;
+                            [47, 51]
+                            variableCall (this : merge$12).l : Lmerge$1$list;
+        [49, 4]
+        variable merge$1.list1 : Lmerge$1$list;
+            [49, 17]
+            methodCall (this : merge$1).readlist : ()Lmerge$1$list;
+        [50, 4]
+        variable merge$1.list2 : Lmerge$1$list;
+            [50, 17] ASeqExpr : Lmerge$1$list;
+                [50, 18] AAssignExpr : V
+                    [50, 18]
+                    variableCall (this : merge$1).buffer : Ljava/lang/String;
+                    [50, 26]
+                    methodCall static TigerStandardLibrary.getchar : ()Ljava/lang/String;
+                [50, 37]
+                methodCall (this : merge$1).readlist : ()Lmerge$1$list;
+        [54, 5] ASeqExpr : V
+            [54, 5]
+            methodCall (this : merge$1).printlist : (Lmerge$1$list;)V
+                [54, 15]
+                methodCall (this : merge$1).merge : (Lmerge$1$list;Lmerge$1$list;)Lmerge$1$list;
+                    [54, 21] ALvalueExpr : Lmerge$1$list;
+                        [54, 21]
+                        variableCall (this : merge$1).list1 : Lmerge$1$list;
+                    [54, 27] ALvalueExpr : Lmerge$1$list;
+                        [54, 27]
+                        variableCall (this : merge$1).list2 : Lmerge$1$list;
+
+

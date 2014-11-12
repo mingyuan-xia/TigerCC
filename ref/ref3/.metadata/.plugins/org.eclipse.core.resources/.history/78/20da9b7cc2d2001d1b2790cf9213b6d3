@@ -1,0 +1,339 @@
+//==========================================================================
+//
+//  File:        VerifierPass4.java
+//  Location:    TigerCompiler <Java>
+//  Description: Verifier responsible to check Naming, Typing and Variable Initializing
+//  Version:     2008.12.26.
+//  License:     BSD License
+//
+//  Copyright(C) F.R.C., All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in the
+//        documentation and/or other materials provided with the distribution.
+//      * Neither the name of the the copyright holders nor the
+//        names of its contributors may be used to endorse or promote products
+//        derived from this software without specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
+//  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//==========================================================================
+
+package Semantics.verifier;
+
+import java.util.*;
+
+import Syntax.node.*;
+import static Semantics.verifier.ErrorReporter.*;
+
+public abstract class VerifierPass4 extends VerifierPass0123 {
+
+    //See Verifier.java for detail. 
+    //
+    //Pass 3:
+    //        VariableDeclaration(Out)
+    //        ---- 1.Name->Identifier, 3.variable type inferring, 3.Identifier->Type
+    //        MethodDeclaration(Out)
+    //        ---- Check Method TypeMismatch
+    //        SingleLvalue(In), MethodExpr(In)
+    //        ---- 1.Node->Identifier
+    //        SingleLvalue(Out), ListLvalue(Out), ArrayLvalue(Out), xxxExpr(Out)
+    //        ---- 2.Node->Type
+    //        WhileExpr(In, Out), ForExpr(In, Out), LetExpr(In, Out), BreakExpr(In)
+    //        ---- 5.LoopLevelStack
+    //        IntExpr(In)
+    //        ---- 6.IntegerParseTest
+
+
+    public VerifierPass4(int numPass) {
+        super(numPass);
+    }
+
+    //Pass 3:
+
+    @Override
+    public void outAVariableDeclaration(AVariableDeclaration node) {
+        super.outAVariableDeclaration(node);
+        if (Pass == 4) {
+            //        VariableDeclaration(Out)
+            //        ---- 1.Name->Identifier, 3.variable type inferring, 3.Identifier->Type
+            String Name = node.getId().getText();
+            if (CurrentNamespace.ContainIdentifier(Name)) {
+                NewError(node.getId(), "VariableOrMethodRedefination");
+            }
+            else {
+                Identifier id = new Identifier(Name);
+                CurrentNamespace.AddIdentifier(id);
+
+                Type exprType = NodeTypeMapping.get(node.getExpr());
+
+                PTypeCombination comb = node.getTypeCombination();
+                if (comb == null) {
+                    if (exprType instanceof AnyRecordType) {
+                        NewError(node.getExpr(), "TypeMismatch : Type is not able to be inferred.");
+                    }
+                    else {
+                        id.Type = exprType;
+                    }
+                }
+                else {
+                    Type type = NodeTypeOfTypeMapping.get(node.getTypeCombination());
+                    if (IsTypeMatch(type, exprType)) {
+                        id.Type = type;
+                    }
+                    else {
+                        NewError(node.getExpr(), "TypeMismatch");
+                    }
+                }
+            }
+        }
+    };
+
+    @Override
+    public void outAMethodDeclaration(AMethodDeclaration node) {
+        if (Pass == 4) {
+            //        MethodDeclaration(Out)
+            //        ---- Check Method TypeMismatch
+            String Name = node.getId().getText();
+            Identifier id = CurrentNamespace.Parent.GetIdentifier(Name);
+            Type type = ((MethodType) (id.Type)).ReturnType;
+
+            Type exprType = NodeTypeMapping.get(node.getExpr());
+            if (!IsTypeMatch(type, exprType)) {
+                NewError(node.getExpr(), "TypeMismatch");
+            }
+        }
+        super.outAMethodDeclaration(node);
+    }
+
+    @Override
+    public void inASingleLvalue(ASingleLvalue node) {
+        super.inASingleLvalue(node);
+        if (Pass == 4) {
+            //        SingleLvalue(In), MethodExpr(In)
+            //        ---- 1.Node->Identifier
+            String Name = node.getId().getText();
+            BlockNamespace c = TryResolveIdentifier(Name);
+            if (c == null) {
+                NewError(node.getId(), "VariableNotFound");
+            }
+            else {
+                Identifier id = c.GetIdentifier(Name);
+
+                if (id.Type instanceof MethodType) {
+                    NewError(node.getId(), "TypeMismatch : Method can't be used as variable.");
+                }
+                else {
+                    if (id.ReadOnly) {
+                        NewError(node.getId(), "VariableReadOnly");
+                    }
+                    Add(NodeIdentifierMapping, node, id);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void inAMethodExpr(AMethodExpr node) {
+        super.inAMethodExpr(node);
+        if (Pass == 4) {
+            //        SingleLvalue(In), MethodExpr(In)
+            //        ---- 1.Node->Identifier
+            String Name = node.getId().getText();
+            BlockNamespace c = TryResolveIdentifier(Name);
+            if (c == null) {
+                NewError(node.getId(), "MethodNotFound");
+            }
+            else {
+                Identifier id = c.GetIdentifier(Name);
+                if (!(id.Type instanceof MethodType)) {
+                    NewError(node.getId(), "TypeMismatch : Variable can't be used as variable.");
+                }
+                else {
+                    Add(NodeIdentifierMapping, node, id);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void outASingleLvalue(ASingleLvalue node) {
+        //        SingleLvalue(Out), ListLvalue(Out), ArrayLvalue(Out), xxxExpr(Out)
+        //        ---- 2.Node->Type
+        if (Pass == 4) {
+            String Name = node.getId().getText();
+            BlockNamespace c = TryResolveIdentifier(Name);
+            if (c == null) {
+                NewError(node.getId(), "VariableNotFound");
+            }
+            else {
+                Identifier id = c.GetIdentifier(Name);
+                if (id.Type == null) {
+                    //Identifier Type Checked
+                }
+                else {
+                    Add(NodeTypeMapping, node, id.Type);
+                }
+            }
+        }
+        super.outASingleLvalue(node);
+    }
+
+    @Override
+    public void outAListLvalue(AListLvalue node) {
+        //        SingleLvalue(Out), ListLvalue(Out), ArrayLvalue(Out), xxxExpr(Out)
+        //        ---- 2.Node->Type
+        if (Pass == 4) {
+            Type type = NodeTypeMapping.get(node.getLvalue());
+            if (type == null) {
+                //VariableNotFound Checked
+            }
+            else {
+                type = type.GetType();
+                if (!(type instanceof RecordType)) {
+                    NewError(node.getId(), "TypeNotRecordType");
+                }
+                else {
+                    RecordType record = (RecordType) (type);
+                    String Name = node.getId().getText();
+                    Field f = record.NameFieldMapping.get(Name);
+                    Add(NodeTypeMapping, node, f.Type);
+                }
+            }
+        }
+        super.outAListLvalue(node);
+    }
+
+    @Override
+    public void outAArrayLvalue(AArrayLvalue node) {
+        //        SingleLvalue(Out), ListLvalue(Out), ArrayLvalue(Out), xxxExpr(Out)
+        //        ---- 2.Node->Type
+        if (Pass == 4) {
+            Type type = NodeTypeMapping.get(node.getLvalue());
+            if (type == null) {
+                //VariableNotFound Checked
+            }
+            else {
+                type = type.GetType();
+                if (!(type instanceof ArrayType)) {
+                    NewError(node.getLvalue(), "TypeNotArrayType");
+                }
+                else {
+                    ArrayType array = (ArrayType) (type);
+                    Add(NodeTypeMapping, node, array.Type);
+
+                    Node expr = node.getExpr();
+                    if (!(NodeTypeMapping.get(expr) instanceof IntType)) {
+                        NewError(expr, "TypeMismatch : Index must be 'int'.");
+                    }
+                }
+            }
+        }
+        super.outAArrayLvalue(node);
+    }
+
+
+    protected Stack<Integer> LoopLevelStack = new Stack<Integer>();
+    protected int LoopLevel = 0;
+
+    @Override
+    public void inAWhileExpr(AWhileExpr node) {
+        super.inAWhileExpr(node);
+        if (Pass == 4) {
+            //        WhileExpr(In, Out), ForExpr(In, Out), LetExpr(In, Out), BreakExpr(In)
+            //        ---- 5.LoopLevelStack
+            LoopLevel += 1;
+        }
+    }
+
+    @Override
+    public void outAWhileExpr(AWhileExpr node) {
+        if (Pass == 4) {
+            //        WhileExpr(In, Out), ForExpr(In, Out), LetExpr(In, Out), BreakExpr(In)
+            //        ---- 5.LoopLevelStack
+            LoopLevel -= 1;
+        }
+        super.outAWhileExpr(node);
+    }
+
+    @Override
+    public void inAForExpr(AForExpr node) {
+        super.inAForExpr(node);
+        if (Pass == 4) {
+            //        WhileExpr(In, Out), ForExpr(In, Out), LetExpr(In, Out), BreakExpr(In)
+            //        ---- 5.LoopLevelStack
+            LoopLevel += 1;
+        }
+    }
+
+    @Override
+    public void outAForExpr(AForExpr node) {
+        if (Pass == 4) {
+            //        WhileExpr(In, Out), ForExpr(In, Out), LetExpr(In, Out), BreakExpr(In)
+            //        ---- 5.LoopLevelStack
+            LoopLevel -= 1;
+        }
+        super.outAForExpr(node);
+    }
+
+    @Override
+    public void inALetExpr(ALetExpr node) {
+        super.inALetExpr(node);
+        if (Pass == 4) {
+            //        WhileExpr(In, Out), ForExpr(In, Out), LetExpr(In, Out), BreakExpr(In)
+            //        ---- 5.LoopLevelStack
+            LoopLevelStack.push(LoopLevel);
+            LoopLevel = 0;
+        }
+    }
+
+    @Override
+    public void outALetExpr(ALetExpr node) {
+        if (Pass == 4) {
+            //        WhileExpr(In, Out), ForExpr(In, Out), LetExpr(In, Out), BreakExpr(In)
+            //        ---- 5.LoopLevelStack
+            LoopLevel = LoopLevelStack.pop();
+        }
+        super.outALetExpr(node);
+    }
+
+    @Override
+    public void inABreakExpr(ABreakExpr node) {
+        super.inABreakExpr(node);
+        if (Pass == 4) {
+            //        WhileExpr(In, Out), ForExpr(In, Out), LetExpr(In, Out), BreakExpr(In)
+            //        ---- 5.LoopLevelStack
+            if (LoopLevel <= 0) {
+                NewError(node, "IllegalBreakStatement");
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Override
+    public void inAIntExpr(AIntExpr node) {
+        super.inAIntExpr(node);
+        if (Pass == 4) {
+            //        IntExpr(In)
+            //        ---- 6.IntegerParseTest
+            try {
+                int i = Integer.parseInt(node.getInt().getText());
+            }
+            catch (NumberFormatException e) {
+                NewError(node.getInt(), "IntegerLiteralOverflow");
+            }
+        }
+    }
+}

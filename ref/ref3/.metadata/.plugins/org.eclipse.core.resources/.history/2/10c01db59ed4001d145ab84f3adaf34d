@@ -1,0 +1,470 @@
+//==========================================================================
+//
+//  File:        Generator.java
+//  Location:    TigerCompiler <Java>
+//  Description: Generator responsible to target code to JVM Byte Code
+//  Version:     2008.12.28.
+//  License:     BSD License
+//
+//  Copyright(C) F.R.C., All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in the
+//        documentation and/or other materials provided with the distribution.
+//      * Neither the name of the the copyright holders nor the
+//        names of its contributors may be used to endorse or promote products
+//        derived from this software without specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
+//  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//==========================================================================
+
+package Semantics.generator;
+
+import java.io.*;
+import java.util.*;
+
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+
+import static StringUtil.StringUtil.*;
+import static org.objectweb.asm.Opcodes.*;
+import Syntax.analysis.*;
+import Syntax.node.*;
+import Semantics.verifier.*;
+import Semantics.verifier.VerifierBase.*;
+
+public class Generator extends DepthFirstAdapter {
+    public final String Directory;
+    public final String ClassName;
+    protected ClassWriter cw;
+    protected final int THIS = 0;
+
+    protected Verifier vf;
+    protected int level = 0;
+    protected int NamespaceIndex = 0;
+    public BlockNamespace CurrentNamespace;
+
+    protected Hashtable<Identifier, MemberSignature> MemberSignatures = new Hashtable<Identifier, MemberSignature>();
+    public final Hashtable<Node, MemberAccess> MemberAccesses = new Hashtable<Node, MemberAccess>();
+    public final Hashtable<ALetExpr, LetClosureSignature> LetClosureAccesses = new Hashtable<ALetExpr, LetClosureSignature>();
+
+    public static class MemberSignature {
+        public String ParentObjectType;
+        public String Name;
+        public String Type;
+        public boolean IsStatic;
+
+        public MemberSignature(String parentObjectType, String name, String type, boolean isStatic) {
+            this.ParentObjectType = parentObjectType;
+            this.Name = name;
+            this.Type = type;
+            this.IsStatic = isStatic;
+        }
+
+        @Override
+        public String toString() {
+            if (IsStatic) {
+                return Format("static {0}.{1} : {2}", ParentObjectType, Name, Type);
+            }
+            else {
+                return Format("{0}.{1} : {2}", ParentObjectType, Name, Type);
+            }
+        }
+    }
+
+    public static class MemberAccess {
+        public MemberSignature Signature;
+        public final String[] ExternalClosures;
+
+        public MemberAccess(MemberSignature signature, String[] externalClosures) {
+            this.Signature = signature;
+            this.ExternalClosures = externalClosures;
+        }
+    }
+
+    public static class LetClosureSignature {
+        public String Name;
+
+        public LetClosureSignature(String name) {
+            this.Name = name;
+        }
+    }
+
+    public Generator(String directory, String name, Verifier vf) {
+        this.Directory = directory;
+        this.ClassName = name;
+        this.vf = vf;
+        this.CurrentNamespace = vf.GlobalNamespace;
+    }
+
+    public void Print(String info) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < level; i += 1) {
+            sb.append("    ");
+        }
+        sb.append(info);
+        System.out.println(sb.toString());
+    }
+
+    public void Print() {
+        System.out.println();
+    }
+
+    public void Save(String name, byte[] b) {
+        try {
+            FileOutputStream fos = new FileOutputStream(CombinePath(Directory, name) + ".class");
+            fos.write(b);
+            fos.close();
+        }
+        catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void inStart(Start node) {
+        cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        cw.visit(V1_1, ACC_PUBLIC, ClassName, null, "java/lang/Object", null);
+
+        //constructor
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        //invokes super.<init>
+        mv.visitVarInsn(ALOAD, THIS);
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(1, 1); //maximum stack and local
+        mv.visitEnd();
+
+
+        Print("primitive int : I");
+        Print("primitive string : Ljava/lang/String;");
+        Print("primitive <unit> : V");
+        Print("primitive <anyrecord> : Ljava/lang/Object;");
+
+        for (Identifier id : CurrentNamespace.Identifiers) {
+            Print(Format("method {0}", GetMemberSignature(id)));
+        }
+        level += 1;
+    }
+
+    @Override
+    public void caseStart(Start node) {
+        inStart(node);
+
+        //Entry Point
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
+        ExprAssembler eg = new ExprAssembler(this, mv);
+
+        node.getPExpr().apply(this);
+        node.getPExpr().apply(eg);
+
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);//max stack and max locals automatically computed
+        mv.visitEnd();
+
+        outStart(node);
+    }
+
+    @Override
+    public void outStart(Start node) {
+        level -= 1;
+
+        cw.visitEnd();
+        Save(ClassName, cw.toByteArray());
+    }
+
+    @Override
+    public void inALetExpr(ALetExpr node) {
+        NamespaceIndex += 1;
+        CurrentNamespace = CurrentNamespace.SubNamespaces.get(CurrentNamespace.IndexMap.get(NamespaceIndex));
+
+        Print(Format("[{0}, {1}] {2} {3}", node.getLine(), node.getPos(), GetClosureName(CurrentNamespace), node.getClass().getSimpleName()));
+
+        level += 1;
+    }
+
+    @Override
+    public void inAForExpr(AForExpr node) {
+        NamespaceIndex += 1;
+        CurrentNamespace = CurrentNamespace.SubNamespaces.get(CurrentNamespace.IndexMap.get(NamespaceIndex));
+
+        Print(Format("[{0}, {1}] {2}", node.getLine(), node.getPos(), GetClosureName(CurrentNamespace)));
+
+        level += 1;
+
+        for (Identifier id : CurrentNamespace.Identifiers) {
+            Print(Format("variable {0}", GetMemberSignature(id)));
+        }
+    }
+
+    @Override
+    public void inATypeDeclaration(ATypeDeclaration node) {
+        String Name = node.getId().getText();
+        BlockNamespace c = VerifierBase.TryResolveTypeIdentifier(Name, CurrentNamespace);
+        TypeIdentifier id = c.GetTypeIdentifier(Name);
+        Type t = id.TypeOfType;
+
+        if (t instanceof CombinedType) {
+            CombinedType ct = (CombinedType) (t);
+            if (ct.Type instanceof RecordType) {
+                Print(Format("[{0}, {1}]", node.getLine(), node.getPos()));
+                String RecordName = GetTypeIdentifierName(ct.TypeIdentifier);
+                Print("record " + RecordName);
+                Save(RecordName, (new RecordGenerator(Name, this, ct)).Generate());
+            }
+        }
+    }
+
+    @Override
+    public void inAMethodDeclaration(AMethodDeclaration node) {
+        NamespaceIndex += 1;
+        CurrentNamespace = CurrentNamespace.SubNamespaces.get(CurrentNamespace.IndexMap.get(NamespaceIndex));
+
+        Print(Format("[{0}, {1}] {2}", node.getLine(), node.getPos(), GetClosureName(CurrentNamespace)));
+
+        Identifier methodId = CurrentNamespace.Parent.GetIdentifier(node.getId().getText());
+        Print(Format("method {0}", GetMemberSignature(methodId)));
+
+        level += 1;
+
+        for (Identifier id : CurrentNamespace.Identifiers) {
+            Print(Format("parameter {0}", GetMemberSignature(id)));
+        }
+    }
+
+    @Override
+    public void inAVariableDeclaration(AVariableDeclaration node) {
+        Print(Format("[{0}, {1}]", node.getLine(), node.getPos()));
+
+        String Name = node.getId().getText();
+        BlockNamespace c = VerifierBase.TryResolveIdentifier(Name, CurrentNamespace);
+        Identifier id = c.GetIdentifier(Name);
+        Print(Format("variable {0}", GetMemberSignature(id)));
+
+        level += 1;
+    }
+
+    @Override
+    public void inARecordExpr(ARecordExpr node) {
+        String Name = ((ARecordExpr) (node)).getId().getText();
+        BlockNamespace c = VerifierBase.TryResolveTypeIdentifier(Name, CurrentNamespace);
+        TypeIdentifier typeId = c.GetTypeIdentifier(Name);
+        Print(Format("[{0}, {1}] {2} : {3}", node.getLine(), node.getPos(), node.getClass().getSimpleName(), GetTypeJvmName(typeId.TypeOfType)));
+
+        level += 1;
+    }
+
+    @Override
+    public void inAMethodExpr(AMethodExpr node) {
+        String Name = node.getId().getText();
+        ArrayList<String> ExternalClosures = new ArrayList<String>();
+        ArrayList<String> sl = new ArrayList<String>();
+        BlockNamespace c = CurrentNamespace;
+        sl.add(Format("(this : {0})", GetClosureName(c)));
+        Identifier id = null;
+        while (true) {
+            id = c.GetIdentifier(Name);
+            if (id == null) {
+                String ClosureName = GetClosureName(c.Parent);
+                sl.add(Format("(_Closure : {0})", ClosureName));
+                ExternalClosures.add(ClosureName);
+                c = c.Parent;
+            }
+            else {
+                break;
+            }
+        }
+        sl.add(Name);
+
+        Print(Format("[{0}, {1}]", node.getLine(), node.getPos()));
+        MemberSignature ms = GetMemberSignature(id);
+        if (ms.IsStatic) {
+            Print(Format("methodCall {0}", ms));
+        }
+        else {
+            Print(Format("methodCall {0} : {1}", Join(".", sl), ms.Type));
+        }
+        MemberAccesses.put(node, new MemberAccess(ms, ExternalClosures.toArray(new String[] {})));
+
+        level += 1;
+    }
+
+    @Override
+    public void inASingleLvalue(ASingleLvalue node) {
+        String Name = node.getId().getText();
+        ArrayList<String> ExternalClosures = new ArrayList<String>();
+        ArrayList<String> sl = new ArrayList<String>();
+        BlockNamespace c = CurrentNamespace;
+        sl.add(Format("(this : {0})", GetClosureName(c)));
+        Identifier id = null;
+        while (true) {
+            id = c.GetIdentifier(Name);
+            if (id == null) {
+                String ClosureName = GetClosureName(c.Parent);
+                sl.add(Format("(_Closure : {0})", ClosureName));
+                ExternalClosures.add(ClosureName);
+                c = c.Parent;
+            }
+            else {
+                break;
+            }
+        }
+        sl.add(Name);
+
+        Print(Format("[{0}, {1}]", node.getLine(), node.getPos()));
+        MemberSignature ms = GetMemberSignature(id);
+        if (ms.IsStatic) {
+            Print(Format("variableCall {0}", ms));
+        }
+        else {
+            Print(Format("variableCall {0} : {1}", Join(".", sl), ms.Type));
+        }
+        MemberAccesses.put(node, new MemberAccess(ms, ExternalClosures.toArray(new String[] {})));
+    }
+
+    @Override
+    public void outALetExpr(ALetExpr node) {
+        String ClosureName = GetClosureName(CurrentNamespace);
+        LetClosureSignature cs = new LetClosureSignature(ClosureName);
+        LetClosureAccesses.put(node, cs);
+        Save(ClosureName, (new LetClosureGenerator(ClosureName, this, CurrentNamespace, node)).Generate());
+
+        level -= 1;
+        CurrentNamespace = CurrentNamespace.Parent;
+    }
+
+    @Override
+    public void outAForExpr(AForExpr node) {
+        level -= 1;
+        CurrentNamespace = CurrentNamespace.Parent;
+    }
+
+    @Override
+    public void outAMethodDeclaration(AMethodDeclaration node) {
+        String ClosureName = GetClosureName(CurrentNamespace);
+        Save(ClosureName, (new MethodClosureGenerator(ClosureName, this, CurrentNamespace, node)).Generate());
+
+        level -= 1;
+        CurrentNamespace = CurrentNamespace.Parent;
+    }
+
+    @Override
+    public void outAVariableDeclaration(AVariableDeclaration node) {
+        level -= 1;
+    }
+
+    @Override
+    public void defaultIn(Node node) {
+        if (node instanceof PExpr) {
+            Type type = vf.NodeTypeMapping.get(node);
+            Print(Format("[{0}, {1}] {2} : {3}", node.getLine(), node.getPos(), node.getClass().getSimpleName(), GetTypeJvmName(type)));
+            level += 1;
+        }
+    }
+
+    @Override
+    public void defaultOut(Node node) {
+        if (node instanceof PExpr) {
+            level -= 1;
+        }
+    }
+
+    public MemberSignature GetMemberSignature(Identifier id) {
+        if (MemberSignatures.containsKey(id)) {
+            return MemberSignatures.get(id);
+        }
+        else {
+            BlockNamespace c = id.Parent;
+            String ParentObjectType;
+            boolean IsStatic;
+            if (c == vf.GlobalNamespace) {
+                ParentObjectType = "TigerStandardLibrary";
+                IsStatic = true;
+            }
+            else {
+                ParentObjectType = GetClosureName(c);
+                IsStatic = false;
+            }
+
+            MemberSignature m = new MemberSignature(ParentObjectType, id.SimpleName, GetTypeJvmName(id.Type), IsStatic);
+            MemberSignatures.put(id, m);
+            return m;
+        }
+    }
+
+    public String GetTypeIdentifierName(TypeIdentifier typeId) {
+        BlockNamespace c = typeId.Parent;
+        return GetClosureName(c) + "$" + typeId.SimpleName;
+    }
+
+    public String GetTypeJvmName(Type t) {
+        if (t instanceof IntType) {
+            return "I";
+        }
+        else if (t instanceof StrType) {
+            return "Ljava/lang/String;";
+        }
+        else if (t instanceof UnitType) {
+            return "V";
+        }
+        else if (t instanceof AnyRecordType) {
+            return "Ljava/lang/Object;";
+        }
+        else if (t instanceof ArrayType) {
+            return "[" + GetTypeJvmName(((ArrayType) (t)).Type);
+        }
+        else if (t instanceof CombinedType) {
+            CombinedType ct = (CombinedType) (t);
+            if (ct.Type instanceof RecordType) {
+                return "L" + GetTypeIdentifierName(ct.TypeIdentifier) + ";";
+            }
+            else {
+                return GetTypeJvmName(ct.Type);
+            }
+        }
+        else if (t instanceof MethodType) {
+            MethodType mt = (MethodType) (t);
+            StringBuffer sb = new StringBuffer();
+            sb.append("(");
+            for (Identifier f : mt.Parameters) {
+                sb.append(GetTypeJvmName(f.Type));
+            }
+            sb.append(")");
+            sb.append(GetTypeJvmName(mt.ReturnType));
+            return sb.toString();
+        }
+        else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    public String GetRecordConstructorSignature(CombinedType ct) {
+        RecordType rt = (RecordType) ct.Type;
+
+        StringBuffer sb = new StringBuffer();
+        sb.append("(");
+        for (Field f : rt.Fields) {
+            sb.append(GetTypeJvmName(f.Type));
+        }
+        sb.append(")");
+        sb.append(GetTypeJvmName(ct));
+        return sb.toString();
+    }
+
+    public String GetClosureName(BlockNamespace c) {
+        return ClassName + "$" + Integer.toString(c.Index);
+    }
+}

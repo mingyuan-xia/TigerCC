@@ -1,0 +1,180 @@
+package Parse;
+import Absyn.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.FileReader;
+
+action code {: static Symbol.Symbol sym(String s) {
+	         return Symbol.Symbol.symbol(s);
+	        }
+	    :};
+
+parser code  {: 
+  public static void main(String[] args){
+     try{
+     	String filename = args[0];
+		ErrorMsg.ErrorMsg errorMsg = new ErrorMsg.ErrorMsg(filename);
+		InputStream inp = new FileInputStream(filename);
+		//Lexer lexer = new Lexer(inp, errorMsg);
+		Lexer lexer = new Lexer(inp);
+		//parser p = new parser(lexer);
+		parser p = new parser(lexer,errorMsg);
+		p.parse();
+		
+        //parser p = new parser(new Lexer(new FileReader(args[0])));
+        //Object result = p.parse().value;
+     }catch(Exception e ){
+     } 
+  }
+  
+  public Exp parseResult;
+  //Lexer lexer;
+
+  public void syntax_error(java_cup.runtime.Symbol current) {
+   report_error("Syntax error (" + current.sym + ")", current);
+  }
+
+  ErrorMsg.ErrorMsg errorMsg;
+
+  public void report_error(String message, 
+			   java_cup.runtime.Symbol info) {
+      errorMsg.error(info.left, message);
+  }
+
+  public parser(Lexer l, ErrorMsg.ErrorMsg err) {
+  	this(l);
+    //this();
+    errorMsg=err;
+    //lexer=l;
+  }
+:};
+
+terminal String IDENTIFIER, STRING;
+terminal Integer NUM;
+terminal ARRAY, BREAK, DO, ELSE, END, FOR, FUNCTION,
+         IF, IN, LET, NIL, OF, THEN, TO, TYPE, VAR, WHILE,
+         COMMA, COLON, SEMICOLON, L1, R1, L2, R2, L3, R3,
+         DOT, ADD, SUB, MUL, DIV, EQ, NEQ, LESS, NGTR,
+         GTR, NLESS, AND, OR, ASSIGN, UMINUS;
+
+non terminal Exp program,expr;
+non terminal Var lvalue;
+non terminal ExpList exprList,exprSeq;
+non terminal FieldExpList fldList;
+non terminal Dec dec;
+non terminal DecList decList;
+non terminal TypeDec typeDec,tyDecList;
+non terminal Ty type;
+non terminal FieldList typeFlds;
+non terminal VarDec varDec;
+non terminal FunctionDec funcDec,fcDecList;
+
+precedence right	TYPE,FUNCTION;
+precedence right	ELSE;
+precedence nonassoc ASSIGN;
+precedence nonassoc OR;
+precedence nonassoc AND;
+precedence nonassoc EQ, NEQ, LESS, NGTR, GTR, NLESS;
+precedence left     ADD, SUB;
+precedence left     MUL, DIV;
+precedence left     UMINUS;
+precedence left		L2;
+
+start with program;
+
+program   ::= expr:e {:RESULT = e;parser.parseResult = (Exp)e;new Print(System.out).prExp(e,0);:}
+         	;
+         	
+expr      ::= STRING:s {:RESULT = new StringExp(sleft,s);:}
+		  	| NUM:i {:RESULT = new IntExp(ileft,i.intValue());:}
+		  	| NIL:n {:RESULT = new NilExp(nleft);:}
+		  	| lvalue:l {:RESULT = new VarExp(lleft,l);:}
+		  	| SUB expr:e {:RESULT = new OpExp(eleft,new IntExp(eleft,0),OpExp.MINUS,e);:} %prec UMINUS
+		  	| expr:e1 ADD expr:e2 {:RESULT = new OpExp(e1left,e1,OpExp.PLUS,e2);:}
+		  	| expr:e1 SUB expr:e2 {:RESULT = new OpExp(e1left,e1,OpExp.MINUS,e2);:}
+		  	| expr:e1 MUL expr:e2 {:RESULT = new OpExp(e1left,e1,OpExp.MUL,e2);:}
+		  	| expr:e1 DIV expr:e2 {:RESULT = new OpExp(e1left,e1,OpExp.DIV,e2);:}
+		  	| expr:e1 EQ expr:e2 {:RESULT = new OpExp(e1left,e1,OpExp.EQ,e2);:}
+		  	| expr:e1 NEQ expr:e2 {:RESULT = new OpExp(e1left,e1,OpExp.NE,e2);:}
+		  	| expr:e1 LESS expr:e2 {:RESULT = new OpExp(e1left,e1,OpExp.LT,e2);:}
+		  	| expr:e1 NGTR expr:e2 {:RESULT = new OpExp(e1left,e1,OpExp.LE,e2);:}
+		  	| expr:e1 GTR expr:e2 {:RESULT = new OpExp(e1left,e1,OpExp.GT,e2);:}
+		  	| expr:e1 NLESS expr:e2 {:RESULT = new OpExp(e1left,e1,OpExp.GE,e2);:}
+		  	| expr:e1 AND expr:e2 {:RESULT = new IfExp(e1left,e1,e2,new IntExp(e1left,0));:}
+		  	| expr:e1 OR expr:e2 {:RESULT = new IfExp(e1left,e1,new IntExp(e1left,1),e2);:}
+		  	| lvalue:l ASSIGN expr:e {:RESULT = new AssignExp(lleft,l,e);:}
+		  	| IDENTIFIER:i L1 R1 {:RESULT = new CallExp(ileft,Symbol.Symbol.symbol(i),null);:}
+		  	| IDENTIFIER:i L1 exprList:e R1 {:RESULT = new CallExp(ileft,Symbol.Symbol.symbol(i),e);:}
+		  	| L1:l R1 {:RESULT = new SeqExp(lleft,null);:}
+		  	| L1 exprSeq:e R1 {:RESULT = new SeqExp(eleft,e);:}
+		  	| IDENTIFIER:i L3 R3 {:RESULT = new RecordExp(ileft,Symbol.Symbol.symbol(i),null);:}
+		  	| IDENTIFIER:i L3 fldList:f R3 {:RESULT = new RecordExp(ileft,Symbol.Symbol.symbol(i),f);:}
+		  	| IDENTIFIER:i L2 expr:e1 R2 OF expr:e2 {:RESULT = new ArrayExp(ileft,Symbol.Symbol.symbol(i),e1,e2);:}
+		  	| IF expr:e1 THEN expr:e2 {:RESULT = new IfExp(e1left,e1,e2);:}
+		  	| IF expr:e1 THEN expr:e2 ELSE expr:e3 {:RESULT = new IfExp(e1left,e1,e2,e3);:}
+		  	| WHILE expr:e1 DO expr:e2 {:RESULT = new WhileExp(e1left,e1,e2);:}
+		  	| FOR IDENTIFIER:i ASSIGN expr:e1 TO expr:e2 DO expr:e3 {:RESULT = new ForExp(ileft,new VarDec(ileft,Symbol.Symbol.symbol(i),new NameTy(ileft,Symbol.Symbol.symbol("int")),e1),e2,e3);:}
+   		    | BREAK:b {:RESULT = new BreakExp(bleft);:}
+   		    | LET decList:d IN END {:RESULT = new LetExp(dleft,d,null);:}
+		  	| LET decList:d IN exprSeq:e END {:RESULT = new LetExp(dleft,d,new SeqExp(eleft,e));:}
+		  	;
+		  	
+lvalue    ::= lvalue:l L2 expr:e R2 {:RESULT = new SubscriptVar(lleft,l,e);:}
+			| lvalue:l DOT IDENTIFIER:i {:RESULT = new FieldVar(lleft,l,Symbol.Symbol.symbol(i));:}
+			| IDENTIFIER:i {:RESULT = new SimpleVar(ileft,Symbol.Symbol.symbol(i));:}
+			| IDENTIFIER:i L2 expr:e R2 {:RESULT = new SubscriptVar(ileft,new SimpleVar(ileft,Symbol.Symbol.symbol(i)),e);:}
+			;
+		  
+exprList  ::= expr:e {:RESULT = new ExpList(e,null);:}
+			| expr:e COMMA exprList:el {:RESULT = new ExpList(e,el);:}
+			;
+			
+exprSeq   ::= expr:e {:RESULT = new ExpList(e,null);:}
+			| expr:e SEMICOLON exprSeq:es {:RESULT = new ExpList(e,es);:}
+			;
+			
+fldList   ::= IDENTIFIER:i EQ expr:e {:RESULT = new FieldExpList(ileft,Symbol.Symbol.symbol(i),e,null);:}
+			| IDENTIFIER:i EQ expr:e COMMA fldList:f {:RESULT = new FieldExpList(ileft,Symbol.Symbol.symbol(i),e,f);:}
+			;
+				
+dec 	  ::= tyDecList:t {:RESULT = t;:}
+			| varDec:v {:RESULT = v;:}
+			| fcDecList:f {:RESULT = f;:}
+			;
+			
+decList	  ::= dec:d {:RESULT = new DecList(d,null);:}
+			| dec:d decList:dl {:RESULT = new DecList(d,dl);:}
+			;
+						
+tyDecList ::= typeDec:t {:RESULT = t;:}
+			| typeDec:t tyDecList:tl {:RESULT = new TypeDec(tleft,t.name,t.ty,tl);:}
+			;
+			
+typeDec   ::= TYPE IDENTIFIER:i EQ type:t {:RESULT = new TypeDec(ileft,Symbol.Symbol.symbol(i),t,null);:}
+			;
+			
+type      ::= IDENTIFIER:i {:RESULT = new NameTy(ileft,Symbol.Symbol.symbol(i));:}
+			| L3:l R3 {:RESULT = new RecordTy(lleft,null);:} 
+			| L3 typeFlds:t R3 {:RESULT = new RecordTy(tleft,t);:}
+			| ARRAY OF IDENTIFIER:i {:RESULT = new ArrayTy(ileft,Symbol.Symbol.symbol(i));:}
+			;
+			
+typeFlds  ::= IDENTIFIER:i1 COLON IDENTIFIER:i2 {:RESULT = new FieldList(i1left,Symbol.Symbol.symbol(i1),Symbol.Symbol.symbol(i2),null);:}
+			| IDENTIFIER:i1 COLON IDENTIFIER:i2 COMMA typeFlds:ts {:RESULT = new FieldList(tsleft,Symbol.Symbol.symbol(i1),Symbol.Symbol.symbol(i2),ts);:}
+			;
+			
+varDec    ::= VAR IDENTIFIER:i ASSIGN expr:e {:RESULT = new VarDec(ileft,Symbol.Symbol.symbol(i),null,e);:}
+			| VAR IDENTIFIER:i1 COLON IDENTIFIER:i2 ASSIGN expr:e {:RESULT = new VarDec(i1left,Symbol.Symbol.symbol(i1),new NameTy(i2left,Symbol.Symbol.symbol(i2)),e);:}
+			;
+			
+fcDecList ::= funcDec:f {:RESULT = f;:}
+			| funcDec:f fcDecList:fl {:RESULT = new FunctionDec(fleft,f.name,f.params,f.result,f.body,fl);:}
+			;
+						
+funcDec   ::= FUNCTION IDENTIFIER:i L1 R1 EQ expr:e {:RESULT = new FunctionDec(ileft,Symbol.Symbol.symbol(i),null,null,e,null);:}
+			| FUNCTION IDENTIFIER:i L1 typeFlds:t R1 EQ expr:e {:RESULT = new FunctionDec(ileft,Symbol.Symbol.symbol(i),t,null,e,null);:}
+			| FUNCTION IDENTIFIER:i1 L1 R1 COLON IDENTIFIER:i2 EQ expr:e {:RESULT = new FunctionDec(i1left,Symbol.Symbol.symbol(i1),null,new NameTy(i2left,Symbol.Symbol.symbol(i2)),e,null);:}
+			| FUNCTION IDENTIFIER:i1 L1 typeFlds:t R1 COLON IDENTIFIER:i2 EQ expr:e {:RESULT = new FunctionDec(i1left,Symbol.Symbol.symbol(i1),t,new NameTy(i2left,Symbol.Symbol.symbol(i2)),e,null);:}
+			; 

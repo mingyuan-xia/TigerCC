@@ -1,0 +1,6 @@
+let
+
+var a := (chr(1);chr(6))
+in
+a
+end

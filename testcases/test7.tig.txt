@@ -1,0 +1,151 @@
+.686
+.model flat, stdcall
+option casemap :none   ; case sensitive
+include windows.inc
+include user32.inc
+include kernel32.inc
+include masm32.inc
+.data
+stringConst0 db 073h,074h,072h,0
+stringConst1 db 020h,0
+stringConst2 db 073h,074h,072h,032h,0
+__do_nothing1_fp dd ?
+__do_nothing2_fp dd ?
+__scope6_fp dd ?
+__scope0_fp dd ?
+.code
+extrn tg_print :near
+extrn tg_newrecord :near
+extrn tg_getchar :near
+extrn tg_newarray :near
+extrn tg_finalize :near
+extrn tg_ord :near
+extrn tg_chr :near
+extrn tg_printi :near
+extrn tg_streq :near
+extrn tg_strneq :near
+main PROC C
+	call scope0
+	call tg_finalize
+	call ExitProcess
+	ret 0
+main endp
+scope0:
+label0:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __scope0_fp
+sub esp,04h
+mov __scope0_fp,ebp
+;$0=call scope6of #0 args
+
+call scope6
+;frame_leave
+
+mov [ebp-04h],eax
+mov eax,ebx
+add esp,04h
+pop __scope0_fp
+pop ebp
+ret
+
+scope6:
+label1:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __scope6_fp
+sub esp,04h
+mov __scope6_fp,ebp
+;push #0
+
+mov eax,00h
+push eax
+;push #
+
+lea ebx,stringConst2
+push ebx
+;$4=call do_nothing1of #2 args
+
+call do_nothing1
+add esp,08h
+;frame_leave$4
+
+mov [ebp-04h],eax
+mov eax,eax
+add esp,04h
+pop __scope6_fp
+pop ebp
+ret
+
+do_nothing1:
+label2:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __do_nothing1_fp
+sub esp,08h
+mov __do_nothing1_fp,ebp
+;$1=a+#1
+
+mov eax,[ebp+08h]
+mov ebx,01h
+add eax,ebx
+;push $1
+
+push eax
+;$2=call do_nothing2of #1 args
+
+mov [ebp-04h],eax
+call do_nothing2
+add esp,04h
+;frame_leave#0
+
+mov ebx,00h
+mov [ebp-08h],eax
+mov eax,ebx
+add esp,08h
+pop __do_nothing1_fp
+pop ebp
+ret
+
+
+do_nothing2:
+label3:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __do_nothing2_fp
+sub esp,04h
+mov __do_nothing2_fp,ebp
+;push d
+
+mov eax,[ebp+08h]
+push eax
+;push #
+
+lea ebx,stringConst0
+push ebx
+;$3=call do_nothing1of #2 args
+
+call do_nothing1
+add esp,08h
+;frame_leave#
+
+lea ebx,stringConst1
+mov [ebp-04h],eax
+mov eax,ebx
+add esp,04h
+pop __do_nothing2_fp
+pop ebp
+ret
+
+
+
+
+end

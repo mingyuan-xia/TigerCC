@@ -1,0 +1,30 @@
+
+
+import java.util.*;
+
+public class StringUtil {
+    /**
+     * 模拟.Net格式化
+     */
+    public static String Format(String format, Object... args) {
+        for (int i = 0; i < args.length; i++) {
+            format = format.replace("{" + Integer.toString(i) + "}", args[i].toString());
+        }
+        return format;
+    }
+
+    /**
+     * 模拟String.Join
+     */
+    public static String Join(String delimiter, Collection<String> s) {
+        StringBuffer buffer = new StringBuffer();
+        Iterator<String> iter = s.iterator();
+        while (iter.hasNext()) {
+            buffer.append(iter.next());
+            if (iter.hasNext()) {
+                buffer.append(delimiter);
+            }
+        }
+        return buffer.toString();
+    }
+}

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item value="473" key="DIALOG_WIDTH"/>
+		<item value="511" key="DIALOG_Y_ORIGIN"/>
+		<item value="355" key="DIALOG_HEIGHT"/>
+		<item value="780" key="DIALOG_X_ORIGIN"/>
+		<item value="1|宋体|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|宋体" key="DIALOG_FONT_NAME"/>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item value="false" key="wrap"/>
+		<item value="false" key="isRegEx"/>
+		<item value="true" key="casesensitive"/>
+		<item value="false" key="incremental"/>
+		<item value="false" key="wholeword"/>
+		<item value="For" key="selection"/>
+		<list key="findhistory">
+			<item value="For"/>
+			<item value="ExpressionNotRecieved"/>
+			<item value="Method paramter not match its type."/>
+			<item value="$"/>
+			<item value="NodeIdentifierMapping"/>
+			<item value="variableCall "/>
+			<item value="in"/>
+			<item value="System.out.println();"/>
+		</list>
+		<list key="replacehistory">
+			<item value="\/\/TODO\n$0"/>
+			<item value="\/\/TODO\nin"/>
+			<item value="//TODO\nin"/>
+			<item value="//TODOin"/>
+			<item value="print();"/>
+			<item value="Pass == 4"/>
+			<item value="//        "/>
+			<item value="rvalue"/>
+		</list>
+	</section>
+</section>

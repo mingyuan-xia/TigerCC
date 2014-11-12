@@ -1,0 +1,355 @@
+.686
+.model flat, stdcall
+option casemap :none   ; case sensitive
+include windows.inc
+include user32.inc
+include kernel32.inc
+include masm32.inc
+.data
+stringConst0 db 061h,06eh,061h,06dh,065h,0
+stringConst1 db 073h,06fh,06dh,065h,077h,068h,065h,072h,065h,0
+stringConst2 db 0
+stringConst3 db 04bh,061h,070h,06fh,069h,06fh,073h,0
+stringConst4 db 04bh,061h,070h,06fh,075h,0
+stringConst5 db 041h,06ch,06ch,06fh,073h,0
+stringConst6 db 06bh,061h,074h,069h,0
+stringConst7 db 073h,066h,064h,0
+stringConst8 db 073h,064h,066h,0
+__scope6_fp dd ?
+__scope0_fp dd ?
+.code
+extrn tg_print :near
+extrn tg_newrecord :near
+extrn tg_getchar :near
+extrn tg_newarray :near
+extrn tg_finalize :near
+extrn tg_ord :near
+extrn tg_chr :near
+extrn tg_printi :near
+extrn tg_streq :near
+extrn tg_strneq :near
+main PROC C
+	call scope0
+	call tg_finalize
+	call ExitProcess
+	ret 0
+main endp
+scope0:
+label0:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __scope0_fp
+sub esp,00h
+mov __scope0_fp,ebp
+;call scope6of #0 args
+
+call scope6
+;frame_leave
+
+mov eax,eax
+add esp,00h
+pop __scope0_fp
+pop ebp
+ret
+
+scope6:
+label1:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __scope6_fp
+sub esp,040h
+mov __scope6_fp,ebp
+;$0=newarray[#10]of#0
+
+mov ebx,0ah
+mov ecx,00h
+push ecx
+push ebx
+call tg_newarray
+add esp,08h
+;arr1=$0
+
+mov [ebp-018h],eax
+;$2=newrecord[#4]
+
+mov [ebp-04h],eax
+mov ebx,04h
+push ebx
+call tg_newrecord
+add esp,04h
+;$2.field[#0]=#
+
+mov ecx,00h
+lea edx,stringConst0
+mov ebx,ecx
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edx
+;$2.field[#1]=#
+
+mov esi,01h
+lea edi,stringConst1
+mov ebx,esi
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edi
+;$2.field[#2]=#0
+
+mov ecx,02h
+mov edx,00h
+mov ebx,ecx
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edx
+;$2.field[#3]=#0
+
+mov esi,03h
+mov edi,00h
+mov ebx,esi
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edi
+;$1=newarray[#5]of$2
+
+mov [ebp-01ch],eax
+mov ebx,05h
+mov ecx,[ebp-01ch]
+push ecx
+push ebx
+call tg_newarray
+add esp,08h
+;arr2=$1
+
+mov [ebp-020h],eax
+;$3=newarray[#100]of#
+
+mov [ebp-08h],eax
+mov ebx,064h
+lea ecx,stringConst2
+push ecx
+push ebx
+call tg_newarray
+add esp,08h
+;arr3=$3
+
+mov [ebp-024h],eax
+;$4=newrecord[#4]
+
+mov [ebp-0ch],eax
+mov ebx,04h
+push ebx
+call tg_newrecord
+add esp,04h
+;$4.field[#0]=#
+
+mov ecx,00h
+lea edx,stringConst3
+mov ebx,ecx
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edx
+;$4.field[#1]=#
+
+mov esi,01h
+lea edi,stringConst4
+mov ebx,esi
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edi
+;$4.field[#2]=#2432
+
+mov ecx,02h
+mov edx,0980h
+mov ebx,ecx
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edx
+;$4.field[#3]=#44
+
+mov esi,03h
+mov edi,02ch
+mov ebx,esi
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edi
+;rec1=$4
+
+mov [ebp-028h],eax
+;$6=newarray[#3]of#1900
+
+mov [ebp-010h],eax
+mov ebx,03h
+mov ecx,076ch
+push ecx
+push ebx
+call tg_newarray
+add esp,08h
+;$5=newrecord[#2]
+
+mov [ebp-02ch],eax
+mov ebx,02h
+push ebx
+call tg_newrecord
+add esp,04h
+;$5.field[#0]=#
+
+mov ecx,00h
+lea edx,stringConst5
+mov ebx,ecx
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edx
+;$5.field[#1]=$6
+
+mov esi,01h
+mov edi,[ebp-02ch]
+mov ebx,esi
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edi
+;rec2=$5
+
+mov [ebp-030h],eax
+;arr1[#0]=#1
+
+mov [ebp-014h],eax
+mov eax,[ebp-04h]
+mov ecx,00h
+mov edx,01h
+mov ebx,ecx
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edx
+;arr1[#9]=#3
+
+mov esi,09h
+mov edi,03h
+mov ebx,esi
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edi
+;$7=arr2[#3]
+
+mov eax,[ebp-034h]
+mov ecx,[ebp-08h]
+mov edx,03h
+mov ebx,edx
+shl ebx,1
+shl ebx,1
+add ebx,ecx
+mov eax,[ebx]
+;$7.field[#0]=#
+
+mov esi,00h
+lea edi,stringConst6
+mov ebx,esi
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edi
+;$8=arr2[#1]
+
+mov [ebp-034h],eax
+mov eax,[ebp-038h]
+mov edx,01h
+mov ebx,edx
+shl ebx,1
+shl ebx,1
+add ebx,ecx
+mov eax,[ebx]
+;$8.field[#3]=#23
+
+mov esi,03h
+mov edi,017h
+mov ebx,esi
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edi
+;arr3[#34]=#
+
+mov [ebp-038h],eax
+mov eax,[ebp-0ch]
+mov ecx,022h
+lea edx,stringConst7
+mov ebx,ecx
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edx
+;rec1.field[#0]=#
+
+mov esi,[ebp-010h]
+mov edi,00h
+lea eax,stringConst8
+mov ebx,edi
+shl ebx,1
+shl ebx,1
+add ebx,esi
+mov [ebx],eax
+;$9= rec2.field[#1]
+
+mov ecx,[ebp-03ch]
+mov edx,[ebp-014h]
+mov esi,01h
+mov ebx,esi
+shl ebx,1
+shl ebx,1
+add ebx,edx
+mov ecx,[ebx]
+;$9[#0]=#2323
+
+mov edi,00h
+mov eax,0913h
+mov ebx,edi
+shl ebx,1
+shl ebx,1
+add ebx,ecx
+mov [ebx],eax
+;$10= rec2.field[#1]
+
+mov [ebp-03ch],ecx
+mov ecx,[ebp-040h]
+mov esi,01h
+mov ebx,esi
+shl ebx,1
+shl ebx,1
+add ebx,edx
+mov ecx,[ebx]
+;$10[#2]=#2323
+
+mov edi,02h
+mov eax,0913h
+mov ebx,edi
+shl ebx,1
+shl ebx,1
+add ebx,ecx
+mov [ebx],eax
+;frame_leave
+
+mov [ebp-040h],ecx
+mov eax,ebx
+add esp,040h
+pop __scope6_fp
+pop ebp
+ret
+
+
+
+end

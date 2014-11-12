@@ -1,0 +1,7 @@
+public class expr {
+    public String[] b;
+
+    public void main(String[] args) {
+        b = new String[100];
+    }
+}

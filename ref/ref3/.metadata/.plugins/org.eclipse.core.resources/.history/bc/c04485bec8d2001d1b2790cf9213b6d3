@@ -1,0 +1,549 @@
+//==========================================================================
+//
+//  File:        VerifierExpr.java
+//  Location:    TigerCompiler <Java>
+//  Description: Verifier responsible to check Naming, Typing and Variable Initializing
+//  Version:     2008.12.26.
+//  License:     BSD License
+//
+//  Copyright(C) F.R.C., All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in the
+//        documentation and/or other materials provided with the distribution.
+//      * Neither the name of the the copyright holders nor the
+//        names of its contributors may be used to endorse or promote products
+//        derived from this software without specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
+//  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//==========================================================================
+
+package Semantics.verifier;
+
+import java.util.*;
+
+import Syntax.node.*;
+import static Semantics.verifier.ErrorReporter.*;
+
+public class VerifierExpr extends VerifierPass4 {
+
+    //        xxxExpr(Out)
+    //
+    //        Str
+    //        Int
+    //        Nil
+    //        Lvalue
+    //        Negitive
+    //        Plus
+    //        Minus
+    //        Multiply
+    //        Divide
+    //        Equals
+    //        NotEquals
+    //        Less
+    //        LessOrEqual
+    //        Greater
+    //        GreaterOrEqual
+    //        And
+    //        Or
+    //        Assign
+    //        Method
+    //        Seq
+    //        Record
+    //        Array
+    //        If
+    //        While
+    //        For
+    //        Break
+    //        Let
+    //
+    //        ---- 2.Node->Type
+
+    public VerifierExpr(int numPass) {
+        super(numPass);
+    }
+
+    @Override
+    public void outAStrExpr(AStrExpr node) {
+        if (Pass == 4) {
+            Add(NodeTypeMapping, node, StrType.GetInstance());
+        }
+        super.outAStrExpr(node);
+    }
+
+    @Override
+    public void outAIntExpr(AIntExpr node) {
+        if (Pass == 4) {
+            Add(NodeTypeMapping, node, IntType.GetInstance());
+        }
+        super.outAIntExpr(node);
+    }
+
+    @Override
+    public void outANilExpr(ANilExpr node) {
+        if (Pass == 4) {
+            Add(NodeTypeMapping, node, AnyRecordType.GetInstance());
+        }
+        super.outANilExpr(node);
+    }
+
+    @Override
+    public void outALvalueExpr(ALvalueExpr node) {
+        if (Pass == 4) {
+            Type t = NodeTypeMapping.get(node.getLvalue());
+            if (t == null) {
+                //Checked
+            }
+            else {
+                Add(NodeTypeMapping, node, t);
+            }
+        }
+        super.outALvalueExpr(node);
+    }
+
+    @Override
+    public void outANegitiveExpr(ANegitiveExpr node) {
+        if (Pass == 4) {
+            if (!IsOfInt(node.getExpr())) {
+                NewError(node.getExpr(), "TypeMismatch : Expecting value of 'int'.");
+            }
+            Add(NodeTypeMapping, node, IntType.GetInstance());
+        }
+        super.outANegitiveExpr(node);
+    }
+
+    @Override
+    public void outAPlusExpr(APlusExpr node) {
+        if (Pass == 4) {
+            if (!IsOfInt(node.getL())) {
+                NewError(node.getL(), "TypeMismatch : Expecting value of 'int'.");
+            }
+            if (!IsOfInt(node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Expecting value of 'int'.");
+            }
+            Add(NodeTypeMapping, node, IntType.GetInstance());
+        }
+        super.outAPlusExpr(node);
+    }
+
+    @Override
+    public void outAMinusExpr(AMinusExpr node) {
+        if (Pass == 4) {
+            if (!IsOfInt(node.getL())) {
+                NewError(node.getL(), "TypeMismatch : Expecting value of 'int'.");
+            }
+            if (!IsOfInt(node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Expecting value of 'int'.");
+            }
+            Add(NodeTypeMapping, node, IntType.GetInstance());
+        }
+        super.outAMinusExpr(node);
+    }
+
+    @Override
+    public void outAMultiplyExpr(AMultiplyExpr node) {
+        if (Pass == 4) {
+            if (!IsOfInt(node.getL())) {
+                NewError(node.getL(), "TypeMismatch : Expecting value of 'int'.");
+            }
+            if (!IsOfInt(node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Expecting value of 'int'.");
+            }
+            Add(NodeTypeMapping, node, IntType.GetInstance());
+        }
+        super.outAMultiplyExpr(node);
+    }
+
+    @Override
+    public void outADivideExpr(ADivideExpr node) {
+        if (Pass == 4) {
+            if (!IsOfInt(node.getL())) {
+                NewError(node.getL(), "TypeMismatch : Expecting value of 'int'.");
+            }
+            if (!IsOfInt(node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Expecting value of 'int'.");
+            }
+            Add(NodeTypeMapping, node, IntType.GetInstance());
+        }
+        super.outADivideExpr(node);
+    }
+
+    @Override
+    public void outAEqualsExpr(AEqualsExpr node) {
+        if (Pass == 4) {
+            if (!IsTypeMatch(node.getL(), node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Only compatible types can test equality.");
+            }
+            Add(NodeTypeMapping, node, IntType.GetInstance());
+        }
+        super.outAEqualsExpr(node);
+    }
+
+    @Override
+    public void outANotEqualsExpr(ANotEqualsExpr node) {
+        if (Pass == 4) {
+            if (!IsTypeMatch(node.getL(), node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Only compatible types can test equality.");
+            }
+            Add(NodeTypeMapping, node, IntType.GetInstance());
+        }
+        super.outANotEqualsExpr(node);
+    }
+
+    @Override
+    public void outALessExpr(ALessExpr node) {
+        if (Pass == 4) {
+            if (!IsOfInt(node.getL()) && !IsOfStr(node.getL())) {
+                NewError(node.getL(), "TypeMismatch : Expecting value of 'int' or 'string'.");
+            }
+            if (!IsOfInt(node.getR()) && !IsOfStr(node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Expecting value of 'int' or 'string'.");
+            }
+            if (!IsTypeMatch(node.getL(), node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Only compatible types can be compared.");
+            }
+            Add(NodeTypeMapping, node, IntType.GetInstance());
+        }
+        super.outALessExpr(node);
+    }
+
+    @Override
+    public void outALessOrEqualExpr(ALessOrEqualExpr node) {
+        if (Pass == 4) {
+            if (!IsOfInt(node.getL()) && !IsOfStr(node.getL())) {
+                NewError(node.getL(), "TypeMismatch : Expecting value of 'int' or 'string'.");
+            }
+            if (!IsOfInt(node.getR()) && !IsOfStr(node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Expecting value of 'int' or 'string'.");
+            }
+            if (!IsTypeMatch(node.getL(), node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Only compatible types can be compared.");
+            }
+            Add(NodeTypeMapping, node, IntType.GetInstance());
+        }
+        super.outALessOrEqualExpr(node);
+    }
+
+    @Override
+    public void outAGreaterExpr(AGreaterExpr node) {
+        if (Pass == 4) {
+            if (!IsOfInt(node.getL()) && !IsOfStr(node.getL())) {
+                NewError(node.getL(), "TypeMismatch : Expecting value of 'int' or 'string'.");
+            }
+            if (!IsOfInt(node.getR()) && !IsOfStr(node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Expecting value of 'int' or 'string'.");
+            }
+            if (!IsTypeMatch(node.getL(), node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Only compatible types can be compared.");
+            }
+            Add(NodeTypeMapping, node, IntType.GetInstance());
+        }
+        super.outAGreaterExpr(node);
+    }
+
+    @Override
+    public void outAGreaterOrEqualExpr(AGreaterOrEqualExpr node) {
+        if (Pass == 4) {
+            if (!IsOfInt(node.getL()) && !IsOfStr(node.getL())) {
+                NewError(node.getL(), "TypeMismatch : Expecting value of 'int' or 'string'.");
+            }
+            if (!IsOfInt(node.getR()) && !IsOfStr(node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Expecting value of 'int' or 'string'.");
+            }
+            if (!IsTypeMatch(node.getL(), node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Only compatible types can be compared.");
+            }
+            Add(NodeTypeMapping, node, IntType.GetInstance());
+        }
+        super.outAGreaterOrEqualExpr(node);
+    }
+
+    @Override
+    public void outAAndExpr(AAndExpr node) {
+        if (Pass == 4) {
+            if (!IsOfInt(node.getL())) {
+                NewError(node.getL(), "TypeMismatch : Expecting value of 'int'.");
+            }
+            if (!IsOfInt(node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Expecting value of 'int'.");
+            }
+            Add(NodeTypeMapping, node, IntType.GetInstance());
+        }
+        super.outAAndExpr(node);
+    }
+
+    @Override
+    public void outAOrExpr(AOrExpr node) {
+        if (Pass == 4) {
+            if (!IsOfInt(node.getL())) {
+                NewError(node.getL(), "TypeMismatch : Expecting value of 'int'.");
+            }
+            if (!IsOfInt(node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Expecting value of 'int'.");
+            }
+            Add(NodeTypeMapping, node, IntType.GetInstance());
+        }
+        super.outAOrExpr(node);
+    }
+
+    @Override
+    public void outAAssignExpr(AAssignExpr node) {
+        if (Pass == 4) {
+            if (!IsTypeMatch(node.getL(), node.getR())) {
+                NewError(node.getR(), "TypeMismatch : Only compatible types can test equality.");
+            }
+            PLvalue l = node.getL();
+            while (true) {
+                if (l instanceof AListLvalue) {
+                    l = ((AListLvalue) (l)).getLvalue();
+                }
+                else if (l instanceof AArrayLvalue) {
+                    l = ((AArrayLvalue) (l)).getLvalue();
+                }
+                else {
+                    break;
+                }
+            }
+            if (l instanceof ASingleLvalue) {
+                Identifier id = NodeIdentifierMapping.get(l);
+                if (id.ReadOnly) {
+                    NewError(l, "ReadOnlyVariable");
+                }
+            }
+            Add(NodeTypeMapping, node, UnitType.GetInstance());
+        }
+        super.outAAssignExpr(node);
+    }
+
+    @Override
+    public void outAMethodExpr(AMethodExpr node) {
+        if (Pass == 4) {
+            BlockNamespace c = TryResolveIdentifier(node.getId().getText());
+            if (c == null) {
+                //Checked
+            }
+            else {
+                Identifier id = c.GetIdentifier(node.getId().getText());
+                if (id == null) {
+                    //Checked
+                }
+                else if (!(id.Type instanceof MethodType)) {
+                    //Checked
+                }
+                else {
+                    MethodType t = (MethodType) (id.Type);
+
+                    LinkedList<PExpr> exprs = node.getExpr();
+
+                    if (exprs.size() != t.Parameters.length) {
+                        NewError(node, "TypeMismatch : Method paramter number not match.");
+                    }
+
+                    Iterator<PExpr> itr = exprs.iterator();
+                    for (Identifier p : t.Parameters) {
+                        PExpr e = itr.next();
+                        if (!IsTypeMatch(p.Type, NodeTypeMapping.get(e))) {
+                            NewError(e, "TypeMismatch : Method paramter not match its type.");
+                        }
+                    }
+                    if (t.ReturnType == null) {
+                        //Checked
+                    }
+                    else {
+                        Add(NodeTypeMapping, node, t.ReturnType);
+                    }
+                }
+            }
+        }
+        super.outAMethodExpr(node);
+    }
+
+    @Override
+    public void outASeqExpr(ASeqExpr node) {
+        if (Pass == 4) {
+            LinkedList<PExpr> exprs = node.getExpr();
+
+            if (exprs.size() == 0) {
+                Add(NodeTypeMapping, node, UnitType.GetInstance());
+            }
+            else {
+                Type t = NodeTypeMapping.get(exprs.getLast());
+                if (t == null) {
+                    //Checked
+                }
+                else {
+                    Add(NodeTypeMapping, node, t);
+                }
+
+                for (PExpr e : exprs) {
+                    if (e != exprs.getLast()) {
+                        if (!IsTypeMatch(NodeTypeMapping.get(e), UnitType.GetInstance())) {
+                            NewWarning(e, "ExpressionNotRecieved");
+                        }
+                    }
+                }
+            }
+        }
+        super.outASeqExpr(node);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void outARecordExpr(ARecordExpr node) {
+        if (Pass == 4) {
+            BlockNamespace c = TryResolveTypeIdentifier(node.getId().getText());
+            if (c == null) {
+                //Checked
+            }
+            else {
+                TypeIdentifier id = c.GetTypeIdentifier(node.getId().getText());
+                if (id == null) {
+                    //Checked
+                }
+                else if (!(id.TypeOfType.GetType() instanceof RecordType)) {
+                    //Checked
+                }
+                else {
+                    RecordType t = (RecordType) (id.TypeOfType.GetType());
+
+                    LinkedList<AField> fields = (LinkedList<AField>) (LinkedList) (node.getField());
+
+                    if (fields.size() != t.Fields.length) {
+                        NewError(node, "TypeMismatch : Record field number not match.");
+                    }
+
+                    Iterator<AField> itr = fields.iterator();
+                    for (Field f : t.Fields) {
+                        AField e = itr.next();
+                        if (!(f.Name.equals(e.getId().getText()))) {
+                            NewError(e, "TypeMismatch : Record field not match.");
+                        }
+                        if (!IsTypeMatch(f.Type, NodeTypeMapping.get(e.getExpr()))) {
+                            NewError(e, "TypeMismatch : Record field not match its type.");
+                        }
+                    }
+                    Add(NodeTypeMapping, node, t);
+                }
+            }
+        }
+        super.outARecordExpr(node);
+    }
+
+    @Override
+    public void outAArrayExpr(AArrayExpr node) {
+        if (Pass == 4) {
+            BlockNamespace c = TryResolveTypeIdentifier(node.getId().getText());
+            if (c == null) {
+                //Checked
+            }
+            else {
+                TypeIdentifier id = c.GetTypeIdentifier(node.getId().getText());
+                if (id == null) {
+                    //Checked
+                }
+                else if (!(id.TypeOfType.GetType() instanceof ArrayType)) {
+                    //Checked
+                }
+                else {
+                    ArrayType t = (ArrayType) (id.TypeOfType.GetType());
+
+                    Type elemType = ((ArrayType) (t)).Type;
+
+                    if (!IsOfInt(node.getI())) {
+                        NewError(node, "TypeMismatch : Array size must be of type 'int'.");
+                    }
+
+                    if (!IsTypeMatch(elemType, NodeTypeMapping.get(node.getInit()))) {
+                        NewError(node, "TypeMismatch : Array initial value not match its type.");
+                    }
+
+                    Add(NodeTypeMapping, node, t);
+                }
+            }
+        }
+        super.outAArrayExpr(node);
+    }
+
+    @Override
+    public void outAIfExpr(AIfExpr node) {
+        if (Pass == 4) {
+            if (!IsOfInt(node.getC())) {
+                NewError(node.getC(), "TypeMismatch : Expecting value of 'int'.");
+            }
+            if (!IsTypeMatch(node.getT(), node.getF())) {
+                NewError(node.getT(), "TypeMismatch : Compatible types must be used in true and false statements.");
+            }
+            Type t = NodeTypeMapping.get(node.getT());
+            if (t == null) {
+                //Checked
+            }
+            else {
+                Add(NodeTypeMapping, node, t);
+            }
+        }
+        super.outAIfExpr(node);
+    }
+
+    @Override
+    public void outAWhileExpr(AWhileExpr node) {
+        if (Pass == 4) {
+            if (!IsOfUnit(node.getT())) {
+                NewError(node.getT(), "TypeMismatch : Body of while not of <unit>.");
+            }
+            Add(NodeTypeMapping, node, UnitType.GetInstance());
+        }
+        super.outAWhileExpr(node);
+    }
+
+    @Override
+    public void outAForExpr(AForExpr node) {
+        if (Pass == 4) {
+            if (!IsOfUnit(node.getT())) {
+                NewError(node.getT(), "TypeMismatch : Body of for not of <unit>.");
+            }
+            if (!IsOfInt(node.getLow())) {
+                NewError(node.getLow(), "TypeMismatch : Expecting value of 'int'.");
+            }
+            if (!IsOfInt(node.getUpper())) {
+                NewError(node.getUpper(), "TypeMismatch : Expecting value of 'int'.");
+            }
+            Add(NodeTypeMapping, node, UnitType.GetInstance());
+        }
+        super.outAForExpr(node);
+    }
+
+    @Override
+    public void outABreakExpr(ABreakExpr node) {
+        if (Pass == 4) {
+            Add(NodeTypeMapping, node, UnitType.GetInstance());
+        }
+        super.outABreakExpr(node);
+    }
+
+    @Override
+    public void outALetExpr(ALetExpr node) {
+        if (Pass == 4) {
+            Type t = NodeTypeMapping.get(node.getExpr());
+            if (t == null) {
+                //Checked
+            }
+            else {
+                Add(NodeTypeMapping, node, t);
+            }
+        }
+        super.outALetExpr(node);
+    }
+}

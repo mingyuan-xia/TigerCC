@@ -1,0 +1,5 @@
+package Semantics.verifier;
+
+public class ErrorReporter {
+
+}

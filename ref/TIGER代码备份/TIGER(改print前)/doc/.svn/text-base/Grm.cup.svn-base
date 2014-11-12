@@ -1,0 +1,172 @@
+package Parse;
+
+action code {: static Symbol.Symbol sym(String s) {
+	         return Symbol.Symbol.symbol(s);
+	        }
+	    :};
+
+parser code  {: 
+  public Absyn.Exp parseResult;
+  Lexer lexer;
+
+  public void syntax_error(java_cup.runtime.Symbol current) {
+   report_error("Syntax error (" + current.sym + ")", current);
+  }
+
+  ErrorMsg.ErrorMsg errorMsg;
+
+  public void report_error(String message, 
+			   java_cup.runtime.Symbol info) {
+      errorMsg.error(info.left, message);
+  }
+
+  public Grm(Lexer l, ErrorMsg.ErrorMsg err) {
+    this();
+    errorMsg=err;
+    lexer=l;
+  }
+:};
+
+scan with {: return lexer.nextToken(); :};
+
+terminal String IDENTIFIER, STRING;
+terminal int INTEGER;
+terminal ARRAY, BREAK, DO, ELSE, END, FOR, FUNCTION,
+         IF, IN, LET, NIL, OF, THEN, TO, TYPE, VAR, WHILE,
+         COMMA, COLON, SEMICOLON, L1, R1, L2, R2, L3, R3,
+         DOT, ADD, SUB, MUL, DIV, EQ, NEQ, LESS, NGTR,
+         GTR, NLESS, AND, OR, ASSIGN, UMINUS;
+
+non terminal program;
+non terminal expr;
+non terminal lvalue;
+non terminal biOp;
+non terminal exprList;
+non terminal exprListOp;
+non terminal exprSeq;
+non terminal exprSeqOp;
+non terminal fldList;
+non terminal fldListOp;
+non terminal dec;
+non terminal decList;
+non terminal typeDec;
+non terminal type;
+non terminal typeFld;
+non terminal typeFlds;
+non terminal typeFldsOp;
+non terminal varDec;
+non terminal funcDec;
+
+precedence nonassoc ELSE;
+
+precedence nonassoc ASSIGN;
+precedence nonassoc OR;
+precedence nonassoc AND;
+precedence nonassoc EQ, NEQ, LESS, NGTR, GTR, NLESS;
+precedence left     ADD, SUB;
+precedence left     MUL, DIV;
+precedence left     UMINUS;
+
+precedence right    L2;
+
+start with program;
+
+program   ::= expr
+         	;
+expr      ::= STRING
+		  	| INTEGER
+		  	| NIL
+		  	| lvalue
+		  	| SUB expr %prec UMINUS
+		  	| expr biOp expr
+		  	| lvalue ASSIGN expr
+		  	| IDENTIFIER L1 exprListOp R1
+		  	| L1 exprSeqOp R1
+		  	| IDENTIFIER L3 fldListOp R3
+		  	| IDENTIFIER L2 expr R2 OF expr
+		  	| IF expr THEN expr
+		  	| IF expr THEN expr ELSE expr
+		  	| WHILE expr DO expr
+		  	| FOR IDENTIFIER ASSIGN expr TO expr DO expr
+   		    | BREAK
+		  	| LET decList IN exprSeqOp END
+		  	;
+		  	
+lvalue    ::= IDENTIFIER
+			| lvalue DOT IDENTIFIER
+			| lvalue L2 expr R2
+			;
+		  
+biOp      ::= ADD
+		  	| SUB
+		  	| MUL
+		  	| DIV
+		  	| EQ
+		  	| NEQ
+		  	| LESS
+		  	| NGTR
+		  	| GTR
+		  	| NLESS
+		  	| AND
+		  	| OR
+		 	 ;
+		  
+exprList  ::= expr
+			| exprList COMMA expr
+			;
+			
+exprListOp::= 
+			| exprList
+			;
+			
+exprSeq   ::= expr
+			| exprSeq SEMICOLON expr
+			;
+			
+exprSeqOp ::= 
+			| exprSeq
+			;
+	
+fldList   ::= IDENTIFIER EQ expr
+			| fldList COMMA IDENTIFIER EQ expr
+			;
+			
+fldListOp ::= 
+			| fldList
+			;
+			
+dec 	  ::= typeDec
+			| varDec
+			| funcDec
+			;
+			
+decList	  ::= dec
+			| decList dec
+			;
+			
+typeDec   ::= TYPE IDENTIFIER EQ type
+			;
+			
+type      ::= IDENTIFIER
+			| L3 typeFldsOp R3
+			| ARRAY OF IDENTIFIER
+			;
+			
+typeFld	  ::= IDENTIFIER COMMA IDENTIFIER
+			;
+			
+typeFlds  ::= typeFld
+			| typeFlds COMMA typeFld
+			;
+			
+typeFldsOp::= 
+			| typeFlds
+			;
+			
+varDec    ::= VAR IDENTIFIER ASSIGN expr
+			| VAR IDENTIFIER COLON IDENTIFIER ASSIGN expr
+			;
+			
+funcDec   ::= FUNCTION IDENTIFIER L1 typeFldsOp R1 EQ expr
+			| FUNCTION IDENTIFIER L1 typeFldsOp R1 COLON IDENTIFIER EQ expr
+			; 

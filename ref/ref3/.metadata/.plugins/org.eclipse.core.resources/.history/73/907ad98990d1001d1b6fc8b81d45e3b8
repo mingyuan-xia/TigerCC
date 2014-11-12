@@ -1,0 +1,218 @@
+//==========================================================================
+//
+//  File:        Verifier.java
+//  Location:    TigerCompiler <Java>
+//  Description: Verifier responsible to check Naming, Typing and Variable Initializing
+//  Version:     2008.12.23.
+//  License:     BSD License
+//
+//  Copyright(C) F.R.C., All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in the
+//        documentation and/or other materials provided with the distribution.
+//      * Neither the name of the the copyright holders nor the
+//        names of its contributors may be used to endorse or promote products
+//        derived from this software without specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
+//  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//==========================================================================
+
+package Semantics.verifier;
+
+import Syntax.node.*;
+import Syntax.analysis.*;
+
+import static Semantics.verifier.ErrorReporter.*;
+
+public class Verifier extends VerifierBase {
+
+    //Mainly 4 parts take place here.
+    //0.      Map all declarations, TypeName->TypeIdentifier or Name->Identifier.
+    //        Check TypeRedefination, Redefination.
+    //1.      Map all identifier accesses, Node->TypeIdentifier or Node->Identifier.
+    //        Check TypeNotFound and IdentifierNotFound.
+    //2.      Map all expression, Node->TypeOfType or Node->Type.
+    //        Check TypeMismatch, RecordIncomplete, ExpressionNotRecieved(Warning).
+    //3.      Map all declarations, TypeIdentifier->TypeOfType or Identifier->Type.
+    //        Check TypeBindMismatch, TypeBindVoid, TypeBindDirectRecursion and do variable type inferring, equal type elimilation.
+    //
+    //Additionally parts are:
+    //4.      Check VariableNotInitialized(Warning), by creating a Identifier->Initialized mapping when writing and checking it when reading.
+    //5.      Check IllegalBreakStatement, by checking outer For or While level.
+    //6.      Check IntegerLiteralOverflow.
+    //
+    //They take place in a non-deterministic order and are divided into 3 passes.
+    //Pass 0 is used as we need to ensure type and method recursive references and cross references.
+    //Pass 1 is used to complete type declaration and fill all type info for type-identifiers.
+    //
+    //Pass 0: 
+    //        TypeDeclaration(In)
+    //        ---- 0.TypeName->TypeIdentifier, 3.TypeIdentifier->TypeOfType
+    //        LetExpr(Out)
+    //        ---- 3.equal type elimilation
+    //
+    //        MethodDeclaration(In)
+    //        ---- 0.Name->Identifier
+    //
+    //Pass 1: 
+    //        SingleTypeCombination(In)
+    //        ---- 1.Node->TypeIdentifier
+    //        SingleTypeCombination(In), ArrayTypeCombination(Out), RecordTypeCombination(Out)
+    //        ---- 2.Node->TypeOfType
+    //        VariableDeclaration(Out)
+    //        ---- 3.variable type inferring
+    //
+    //Pass 2:
+    //        VariableDeclaration(Out)
+    //        ---- 1.Name->Identifier, 4.Identifier->Initialized
+    //        SingleLvalue(In), MethodExpr(In)
+    //        ---- 1.Node->Identifier
+    //        SingleLvalue(Out), ListLvalue(Out), ArrayLvalue(Out), xxxExpr(Out)
+    //        ---- 2.Node->Type
+    //        VariableDeclaration(Out), MethodDeclaration(Out)
+    //        ---- 3.Identifier->Type
+    //        WhileExpr(In, Out), ForExpr(In, Out), LetExpr(Case), BreakExpr(In)
+    //        ---- 5.LoopLevelStack
+    //        IntExpr(In)
+    //        ---- 6.IntegerParseTest
+
+    public Verifier() {
+        super();
+    }
+
+
+    @Override
+    public void inATypeDeclaration(ATypeDeclaration node) {
+        if (Pass == 0) {
+            //        TypeDeclaration(In)
+            //        ---- 0.TypeName->TypeIdentifier
+            String Name = node.getId().getText();
+            if (CurrentNamespace.ContainTypeIdentifier(Name)) {
+                NewError(node.getId(), "TypeRedefination");
+            }
+            else {
+                TypeIdentifier typeId = new TypeIdentifier(Name);
+                CurrentNamespace.AddTypeIdentifier(typeId);
+                
+            }
+        }
+    };
+
+    @Override
+    public void inASingleTypeCombination(ASingleTypeCombination node) {
+        if (Pass == 1) {
+            //        SingleTypeCombination(In)
+            //        ---- 1.Node->TypeIdentifier
+            String Name = node.getId().getText();
+            BlockNamespace c = TryResolveTypeIdentifier(Name);
+            if (c == null) {
+                NewError(node.getId(), "TypeNotFound");
+            }
+            else {
+                TypeIdentifier typeId = c.GetTypeIdentifier(Name);
+                Add(NodeTypeIdentifierMapping, node, typeId);
+                //        SingleTypeCombination(In), ArrayTypeCombination(Out), RecordTypeCombination(Out)
+                //        ---- 2.Node->TypeOfType
+
+            }
+        }
+    }
+
+    @Override
+    public void outASingleTypeCombination(ASingleTypeCombination node) {
+        if (Pass == 1) {
+            //        SingleTypeCombination(Out), ArrayTypeCombination(Out), RecordTypeCombination(Out)
+            //        ---- 2.Node->TypeOfType
+            String Name = node.getId().getText();
+            BlockNamespace c = TryResolveTypeIdentifier(Name);
+            assert !(c == null);
+            if (c == null) {
+                NewError(node.getId(), "TypeNotFound");
+            }
+            else {
+                Add(NodeTypeMapping, node, c.GetTypeIdentifier(Name));
+            }
+        }
+    }
+
+
+    @Override
+    public void outAVariableDeclaration(AVariableDeclaration node) {
+        if (Pass == 1) {
+            Identifier id = new Identifier();
+            id.SimpleName = node.getId().getText();
+            if (CurrentNamespace.NameIdentifierMapping.containsKey(id.SimpleName)) {
+                NewError(node.getId(), "VariableOrMethodRedefination");
+            }
+            else {
+                CurrentNamespace.NameIdentifierMapping.put(id.SimpleName, id);
+            }
+        }
+    };
+
+    @Override
+    public void inAMethodDeclaration(AMethodDeclaration node) {
+        if (Pass == 0) {
+            Identifier id = new Identifier();
+            id.SimpleName = node.getId().getText();
+            if (CurrentNamespace.NameIdentifierMapping.containsKey(id.SimpleName)) {
+                NewError(node.getId(), "VariableOrMethodRedefination");
+            }
+            else {
+                CurrentNamespace.NameIdentifierMapping.put(id.SimpleName, id);
+            }
+        }
+    };
+
+    @Override
+    public void inASingleLvalue(ASingleLvalue node) {
+        if (Pass == 1) {
+            String Name = node.getId().getText();
+            BlockNamespace c = CurrentNamespace;
+            while (c != null) {
+                if (c.NameIdentifierMapping.containsKey(Name)) {
+                    assert !NodeIdentifierMapping.containsKey(node);
+                    NodeIdentifierMapping.put(node, c.NameIdentifierMapping.get(Name));
+                    return;
+                }
+                c = c.Parent;
+            }
+            NewError(node.getId(), "VariableNotFound");
+        }
+    }
+
+    @Override
+    public void inAMethodExpr(AMethodExpr node) {
+        if (Pass == 1) {
+            String Name = node.getId().getText();
+            BlockNamespace c = CurrentNamespace;
+            while (c != null) {
+                if (c.NameIdentifierMapping.containsKey(Name)) {
+                    assert !NodeIdentifierMapping.containsKey(node);
+                    NodeIdentifierMapping.put(node, c.NameIdentifierMapping.get(Name));
+                    return;
+                }
+                c = c.Parent;
+            }
+            NewError(node.getId(), "MethodNotFound");
+        }
+    }
+
+
+    //SingleLvalue(Out), ListLvalue(Out), ArrayLvalue(Out), xxxExpr(Out)
+
+}

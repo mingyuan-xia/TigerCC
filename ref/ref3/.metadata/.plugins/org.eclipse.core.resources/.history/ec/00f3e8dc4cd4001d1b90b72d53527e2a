@@ -1,0 +1,16 @@
+public class Test {
+    public String a;
+    public int b;
+
+    public Test(String[] arg, String[] arg2, int c, int d, int e, int f) {
+        a = new String();
+    }
+
+    public static void Eval() {
+        A a = new A();
+    }
+
+    public static class A {
+        
+    }
+}

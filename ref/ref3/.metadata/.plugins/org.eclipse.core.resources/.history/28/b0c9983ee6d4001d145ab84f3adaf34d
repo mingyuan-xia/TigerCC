@@ -1,0 +1,662 @@
+//==========================================================================
+//
+//  File:        ExprGenerator.java
+//  Location:    TigerCompiler <Java>
+//  Description: Generate instructions for Expr
+//  Version:     2008.12.27.
+//  License:     BSD License
+//
+//  Copyright(C) F.R.C., All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in the
+//        documentation and/or other materials provided with the distribution.
+//      * Neither the name of the the copyright holders nor the
+//        names of its contributors may be used to endorse or promote products
+//        derived from this software without specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
+//  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//==========================================================================
+
+package Semantics.generator;
+
+import java.util.*;
+
+import org.objectweb.asm.*;
+
+import static org.objectweb.asm.Opcodes.*;
+
+import Semantics.generator.Generator.*;
+import Semantics.verifier.VerifierBase.*;
+import Semantics.verifier.VerifierBase.Type;
+import Syntax.analysis.*;
+import Syntax.node.*;
+
+public class ExprAssembler extends DepthFirstAdapter {
+    protected Generator cg;
+    protected MethodVisitor mv;
+    protected Stack<MemberSignature> VariableReadWriteStack = new Stack<MemberSignature>();
+
+    protected final int THIS = 0;
+
+    public ExprAssembler(Generator cg, MethodVisitor mv) {
+        this.cg = cg;
+        this.mv = mv;
+    }
+
+    @Override
+    public void caseAStrExpr(AStrExpr node) {
+        mv.visitLdcInsn(node.getStr().getText());
+    }
+
+    @Override
+    public void caseAIntExpr(AIntExpr node) {
+        mv.visitLdcInsn(Integer.valueOf(node.getInt().getText()));
+    }
+
+    @Override
+    public void caseANilExpr(ANilExpr node) {
+        mv.visitInsn(ACONST_NULL);
+    }
+
+    @Override
+    public void caseALvalueExpr(ALvalueExpr node) {
+        node.getLvalue().apply(this);
+        PopVariableAsRvalue();
+    }
+
+    @Override
+    public void caseANegitiveExpr(ANegitiveExpr node) {
+        node.getExpr().apply(this);
+        mv.visitInsn(INEG);
+    }
+
+    @Override
+    public void caseAPlusExpr(APlusExpr node) {
+        node.getL().apply(this);
+        node.getR().apply(this);
+        mv.visitInsn(IADD);
+    }
+
+    @Override
+    public void caseAMinusExpr(AMinusExpr node) {
+        node.getL().apply(this);
+        node.getR().apply(this);
+        mv.visitInsn(ISUB);
+    }
+
+    @Override
+    public void caseAMultiplyExpr(AMultiplyExpr node) {
+        node.getL().apply(this);
+        node.getR().apply(this);
+        mv.visitInsn(IMUL);
+    }
+
+    @Override
+    public void caseADivideExpr(ADivideExpr node) {
+        node.getL().apply(this);
+        node.getR().apply(this);
+        mv.visitInsn(IDIV);
+    }
+
+    @Override
+    public void caseAEqualsExpr(AEqualsExpr node) {
+        node.getL().apply(this);
+        node.getR().apply(this);
+
+        if (cg.vf.NodeTypeMapping.get(node.getL()) == StrType.GetInstance()) {
+            mv.visitMethodInsn(INVOKESTATIC, "TigerStandardLibrary", "_Equals", "(Ljava/lang/String;Ljava/lang/String;)I");
+        }
+        else {
+            Label iftrue = new Label();
+            Label end = new Label();
+
+            if (cg.vf.NodeTypeMapping.get(node.getL()) == IntType.GetInstance()) {
+                mv.visitJumpInsn(IF_ICMPEQ, iftrue);
+            }
+            else {
+                mv.visitJumpInsn(IF_ACMPEQ, iftrue);
+            }
+
+            mv.visitLdcInsn(0);
+            mv.visitJumpInsn(GOTO, end);
+
+            mv.visitLabel(iftrue);
+            mv.visitLdcInsn(1);
+
+            mv.visitLabel(end);
+        }
+    }
+
+    @Override
+    public void caseANotEqualsExpr(ANotEqualsExpr node) {
+        node.getL().apply(this);
+        node.getR().apply(this);
+
+        if (cg.vf.NodeTypeMapping.get(node.getL()) == StrType.GetInstance()) {
+            mv.visitMethodInsn(INVOKESTATIC, "TigerStandardLibrary", "_NotEquals", "(Ljava/lang/String;Ljava/lang/String;)I");
+        }
+        else {
+            Label iftrue = new Label();
+            Label end = new Label();
+
+            if (cg.vf.NodeTypeMapping.get(node.getL()) == IntType.GetInstance()) {
+                mv.visitJumpInsn(IF_ICMPNE, iftrue);
+            }
+            else {
+                mv.visitJumpInsn(IF_ACMPNE, iftrue);
+            }
+
+            mv.visitLdcInsn(0);
+            mv.visitJumpInsn(GOTO, end);
+
+            mv.visitLabel(iftrue);
+            mv.visitLdcInsn(1);
+
+            mv.visitLabel(end);
+        }
+    }
+
+    @Override
+    public void caseALessExpr(ALessExpr node) {
+        node.getL().apply(this);
+        node.getR().apply(this);
+
+        if (cg.vf.NodeTypeMapping.get(node.getL()) == StrType.GetInstance()) {
+            mv.visitMethodInsn(INVOKESTATIC, "TigerStandardLibrary", "_Less", "(Ljava/lang/String;Ljava/lang/String;)I");
+        }
+        else {
+            Label iftrue = new Label();
+            Label end = new Label();
+
+            mv.visitJumpInsn(IF_ICMPLT, iftrue);
+
+            mv.visitLdcInsn(0);
+            mv.visitJumpInsn(GOTO, end);
+
+            mv.visitLabel(iftrue);
+            mv.visitLdcInsn(1);
+
+            mv.visitLabel(end);
+        }
+    }
+
+    @Override
+    public void caseALessOrEqualExpr(ALessOrEqualExpr node) {
+        node.getL().apply(this);
+        node.getR().apply(this);
+
+        if (cg.vf.NodeTypeMapping.get(node.getL()) == StrType.GetInstance()) {
+            mv.visitMethodInsn(INVOKESTATIC, "TigerStandardLibrary", "_LessOrEqual", "(Ljava/lang/String;Ljava/lang/String;)I");
+        }
+        else {
+            Label iftrue = new Label();
+            Label end = new Label();
+
+            mv.visitJumpInsn(IF_ICMPLE, iftrue);
+
+            mv.visitLdcInsn(0);
+            mv.visitJumpInsn(GOTO, end);
+
+            mv.visitLabel(iftrue);
+            mv.visitLdcInsn(1);
+
+            mv.visitLabel(end);
+        }
+    }
+
+    @Override
+    public void caseAGreaterExpr(AGreaterExpr node) {
+        node.getL().apply(this);
+        node.getR().apply(this);
+
+        if (cg.vf.NodeTypeMapping.get(node.getL()) == StrType.GetInstance()) {
+            mv.visitMethodInsn(INVOKESTATIC, "TigerStandardLibrary", "_Greater", "(Ljava/lang/String;Ljava/lang/String;)I");
+        }
+        else {
+            Label iftrue = new Label();
+            Label end = new Label();
+
+            mv.visitJumpInsn(IF_ICMPGT, iftrue);
+
+            mv.visitLdcInsn(0);
+            mv.visitJumpInsn(GOTO, end);
+
+            mv.visitLabel(iftrue);
+            mv.visitLdcInsn(1);
+
+            mv.visitLabel(end);
+        }
+    }
+
+    @Override
+    public void caseAGreaterOrEqualExpr(AGreaterOrEqualExpr node) {
+        node.getL().apply(this);
+        node.getR().apply(this);
+
+        if (cg.vf.NodeTypeMapping.get(node.getL()) == StrType.GetInstance()) {
+            mv.visitMethodInsn(INVOKESTATIC, "TigerStandardLibrary", "_GreaterOrEqual", "(Ljava/lang/String;Ljava/lang/String;)I");
+        }
+        else {
+            Label iftrue = new Label();
+            Label end = new Label();
+
+            mv.visitJumpInsn(IF_ICMPGE, iftrue);
+
+            mv.visitLdcInsn(0);
+            mv.visitJumpInsn(GOTO, end);
+
+            mv.visitLabel(iftrue);
+            mv.visitLdcInsn(1);
+
+            mv.visitLabel(end);
+        }
+    }
+
+    @Override
+    public void caseAAndExpr(AAndExpr node) {
+        node.getL().apply(this);
+        mv.visitInsn(DUP);
+        Label end = new Label();
+        mv.visitJumpInsn(IFEQ, end);
+        mv.visitInsn(POP);
+        if (node.getR() != null) {
+            node.getR().apply(this);
+        }
+        mv.visitLabel(end);
+    }
+
+    @Override
+    public void caseAOrExpr(AOrExpr node) {
+        node.getL().apply(this);
+        mv.visitInsn(DUP);
+        Label end = new Label();
+        mv.visitJumpInsn(IFNE, end);
+        mv.visitInsn(POP);
+        if (node.getR() != null) {
+            node.getR().apply(this);
+        }
+        mv.visitLabel(end);
+    }
+
+    @Override
+    public void caseAAssignExpr(AAssignExpr node) {
+        node.getL().apply(this);
+        MemberSignature ms = VariableReadWriteStack.pop();
+        node.getR().apply(this);
+        UseVariableAsLvalue(ms);
+    }
+
+    @Override
+    public void caseAMethodExpr(AMethodExpr node) {
+        MemberAccess ma = cg.MemberAccesses.get(node);
+        MemberSignature ms = ma.Signature;
+
+        if (!ms.IsStatic) {
+            String owner = ma.CallerClosure;
+            mv.visitVarInsn(ALOAD, THIS);
+            for (String closureType : ma.ExternalClosures) {
+                mv.visitFieldInsn(GETFIELD, owner, "_Closure", "L" + closureType + ";");
+                owner = closureType;
+            }
+        }
+
+        List<PExpr> copy = new ArrayList<PExpr>(node.getExpr());
+        for (PExpr e : copy) {
+            e.apply(this);
+        }
+
+        if (ms.IsStatic) {
+            mv.visitMethodInsn(INVOKESTATIC, ms.ParentObjectType, ms.Name, ms.Type);
+        }
+        else {
+            mv.visitMethodInsn(INVOKEVIRTUAL, ms.ParentObjectType, ms.Name, ms.Type);
+        }
+    }
+
+    @Override
+    public void caseASeqExpr(ASeqExpr node) {
+        List<PExpr> copy = new ArrayList<PExpr>(node.getExpr());
+        if (copy.size() != 0) {
+            for (int i = 0; i < copy.size() - 1; i += 1) {
+                PExpr e = copy.get(i);
+                e.apply(this);
+                if (cg.vf.NodeTypeMapping.get(e) != UnitType.GetInstance()) {
+                    mv.visitInsn(POP);
+                }
+            }
+            PExpr eLast = copy.get(copy.size() - 1);
+            eLast.apply(this);
+        }
+    }
+
+    @Override
+    public void caseARecordExpr(ARecordExpr node) {
+        CombinedType t = (CombinedType) (cg.vf.NodeTypeMapping.get(node));
+        RecordType rt = (RecordType) (t.Type);
+        String tName = cg.GetTypeIdentifierName(t.TypeIdentifier);
+
+        mv.visitTypeInsn(NEW, tName);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, tName, "<init>", "()V");
+
+        AField[] copy = node.getField().toArray(new AField[] {});
+        for (AField e : copy) {
+            mv.visitInsn(DUP);
+            e.getExpr().apply(this);
+            Field f = rt.NameFieldMapping.get(e.getId().getText());
+            mv.visitFieldInsn(PUTFIELD, tName, f.Name, cg.GetTypeJvmDescriptor(f.Type));
+        }
+    }
+
+    @Override
+    public void caseAArrayExpr(AArrayExpr node) {
+        final int V_OBJREF = 1;
+        final int V_LENGTH = 2;
+        final int V_INIT = 3;
+        final int V_INDEX = 4;
+
+        ArrayType rt = (ArrayType) (cg.vf.NodeTypeMapping.get(node));
+        Type et = rt.Type;
+
+        node.getI().apply(this);
+        mv.visitInsn(DUP);
+        //Array Length
+        mv.visitVarInsn(ISTORE, V_LENGTH);
+
+        if (et instanceof IntType) {
+            mv.visitIntInsn(NEWARRAY, T_INT);
+
+            //Array Object Reference
+            mv.visitVarInsn(ASTORE, V_OBJREF);
+
+            //Array Initial Value
+            node.getInit().apply(this);
+            mv.visitVarInsn(ISTORE, V_INIT);
+
+            //Array Index
+            mv.visitLdcInsn(0);
+            mv.visitVarInsn(ISTORE, V_INDEX);
+
+            Label start = new Label();
+            Label end = new Label();
+
+            mv.visitLabel(start);
+
+            mv.visitVarInsn(ILOAD, V_INDEX);
+            mv.visitVarInsn(ILOAD, V_LENGTH);
+
+            mv.visitJumpInsn(IF_ICMPGE, end);
+
+            mv.visitVarInsn(ALOAD, V_OBJREF);
+            mv.visitVarInsn(ILOAD, V_INDEX);
+            mv.visitVarInsn(ILOAD, V_INIT);
+            mv.visitInsn(IASTORE);
+
+            mv.visitIincInsn(V_INDEX, 1);
+            mv.visitJumpInsn(GOTO, start);
+
+            mv.visitLabel(end);
+
+            mv.visitVarInsn(ALOAD, V_OBJREF);
+        }
+        else {
+            mv.visitTypeInsn(ANEWARRAY, cg.GetClassJvmName(et));
+
+            //Array Object Reference
+            mv.visitVarInsn(ASTORE, V_OBJREF);
+
+            //Array Initial Value
+            node.getInit().apply(this);
+            mv.visitVarInsn(ASTORE, V_INIT);
+
+            //Array Index
+            mv.visitLdcInsn(0);
+            mv.visitVarInsn(ISTORE, V_INDEX);
+
+            Label start = new Label();
+            Label end = new Label();
+
+            mv.visitLabel(start);
+
+            mv.visitVarInsn(ILOAD, V_INDEX);
+            mv.visitVarInsn(ILOAD, V_LENGTH);
+
+            mv.visitJumpInsn(IF_ICMPGE, end);
+
+            mv.visitVarInsn(ALOAD, V_OBJREF);
+            mv.visitVarInsn(ILOAD, V_INDEX);
+            mv.visitVarInsn(ALOAD, V_INIT);
+            mv.visitInsn(AASTORE);
+
+            mv.visitIincInsn(V_INDEX, 1);
+            mv.visitJumpInsn(GOTO, start);
+
+            mv.visitLabel(end);
+
+            mv.visitVarInsn(ALOAD, V_OBJREF);
+        }
+    }
+
+    @Override
+    public void caseAIfExpr(AIfExpr node) {
+        node.getC().apply(this);
+
+        Label iftrue = new Label();
+        Label end = new Label();
+
+        mv.visitJumpInsn(IFNE, iftrue);
+
+        node.getF().apply(this);
+        mv.visitJumpInsn(GOTO, end);
+
+        mv.visitLabel(iftrue);
+        node.getT().apply(this);
+
+        mv.visitLabel(end);
+    }
+
+    protected Stack<Label> LoopEnds = new Stack<Label>();
+
+    @Override
+    public void caseAWhileExpr(AWhileExpr node) {
+        Label start = new Label();
+        Label end = new Label();
+
+        mv.visitLabel(start);
+        node.getC().apply(this);
+        mv.visitJumpInsn(IFEQ, end);
+
+        LoopEnds.push(end);
+        node.getT().apply(this);
+        LoopEnds.pop();
+
+        mv.visitJumpInsn(GOTO, start);
+        mv.visitLabel(end);
+    }
+
+    @Override
+    public void caseAForExpr(AForExpr node) {
+        //Block Sub Tree
+
+        ClosureSignature ca = cg.ClosureAccesses.get(node);
+        mv.visitTypeInsn(NEW, ca.Name);
+
+        //Stack:
+        //ForClosure Object
+
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, ca.Name, "<init>", "()V");
+
+                if (!ca.ParentClosureName.equals("")) {
+                    mv.visitInsn(DUP);
+                    mv.visitVarInsn(ALOAD, THIS);
+                    mv.visitFieldInsn(PUTFIELD, ca.Name, "_Closure", "L" + ca.ParentClosureName + ";");
+                }
+
+        //        //Stack:
+        //        //ForClosure Object
+        //
+        //        Label start = new Label();
+        //        Label end = new Label();
+        //
+        //        node.getLow().apply(this);
+        //        mv.visitVarInsn(ISTORE, 1);
+        //        node.getUpper().apply(this);
+        //        mv.visitVarInsn(ISTORE, 2);
+        //
+        //        //Stack:
+        //        //ForClosure Object
+        //
+        //        mv.visitLabel(start);
+        //
+        //        mv.visitVarInsn(ILOAD, 1);
+        //        mv.visitVarInsn(ILOAD, 2);
+        //
+        //        mv.visitJumpInsn(IF_ICMPGT, end);
+        //
+        //        //Stack:
+        //        //ForClosure Object
+        //
+        //        mv.visitInsn(DUP);
+        //        mv.visitVarInsn(ILOAD, 1);
+        //        mv.visitFieldInsn(PUTFIELD, ca.Name, node.getId().getText(), "I");
+        //
+        //        //Stack:
+        //        //ForClosure Object
+        //
+        //        mv.visitInsn(DUP);
+        //        mv.visitMethodInsn(INVOKEVIRTUAL, ca.Name, "Eval", "()V");
+        //
+        //        //Stack:
+        //        //ForClosure Object
+        //
+        //        mv.visitIincInsn(1, 1);
+        //
+        //        mv.visitJumpInsn(GOTO, start);
+        //
+        //        mv.visitLabel(end);
+        //
+        //        //Stack:
+        //        //ForClosure Object
+
+        mv.visitInsn(POP);
+    }
+
+    @Override
+    public void caseABreakExpr(ABreakExpr node) {
+        mv.visitJumpInsn(GOTO, LoopEnds.peek());
+    }
+
+    @Override
+    public void caseALetExpr(ALetExpr node) {
+        //Block Sub Tree
+
+        Type t = cg.vf.NodeTypeMapping.get(node.getExpr());
+        ClosureSignature ca = cg.ClosureAccesses.get(node);
+        mv.visitTypeInsn(NEW, ca.Name);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, ca.Name, "<init>", "()V");
+
+        if (!ca.ParentClosureName.equals("")) {
+            mv.visitInsn(DUP);
+            mv.visitVarInsn(ALOAD, THIS);
+            mv.visitFieldInsn(PUTFIELD, ca.Name, "_Closure", "L" + ca.ParentClosureName + ";");
+        }
+
+        mv.visitMethodInsn(INVOKEVIRTUAL, ca.Name, "Eval", "()" + cg.GetTypeJvmDescriptor(t));
+    }
+
+    @Override
+    public void caseASingleLvalue(ASingleLvalue node) {
+        MemberAccess ma = cg.MemberAccesses.get(node);
+        MemberSignature ms = ma.Signature;
+
+        if (!ms.IsStatic) {
+            String owner = ma.CallerClosure;
+            mv.visitVarInsn(ALOAD, THIS);
+            for (String closureType : ma.ExternalClosures) {
+                mv.visitFieldInsn(GETFIELD, owner, "_Closure", "L" + closureType + ";");
+                owner = closureType;
+            }
+        }
+
+        //Proceeding processing are placed in AssignExpr for L-value, and LvalueExpr for R-value, AListLvalue for Record member access, AArrayLvalue for Array element access. 
+        VariableReadWriteStack.add(ms);
+    }
+
+    public void UseVariableAsLvalue(MemberSignature ms) {
+        if (ms.IsArray) {
+            if (ms.Type.equals("I")) {
+                mv.visitInsn(IASTORE);
+            }
+            else {
+                mv.visitInsn(AASTORE);
+            }
+        }
+        else {
+            mv.visitFieldInsn(PUTFIELD, ms.ParentObjectType, ms.Name, ms.Type);
+        }
+    }
+
+    public void PopVariableAsRvalue() {
+        MemberSignature ms = VariableReadWriteStack.pop();
+
+        if (ms.IsArray) {
+            if (ms.Type.equals("I")) {
+                mv.visitInsn(IALOAD);
+            }
+            else {
+                mv.visitInsn(AALOAD);
+            }
+        }
+        else {
+            mv.visitFieldInsn(GETFIELD, ms.ParentObjectType, ms.Name, ms.Type);
+        }
+    }
+
+    @Override
+    public void caseAListLvalue(AListLvalue node) {
+        node.getLvalue().apply(this);
+
+        PopVariableAsRvalue();
+
+        CombinedType t = (CombinedType) (cg.vf.NodeTypeMapping.get(node.getLvalue()));
+        RecordType rt = (RecordType) (t.Type);
+        String tName = cg.GetTypeIdentifierName(t.TypeIdentifier);
+
+        Field f = rt.NameFieldMapping.get(node.getId().getText());
+
+        VariableReadWriteStack.add(new MemberSignature(tName, f.Name, cg.GetTypeJvmDescriptor(f.Type), false, false));
+    }
+
+    @Override
+    public void caseAArrayLvalue(AArrayLvalue node) {
+        node.getLvalue().apply(this);
+
+        PopVariableAsRvalue();
+
+        node.getExpr().apply(this);
+
+        Type t = cg.vf.NodeTypeMapping.get(node);
+        if (t instanceof IntType) {
+            VariableReadWriteStack.add(new MemberSignature(null, null, "I", false, true));
+        }
+        else {
+            VariableReadWriteStack.add(new MemberSignature(null, null, cg.GetTypeJvmDescriptor(t), false, true));
+        }
+    }
+}

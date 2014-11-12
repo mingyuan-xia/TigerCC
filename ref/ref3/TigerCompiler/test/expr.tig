@@ -1,0 +1,14 @@
+printi(let
+     type intArray = array of int
+         var b := intArray[2] of 3
+     type strArray = array of string
+         var c := strArray[2] of "1"
+in
+   printi(b[0]);
+   printi(b[1]);
+   b[0] := 1;
+   b[1] := 2;
+   printi(b[0]);
+   printi(b[1]);
+   1
+end)

@@ -1,0 +1,242 @@
+//==========================================================================
+//
+//  File:        VerifierDump.java
+//  Location:    TigerCompiler <Java>
+//  Description: Verifier dump
+//  Version:     2008.12.27.
+//  License:     BSD License
+//
+//  Copyright(C) F.R.C., All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in the
+//        documentation and/or other materials provided with the distribution.
+//      * Neither the name of the the copyright holders nor the
+//        names of its contributors may be used to endorse or promote products
+//        derived from this software without specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
+//  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//==========================================================================
+
+package Dumps;
+
+import java.io.*;
+import java.util.*;
+
+import static StringUtil.StringUtil.*;
+import Syntax.node.*;
+import Syntax.lexer.*;
+import Syntax.parser.*;
+import Syntax.analysis.*;
+import Semantics.lexer.*;
+import Semantics.verifier.*;
+import Semantics.verifier.VerifierBase.*;
+
+public class ParserDump {
+    public static void PrintVerifierDump(Reader i) throws Throwable {
+        Lexer lexer = new TigerLexer(new PushbackReader(i, 1024));
+        Parser parser = new Parser(lexer);
+        Start ast = parser.parse();
+        final Verifier vf = new Verifier();
+
+        Type TInt = IntType.GetInstance();
+        Type TStr = StrType.GetInstance();
+        Type TUnit = UnitType.GetInstance();
+        @SuppressWarnings("unused")
+        Type TAnyRecord = AnyRecordType.GetInstance();
+        vf.GlobalNamespace.AddIdentifier(new Identifier("print", new MethodType(new Identifier[] { new Identifier("s", TStr) }, TUnit)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("printi", new MethodType(new Identifier[] { new Identifier("i", TInt) }, TUnit)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("flush", new MethodType(new Identifier[] {}, TUnit)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("getchar", new MethodType(new Identifier[] {}, TStr)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("ord", new MethodType(new Identifier[] { new Identifier("s", TStr) }, TInt)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("chr", new MethodType(new Identifier[] { new Identifier("i", TInt) }, TStr)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("size", new MethodType(new Identifier[] { new Identifier("s", TStr) }, TInt)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("substring", new MethodType(new Identifier[] { new Identifier("s", TStr), new Identifier("f", TInt), new Identifier("n", TInt) }, TStr)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("concat", new MethodType(new Identifier[] { new Identifier("s1", TStr), new Identifier("s2", TStr) }, TStr)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("not", new MethodType(new Identifier[] { new Identifier("i", TInt) }, TInt)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("exit", new MethodType(new Identifier[] { new Identifier("i", TInt) }, TUnit)));
+
+        while (vf.HasNextPass()) {
+            ast.apply(vf);
+            vf.NextPass();
+        }
+
+        System.out.println();
+
+        DepthFirstAdapter df = new DepthFirstAdapter() {
+            private int level = 0;
+            private int NamespaceIndex = 0;
+            public BlockNamespace CurrentNamespace = vf.GlobalNamespace;
+
+            public void print(String info) {
+                StringBuffer sb = new StringBuffer();
+                for (int i = 0; i < level; i += 1) {
+                    sb.append("    ");
+                }
+                sb.append(info);
+                System.out.println(sb.toString());
+            }
+
+            private String GetTypeString(Type type) {
+                if (type instanceof IntType) {
+                    return "int";
+                }
+                else if (type instanceof StrType) {
+                    return "string";
+                }
+                else if (type instanceof UnitType) {
+                    return "<unit>";
+                }
+                else if (type instanceof AnyRecordType) {
+                    return "<anyrecord>";
+                }
+                else if (type instanceof ArrayType) {
+                    return GetTypeString(((ArrayType) (type)).Type) + "[]";
+                }
+                else if (type instanceof RecordType) {
+                    RecordType record = (RecordType) (type);
+                    ArrayList<String> l = new ArrayList<String>();
+                    for (Field f : record.Fields) {
+                        l.add(f.Name + " : " + GetTypeString(f.Type));
+                    }
+                    return "{" + Join("; ", l) + "}";
+                }
+                else if (type instanceof CombinedType) {
+                    return ((CombinedType) (type)).TypeIdentifier.SimpleName;
+                }
+                else if (type instanceof MethodType) {
+                    MethodType method = (MethodType) (type);
+                    ArrayList<String> l = new ArrayList<String>();
+                    if (method.Parameters.length == 0) {
+                        return GetTypeString(UnitType.GetInstance()) + " -> " + GetTypeString(method.ReturnType);
+                    }
+                    else {
+                        for (Identifier f : method.Parameters) {
+                            l.add(f.SimpleName + " : " + GetTypeString(f.Type));
+                        }
+                        return "(" + Join(", ", l) + ") -> " + GetTypeString(method.ReturnType);
+                    }
+                }
+                else if (type == null) {
+                    return "<unknown>";
+                }
+                else {
+                    throw new IllegalArgumentException();
+                }
+            }
+
+            @Override
+            public void inStart(Start node) {
+                for (Type t : vf.Types) {
+                    if (t instanceof PrimitiveType) {
+                        print("type " + GetTypeString(t));
+                    }
+                }
+
+                for (Identifier id : CurrentNamespace.Identifiers) {
+                    Type t = id.Type;
+
+                    print("val " + id.SimpleName + " : " + GetTypeString(t));
+                }
+                System.out.println();
+            }
+
+            @Override
+            public void inALetExpr(ALetExpr node) {
+                level += 1;
+                NamespaceIndex += 1;
+                CurrentNamespace = CurrentNamespace.SubNamespaces.get(CurrentNamespace.IndexMap.get(NamespaceIndex));
+
+                print("[" + Integer.toString(node.getLine()) + ", " + Integer.toString(node.getPos()) + "]");
+                for (TypeIdentifier typeId : CurrentNamespace.TypeIdentifiers) {
+                    Type t = typeId.TypeOfType;
+
+                    if (t instanceof CombinedType) {
+                        CombinedType ct = (CombinedType) (t);
+                        if (ct.TypeIdentifier == typeId) {
+                            print("type " + typeId.SimpleName + " = " + GetTypeString(ct.Type));
+                        }
+                        else {
+                            print("alias " + typeId.SimpleName + " = " + GetTypeString(t));
+                        }
+                    }
+                    else {
+                        print("alias " + typeId.SimpleName + " = " + GetTypeString(t));
+                    }
+                }
+
+                for (Identifier id : CurrentNamespace.Identifiers) {
+                    Type t = id.Type;
+
+                    print("val " + id.SimpleName + " : " + GetTypeString(t));
+                }
+                System.out.println();
+            }
+
+            @Override
+            public void inAMethodDeclaration(AMethodDeclaration node) {
+                level += 1;
+                NamespaceIndex += 1;
+                CurrentNamespace = CurrentNamespace.SubNamespaces.get(CurrentNamespace.IndexMap.get(NamespaceIndex));
+
+                print("[" + Integer.toString(node.getLine()) + ", " + Integer.toString(node.getPos()) + "]");
+
+                for (Identifier id : CurrentNamespace.Identifiers) {
+                    Type t = id.Type;
+
+                    print("val " + id.SimpleName + " : " + GetTypeString(t));
+                }
+                System.out.println();
+            }
+
+            @Override
+            public void inAForExpr(AForExpr node) {
+                level += 1;
+                NamespaceIndex += 1;
+                CurrentNamespace = CurrentNamespace.SubNamespaces.get(CurrentNamespace.IndexMap.get(NamespaceIndex));
+
+                print("[" + Integer.toString(node.getLine()) + ", " + Integer.toString(node.getPos()) + "]");
+
+                for (Identifier id : CurrentNamespace.Identifiers) {
+                    Type t = id.Type;
+
+                    print("val " + id.SimpleName + " : " + GetTypeString(t));
+                }
+                System.out.println();
+            }
+
+            @Override
+            public void outALetExpr(ALetExpr node) {
+                level -= 1;
+                CurrentNamespace = CurrentNamespace.Parent;
+            }
+
+            @Override
+            public void outAMethodDeclaration(AMethodDeclaration node) {
+                level -= 1;
+                CurrentNamespace = CurrentNamespace.Parent;
+            }
+
+            @Override
+            public void outAForExpr(AForExpr node) {
+                level -= 1;
+                CurrentNamespace = CurrentNamespace.Parent;
+            }
+        };
+
+        ast.apply(df);
+    }
+}

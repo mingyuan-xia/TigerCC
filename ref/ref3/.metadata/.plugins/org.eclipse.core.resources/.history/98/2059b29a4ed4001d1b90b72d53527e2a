@@ -1,0 +1,17 @@
+public class expr {
+    public String a;
+    public int b;
+
+    public expr(String[] arg, String[] arg2, int c, int d, int e, int f) {
+        a = new String();
+    }
+
+    public static void Eval() {
+        Object a = new Object() {
+        };
+    }
+
+    private static class ASDSA {
+
+    }
+}

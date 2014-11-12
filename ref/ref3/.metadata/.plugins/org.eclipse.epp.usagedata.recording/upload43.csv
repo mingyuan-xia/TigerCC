@@ -1,0 +1,26 @@
+what,kind,bundleId,bundleVersion,description,time
+started,bundle,org.eclipse.net4j.util,1.0.0.v200806180305,org.eclipse.net4j.util,1227284038796
+started,bundle,org.eclipse.net4j.util.ui,1.0.0.v200806180305,org.eclipse.net4j.util.ui,1227284038796
+started,bundle,org.eclipse.net4j.buddies,1.0.0.v200806180305,org.eclipse.net4j.buddies,1227284038812
+started,bundle,org.eclipse.net4j.buddies.ui,1.0.0.v200806180305,org.eclipse.net4j.buddies.ui,1227284038812
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227284046140
+activated,editor,org.eclipse.ui.editors,3.4.0.v20080603-2000,org.eclipse.ui.DefaultTextEditor,1227284059015
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227284079421
+executed,command,org.eclipse.ui,3.4.1.M20080910-0800,org.eclipse.ui.edit.paste,1227284107296
+executed,command,org.eclipse.ui,3.4.1.M20080910-0800,org.eclipse.ui.edit.paste,1227284111156
+executed,command,org.eclipse.ui,3.4.1.M20080910-0800,org.eclipse.ui.edit.paste,1227284114031
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227284151421
+executed,command,org.eclipse.ui.externaltools,3.2.0.v20080514-1542,org.eclipse.ui.externalTools.commands.OpenExternalToolsConfigurations,1227284151437
+activated,view,org.eclipse.ui.console,3.3.0.v20080529-1300,org.eclipse.ui.console.ConsoleView,1227284153609
+activated,view,org.eclipse.jdt.ui,3.4.1.r341_v20080827-1100,org.eclipse.jdt.ui.PackageExplorer,1227284157921
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227284159515
+no handler,command,org.eclipse.ui,3.4.1.M20080910-0800,org.eclipse.ui.edit.undo,1227284175906
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227284183546
+executed,command,org.eclipse.ui,3.4.1.M20080910-0800,org.eclipse.ui.file.properties,1227284183593
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227284186046
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227284198140
+executed,command,org.eclipse.ui,3.4.1.M20080910-0800,org.eclipse.ui.file.properties,1227284198187
+activated,view,org.eclipse.ui.console,3.3.0.v20080529-1300,org.eclipse.ui.console.ConsoleView,1227284200312
+activated,view,org.eclipse.jdt.ui,3.4.1.r341_v20080827-1100,org.eclipse.jdt.ui.PackageExplorer,1227284201875
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227284203390
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227284221609

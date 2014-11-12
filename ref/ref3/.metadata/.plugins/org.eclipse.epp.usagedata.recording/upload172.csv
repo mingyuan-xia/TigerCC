@@ -1,0 +1,26 @@
+what,kind,bundleId,bundleVersion,description,time
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227360504250
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227360505031
+executed,command,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.commands.DebugLast,1227360505937
+activated,editor,org.eclipse.jdt.ui,3.4.1.r341_v20080827-1100,org.eclipse.jdt.ui.CompilationUnitEditor,1227360507250
+activated,editor,org.eclipse.jdt.ui,3.4.1.r341_v20080827-1100,org.eclipse.jdt.ui.CompilationUnitEditor,1227360510234
+executed,command,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.commands.Resume,1227360522343
+activated,view,org.eclipse.ui.console,3.3.0.v20080529-1300,org.eclipse.ui.console.ConsoleView,1227360523703
+activated,editor,org.eclipse.ui.editors,3.4.0.v20080603-2000,org.eclipse.ui.DefaultTextEditor,1227360531234
+activated,view,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.ExpressionView,1227360551562
+activated,view,org.eclipse.ui.console,3.3.0.v20080529-1300,org.eclipse.ui.console.ConsoleView,1227360553031
+activated,perspective,org.eclipse.jdt.ui,3.4.1.r341_v20080827-1100,org.eclipse.jdt.ui.JavaPerspective,1227360557125
+activated,editor,org.eclipse.ui.editors,3.4.0.v20080603-2000,org.eclipse.ui.DefaultTextEditor,1227360558765
+executed,command,org.eclipse.ui.ide,3.4.1.M20080903-2000,org.eclipse.ui.project.buildAll,1227360560078
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227360560359
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227360561968
+activated,view,org.eclipse.ui.console,3.3.0.v20080529-1300,org.eclipse.ui.console.ConsoleView,1227360562312
+activated,editor,org.eclipse.ui.editors,3.4.0.v20080603-2000,org.eclipse.ui.DefaultTextEditor,1227360566906
+executed,command,org.eclipse.ui.ide,3.4.1.M20080903-2000,org.eclipse.ui.project.buildAll,1227360582281
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227360582562
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227360583281
+activated,view,org.eclipse.ui.console,3.3.0.v20080529-1300,org.eclipse.ui.console.ConsoleView,1227360587968
+activated,editor,org.eclipse.ui.editors,3.4.0.v20080603-2000,org.eclipse.ui.DefaultTextEditor,1227360591296
+no handler,command,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.commands.StepOver,1227360591796
+activated,editor,org.eclipse.jdt.ui,3.4.1.r341_v20080827-1100,org.eclipse.jdt.ui.CompilationUnitEditor,1227360595875
+executed,command,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.commands.DebugLast,1227360597343

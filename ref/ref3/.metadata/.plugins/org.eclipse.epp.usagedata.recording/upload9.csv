@@ -1,0 +1,26 @@
+what,kind,bundleId,bundleVersion,description,time
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227277188671
+no handler,command,org.eclipse.ui,3.4.1.M20080910-0800,org.eclipse.ui.edit.undo,1227277197000
+started,bundle,org.eclipse.jdt.launching,3.4.1.v20080729_r341,org.eclipse.jdt.launching,1227277201640
+started,bundle,org.eclipse.core.filesystem,1.2.0.v20080604-1400,org.eclipse.core.filesystem,1227277264656
+started,bundle,org.eclipse.ltk.core.refactoring,3.4.1.r341_v20080716-0800,org.eclipse.ltk.core.refactoring,1227277271343
+started,bundle,org.eclipse.ltk.ui.refactoring,3.4.1.r341_v20080716-0800,org.eclipse.ltk.ui.refactoring,1227277271375
+started,bundle,org.eclipse.jdt.apt.core,3.3.101.R34x_v20080902-1220,org.eclipse.jdt.apt.core,1227277283328
+started,bundle,org.eclipse.jdt.apt.pluggable.core,1.0.100.v20080407-1345,org.eclipse.jdt.apt.pluggable.core,1227277283375
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227277300875
+started,bundle,org.eclipse.ui.views.log,1.0.0.v20080803-1700,org.eclipse.ui.views.log,1227277301250
+started,bundle,org.eclipse.pde.ui,3.4.0.v20080803-1700,org.eclipse.pde.ui,1227277301296
+started,bundle,org.eclipse.jet.ui,0.9.0.v20080527,org.eclipse.jet.ui,1227277301359
+opened,view,org.eclipse.jdt.ui,3.4.1.r341_v20080827-1100,org.eclipse.jdt.ui.PackageExplorer,1227277301453
+opened,view,org.eclipse.ui.ide,3.4.1.M20080903-2000,org.eclipse.ui.views.ProblemView,1227277301796
+activated,perspective,org.eclipse.jdt.ui,3.4.1.r341_v20080827-1100,org.eclipse.jdt.ui.JavaPerspective,1227277301828
+activated,view,org.eclipse.jdt.ui,3.4.1.r341_v20080827-1100,org.eclipse.jdt.ui.PackageExplorer,1227277301875
+started,bundle,org.eclipse.compare,3.4.0.I20080604,org.eclipse.compare,1227277306250
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227277307640
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227278625531
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227278626968
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227278630312
+activated,view,org.eclipse.ui.ide,3.4.1.M20080903-2000,org.eclipse.ui.views.ProblemView,1227278631218
+activated,view,org.eclipse.jdt.ui,3.4.1.r341_v20080827-1100,org.eclipse.jdt.ui.PackageExplorer,1227278632250
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227278633890
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227278635750

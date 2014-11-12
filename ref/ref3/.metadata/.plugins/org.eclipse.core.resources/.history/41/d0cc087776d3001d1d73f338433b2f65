@@ -1,0 +1,351 @@
+//==========================================================================
+//
+//  File:        GeneratorDump.java
+//  Location:    TigerCompiler <Java>
+//  Description: Generator dump
+//  Version:     2008.12.27.
+//  License:     BSD License
+//
+//  Copyright(C) F.R.C., All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in the
+//        documentation and/or other materials provided with the distribution.
+//      * Neither the name of the the copyright holders nor the
+//        names of its contributors may be used to endorse or promote products
+//        derived from this software without specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
+//  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//==========================================================================
+
+package Dumps;
+
+import static StringUtil.StringUtil.*;
+
+import java.io.*;
+import java.util.*;
+
+import Syntax.node.*;
+import Syntax.lexer.*;
+import Syntax.parser.*;
+import Syntax.analysis.*;
+import Semantics.lexer.*;
+import Semantics.verifier.*;
+import Semantics.verifier.VerifierBase.*;
+
+public class GeneratorDump {
+    public static void PrintGeneratorDump(Reader i) throws Throwable {
+        System.out.println("GeneratorDump stub.");
+        System.out.println();
+
+        Lexer lexer = new TigerLexer(new PushbackReader(i, 1024));
+        Parser parser = new Parser(lexer);
+        Start ast = parser.parse();
+        final Verifier vf = new Verifier();
+
+        Type TInt = IntType.GetInstance();
+        Type TStr = StrType.GetInstance();
+        Type TUnit = UnitType.GetInstance();
+        @SuppressWarnings("unused")
+        Type TAnyRecord = AnyRecordType.GetInstance();
+        vf.GlobalNamespace.AddIdentifier(new Identifier("print", new MethodType(new Identifier[] { new Identifier("s", TStr) }, TUnit)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("printi", new MethodType(new Identifier[] { new Identifier("i", TInt) }, TUnit)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("flush", new MethodType(new Identifier[] {}, TUnit)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("getchar", new MethodType(new Identifier[] {}, TStr)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("ord", new MethodType(new Identifier[] { new Identifier("s", TStr) }, TInt)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("chr", new MethodType(new Identifier[] { new Identifier("i", TInt) }, TStr)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("size", new MethodType(new Identifier[] { new Identifier("s", TStr) }, TInt)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("substring", new MethodType(new Identifier[] { new Identifier("s", TStr), new Identifier("f", TInt), new Identifier("n", TInt) }, TStr)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("concat", new MethodType(new Identifier[] { new Identifier("s1", TStr), new Identifier("s2", TStr) }, TStr)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("not", new MethodType(new Identifier[] { new Identifier("i", TInt) }, TInt)));
+        vf.GlobalNamespace.AddIdentifier(new Identifier("exit", new MethodType(new Identifier[] { new Identifier("i", TInt) }, TUnit)));
+
+        while (vf.HasNextPass()) {
+            ast.apply(vf);
+            vf.NextPass();
+        }
+
+        if (ErrorReporter.getErrorCount() > 0) {
+            System.out.println();
+            return;
+        }
+
+        DepthFirstAdapter df = new DepthFirstAdapter() {
+            protected int level = 0;
+            protected int NamespaceIndex = 0;
+            public BlockNamespace CurrentNamespace = vf.GlobalNamespace;
+
+            public void print(String info) {
+                StringBuffer sb = new StringBuffer();
+                for (int i = 0; i < level; i += 1) {
+                    sb.append("    ");
+                }
+                sb.append(info);
+                System.out.println(sb.toString());
+            }
+
+            public void print() {
+                System.out.println();
+            }
+
+            @Override
+            public void inStart(Start node) {
+                print("primitive int : I");
+                print("primitive string : Ljava/lang/String;");
+                print("primitive <unit> : V");
+                print("primitive <anyrecord> : Ljava/lang/Object;");
+
+                for (Identifier id : CurrentNamespace.Identifiers) {
+                    Type t = id.Type;
+
+                    print("method " + GetMethodName(id) + " : " + GetMethodTypeJvmName((MethodType) (t)));
+                }
+                level += 1;
+            }
+
+            @Override
+            public void outStart(Start node) {
+                level -= 1;
+            }
+
+            @Override
+            public void inALetExpr(ALetExpr node) {
+                NamespaceIndex += 1;
+                CurrentNamespace = CurrentNamespace.SubNamespaces.get(CurrentNamespace.IndexMap.get(NamespaceIndex));
+
+                print(Format("[{0}, {1}] $Closure${2} {3}", node.getLine(), node.getPos(), NamespaceIndex, node.getClass().getSimpleName()));
+
+                level += 1;
+            }
+
+            @Override
+            public void inAForExpr(AForExpr node) {
+                NamespaceIndex += 1;
+                CurrentNamespace = CurrentNamespace.SubNamespaces.get(CurrentNamespace.IndexMap.get(NamespaceIndex));
+
+                print(Format("[{0}, {1}] $Closure${2}", node.getLine(), node.getPos(), NamespaceIndex));
+
+                level += 1;
+
+                for (Identifier id : CurrentNamespace.Identifiers) {
+                    Type t = id.Type;
+
+                    print("variable " + GetVariableName(id) + " : " + GetTypeJvmName(t));
+                }
+            }
+
+            @Override
+            public void inATypeDeclaration(ATypeDeclaration node) {
+                String Name = node.getId().getText();
+                BlockNamespace c = VerifierBase.TryResolveTypeIdentifier(Name, CurrentNamespace);
+                TypeIdentifier id = c.GetTypeIdentifier(Name);
+                Type t = id.TypeOfType;
+
+                if (t instanceof CombinedType) {
+                    CombinedType ct = (CombinedType) (t);
+                    if (ct.Type instanceof RecordType) {
+                        print(Format("[{0}, {1}]", node.getLine(), node.getPos()));
+                        print("record " + GetTypeIdentifierName(ct.TypeIdentifier));
+                    }
+                }
+            }
+
+            @Override
+            public void inAMethodDeclaration(AMethodDeclaration node) {
+                NamespaceIndex += 1;
+                CurrentNamespace = CurrentNamespace.SubNamespaces.get(CurrentNamespace.IndexMap.get(NamespaceIndex));
+
+                print(Format("[{0}, {1}] ${2}", node.getLine(), node.getPos(), NamespaceIndex));
+
+                Identifier methodId = CurrentNamespace.Parent.GetIdentifier(node.getId().getText());
+                print("method " + GetMethodName(methodId) + " : " + GetMethodTypeJvmName((MethodType) (methodId.Type), CurrentNamespace));
+
+                level += 1;
+
+                for (Identifier id : CurrentNamespace.Identifiers) {
+                    Type t = id.Type;
+
+                    print("parameter " + GetVariableName(id) + " : " + GetTypeJvmName(t));
+                }
+            }
+
+            @Override
+            public void inAVariableDeclaration(AVariableDeclaration node) {
+                print(Format("[{0}, {1}]", node.getLine(), node.getPos()));
+
+                String Name = node.getId().getText();
+                BlockNamespace c = VerifierBase.TryResolveIdentifier(Name, CurrentNamespace);
+                Identifier id = c.GetIdentifier(Name);
+                Type t = id.Type;
+                print("variable " + GetVariableName(id) + " : " + GetTypeJvmName(t));
+
+                level += 1;
+            }
+
+            @Override
+            public void inARecordExpr(ARecordExpr node) {
+                String Name = ((ARecordExpr) (node)).getId().getText();
+                BlockNamespace c = VerifierBase.TryResolveTypeIdentifier(Name, CurrentNamespace);
+                TypeIdentifier typeId = c.GetTypeIdentifier(Name);
+                print(Format("[{0}, {1}] {2} : {3}", node.getLine(), node.getPos(), node.getClass().getSimpleName(), GetTypeJvmName(typeId.TypeOfType)));
+
+                level += 1;
+            }
+
+            @Override
+            public void inAMethodExpr(AMethodExpr node) {
+                String Name = node.getId().getText();
+                BlockNamespace c = VerifierBase.TryResolveIdentifier(Name, CurrentNamespace);
+                Identifier methodId = c.GetIdentifier(Name);
+
+                print(Format("[{0}, {1}]", node.getLine(), node.getPos()));
+                print(Format("methodCall = {0}", GetMethodName(methodId)));
+
+                level += 1;
+            }
+
+            @Override
+            public void inASingleLvalue(ASingleLvalue node) {
+                super.inASingleLvalue(node);
+
+                String Name = node.getId().getText();
+                LinkedList<String> sl = new LinkedList<String>();
+                sl.addFirst(Name);
+                BlockNamespace c = CurrentNamespace;
+                Identifier id = null;
+                while (true) {
+                    id = c.GetIdentifier(Name);
+                    if (id == null) {
+                        sl.addFirst("_Closure");
+                        c = c.Parent;
+                    }
+                    else {
+                        break;
+                    }
+                }
+
+                print(Format("[{0}, {1}]", node.getLine(), node.getPos()));
+                print(Format("variableCall = {0}", Join(".", sl)));
+            }
+
+            @Override
+            public void outALetExpr(ALetExpr node) {
+                level -= 1;
+                CurrentNamespace = CurrentNamespace.Parent;
+            }
+
+            @Override
+            public void outAForExpr(AForExpr node) {
+                level -= 1;
+                CurrentNamespace = CurrentNamespace.Parent;
+            }
+
+            @Override
+            public void outAMethodDeclaration(AMethodDeclaration node) {
+                level -= 1;
+                CurrentNamespace = CurrentNamespace.Parent;
+            }
+
+            @Override
+            public void outAVariableDeclaration(AVariableDeclaration node) {
+                level -= 1;
+            }
+
+            @Override
+            public void defaultIn(Node node) {
+                if (node instanceof PExpr) {
+                    level += 1;
+                }
+            }
+
+            @Override
+            public void defaultOut(Node node) {
+                if (node instanceof PExpr) {
+                    level -= 1;
+                }
+            }
+
+            public String GetTypeIdentifierName(TypeIdentifier typeId) {
+                LinkedList<String> namePath = new LinkedList<String>();
+                namePath.add(typeId.SimpleName);
+                BlockNamespace c = typeId.Parent;
+                namePath.addFirst(Integer.toString(c.Index));
+                c = c.Parent;
+                namePath.addFirst("$Type");
+                return Join("$", namePath);
+            }
+
+            public String GetMethodName(Identifier id) {
+                BlockNamespace c = id.Parent;
+                return "$Method$" + Integer.toString(c.Index) + "$" + id.SimpleName;
+            }
+
+            public String GetVariableName(Identifier id) {
+                BlockNamespace c = id.Parent;
+                return "$Closure$" + Integer.toString(c.Index) + "/" + id.SimpleName;
+            }
+
+            public String GetTypeJvmName(Type t) {
+                if (t instanceof IntType) {
+                    return "I";
+                }
+                else if (t instanceof StrType) {
+                    return "Ljava/lang/String;";
+                }
+                else if (t instanceof UnitType) {
+                    return "V";
+                }
+                else if (t instanceof AnyRecordType) {
+                    return "Ljava/lang/Object;";
+                }
+                else if (t instanceof ArrayType) {
+                    return "[" + GetTypeJvmName(((ArrayType) (t)).Type);
+                }
+                else if (t instanceof CombinedType) {
+                    CombinedType ct = (CombinedType) (t);
+                    if (ct.Type instanceof RecordType) {
+                        return "L" + GetTypeIdentifierName(ct.TypeIdentifier) + ";";
+                    }
+                    else {
+                        return GetTypeJvmName(ct.Type);
+                    }
+                }
+                else {
+                    throw new IllegalArgumentException();
+                }
+            }
+
+            public String GetMethodTypeJvmName(MethodType t) {
+                StringBuffer sb = new StringBuffer();
+                sb.append("(");
+                for (Identifier f : t.Parameters) {
+                    sb.append(GetTypeJvmName(f.Type));
+                }
+                sb.append(")");
+                sb.append(GetTypeJvmName(t.ReturnType));
+                return sb.toString();
+            }
+
+            public String GetMethodTypeJvmName(MethodType t, BlockNamespace closure) {
+                return "($Closure$" + Integer.toString(closure.Index) + ")" + GetTypeJvmName(t.ReturnType);
+            }
+        };
+
+        ast.apply(df);
+
+        System.out.println();
+    }
+}

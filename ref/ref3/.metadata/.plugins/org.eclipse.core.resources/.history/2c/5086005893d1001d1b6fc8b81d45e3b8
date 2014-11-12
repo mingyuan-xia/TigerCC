@@ -1,0 +1,239 @@
+//==========================================================================
+//
+//  File:        VerifierBase.java
+//  Location:    TigerCompiler <Java>
+//  Description: Verifier data structure and util methods. 
+//  Version:     2008.12.24.
+//  License:     BSD License
+//
+//  Copyright(C) F.R.C., All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in the
+//        documentation and/or other materials provided with the distribution.
+//      * Neither the name of the the copyright holders nor the
+//        names of its contributors may be used to endorse or promote products
+//        derived from this software without specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
+//  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//==========================================================================
+
+package Semantics.verifier;
+
+import java.util.*;
+
+import Syntax.node.*;
+import Syntax.analysis.*;
+
+public abstract class VerifierBase extends DepthFirstAdapter {
+    public final BlockNamespace GlobalNamespace;
+    protected BlockNamespace CurrentNamespace;
+    protected int NamespaceIndex;
+    protected int Pass;
+    public final Hashtable<Node, TypeIdentifier> NodeTypeIdentifierMapping;
+    public final Hashtable<Node, Identifier> NodeIdentifierMapping;
+    public final Hashtable<Node, Type> NodeTypeMapping;
+    public final Hashtable<TypeIdentifier, Type> TypeIdentifierTypeMapping;
+
+    public VerifierBase() {
+        GlobalNamespace = new BlockNamespace(0);
+        CurrentNamespace = GlobalNamespace;
+        NamespaceIndex = 0;
+        Pass = 0;
+        NodeTypeIdentifierMapping = new Hashtable<Node, TypeIdentifier>();
+        NodeIdentifierMapping = new Hashtable<Node, Identifier>();
+        NodeTypeMapping = new Hashtable<Node, Type>();
+        TypeIdentifierTypeMapping = new Hashtable<TypeIdentifier, Type>();
+    }
+
+    public void NextPass() {
+        Pass += 1;
+    }
+
+    public boolean HasNextPass() {
+        return Pass < 2;
+    }
+
+    public static class BlockNamespace {
+        public final int Index;
+        public BlockNamespace Parent;
+        public final ArrayList<BlockNamespace> SubNamespaces;
+        public final Hashtable<Integer, Integer> IndexMap;
+        public final Hashtable<String, TypeIdentifier> TypeNameTypeIdentifierMapping;
+        public final Hashtable<String, Identifier> NameIdentifierMapping;
+        public final ArrayList<TypeIdentifier> TypeIdentifiers;
+        public final ArrayList<Identifier> Identifiers;
+
+        public BlockNamespace(int index) {
+            this.Index = index;
+            Parent = null;
+            SubNamespaces = new ArrayList<BlockNamespace>();
+            IndexMap = new Hashtable<Integer, Integer>();
+            TypeNameTypeIdentifierMapping = new Hashtable<String, TypeIdentifier>();
+            NameIdentifierMapping = new Hashtable<String, Identifier>();
+            TypeIdentifiers = new ArrayList<TypeIdentifier>();
+            Identifiers = new ArrayList<Identifier>();
+        }
+
+        public BlockNamespace(int index, BlockNamespace parent) {
+            this(index);
+            this.Parent = parent;
+        }
+
+        public boolean ContainTypeIdentifier(String name) {
+            return TypeNameTypeIdentifierMapping.containsKey(name);
+        }
+
+        public boolean ContainIdentifier(String name) {
+            return TypeNameTypeIdentifierMapping.containsKey(name);
+        }
+
+        public void AddTypeIdentifier(TypeIdentifier typeIdentifier) {
+            assert !ContainTypeIdentifier(typeIdentifier.SimpleName);
+            TypeNameTypeIdentifierMapping.put(typeIdentifier.SimpleName, typeIdentifier);
+            TypeIdentifiers.add(typeIdentifier);
+            typeIdentifier.Parent = this;
+        }
+
+        public void AddIdentifier(Identifier identifier) {
+            assert !ContainIdentifier(identifier.SimpleName);
+            NameIdentifierMapping.put(identifier.SimpleName, identifier);
+            Identifiers.add(identifier);
+            identifier.Parent = this;
+        }
+
+        public TypeIdentifier GetTypeIdentifier(String name) {
+            return TypeNameTypeIdentifierMapping.get(name);
+        }
+
+        public Identifier GetIdentifier(String name) {
+            return NameIdentifierMapping.get(name);
+        }
+
+    }
+
+    public static class Identifier {
+        public String SimpleName;
+        public Type Type;
+        public boolean Initialized;
+        public BlockNamespace Parent;
+
+        public Identifier() {
+        }
+
+        public Identifier(String simpleName) {
+            this.SimpleName = simpleName;
+        }
+    }
+
+    public static class TypeIdentifier {
+        public String SimpleName;
+        public Type TypeOfType;
+        public BlockNamespace Parent;
+
+        public TypeIdentifier() {
+        }
+
+        public TypeIdentifier(String simpleName) {
+            this.SimpleName = simpleName;
+        }
+    }
+
+    public abstract static class Type {
+    }
+
+    public abstract static class PrimitiveType extends Type {
+    }
+
+    public static class IntType extends PrimitiveType {
+    }
+
+    public static class StrType extends PrimitiveType {
+    }
+
+    public static class UnitType extends PrimitiveType {
+    }
+
+    public static class AnyRecordType extends PrimitiveType {
+    }
+
+    public static class SimpleType extends Type {
+        public TypeIdentifier TypeIdentifier;
+
+        public SimpleType(TypeIdentifier typeIdentifier) {
+            this.TypeIdentifier = typeIdentifier;
+        }
+    }
+
+    public static class ArrayType extends Type {
+        public TypeIdentifier TypeIdentifier;
+
+        public ArrayType(TypeIdentifier typeIdentifier) {
+            this.TypeIdentifier = typeIdentifier;
+        }
+}
+
+    public static class RecordType extends Type {
+        public Type[] Fields;
+    }
+
+    //Enter LetExpr will summon a new namespace.
+    @Override
+    public void inALetExpr(ALetExpr node) {
+        NamespaceIndex += 1;
+        if (Pass == 0) {
+            BlockNamespace Parent = CurrentNamespace;
+            CurrentNamespace = new BlockNamespace(NamespaceIndex, Parent);
+            Parent.IndexMap.put(NamespaceIndex, Parent.SubNamespaces.size());
+            Parent.SubNamespaces.add(CurrentNamespace);
+        }
+        else {
+            CurrentNamespace = CurrentNamespace.SubNamespaces.get(CurrentNamespace.IndexMap.get(NamespaceIndex));
+        }
+    }
+
+    //Leave namespace
+    @Override
+    public void outALetExpr(ALetExpr node) {
+        CurrentNamespace = CurrentNamespace.Parent;
+    }
+
+    //Safe Add for Hashtable
+    protected static <K, V> void Add(Hashtable<K, V> h, K key, V value) {
+        assert !h.containsKey(key);
+        h.put(key, value);
+    }
+
+    //Try to find the namespace containing the type-identifier, return null if not found.
+    protected BlockNamespace TryResolveTypeIdentifier(String simpleTypeName) {
+        BlockNamespace c = CurrentNamespace;
+        while (c != null) {
+            if (c.TypeNameTypeIdentifierMapping.containsKey(simpleTypeName)) { return c; }
+            c = c.Parent;
+        }
+        return null;
+    }
+
+    //Try to find the namespace containing the identifier, return null if not found.
+    protected BlockNamespace TryResolveIdentifier(String simpleName) {
+        BlockNamespace c = CurrentNamespace;
+        while (c != null) {
+            if (c.NameIdentifierMapping.containsKey(simpleName)) { return c; }
+            c = c.Parent;
+        }
+        return null;
+    }
+}

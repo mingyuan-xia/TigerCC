@@ -1,0 +1,11 @@
+public class expr {
+    public static void main(String[] args) {
+        TigerStandardLibrary.printi(new Object() {
+            public int i = 1;
+
+            public int Eval() {
+                return 1;
+            }
+        }.Eval());
+    }
+}

@@ -1,0 +1,13 @@
+1230439966500	Rename type 'MethodBodyGenerator'
+1230440212546	Delete element
+1230442162859	Rename type 'LetClosureSignature'
+1230442167984	Rename field 'LetClosureAccesses'
+1230462995640	Rename local variable 'tTypeName'
+1230464993703	Extract constant 'V_OBJREF'
+1230465028015	Extract constant 'V_INIT'
+1230465041437	Extract constant 'V_INDEX'
+1230467206781	Change method 'MemberSignature'
+1230469596703	Rename method 'GetTypeJvmName'
+1230479119140	Delete element
+1230479121375	Delete element
+1230479249125	Rename local variable 'df'

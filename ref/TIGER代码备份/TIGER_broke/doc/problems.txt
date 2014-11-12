@@ -1,0 +1,19 @@
+Lexical Analysis 部分:
+1.注意测试注释部分
+2.注意测试字符串中的转义字符部分
+3.注意测试数字的返回值/转义字符是否返回正确
+
+Parser 部分：
+1.可以考虑添加error来支持error recovery
+2.INTEGER类型是int不是Integer
+3.目前不能区分id和typeId
+4.UNIMUS的结合性是左结合
+5.为解决if then else 和　expr ::= type-id [expr] of expr / lvalue ::= lvalue [expr] 的
+  shift/reduce conflicts，设置"[" 和 ELSE 的优先级．
+  
+Lexical Analysis 部分：
+增加更多错误情况的判断
+
+Parser(Absyn)部分:
+2.exprList 用的是  exprList expr 而不是  expr exprList。   exprSeq等类似
+3.注意优先级的定义

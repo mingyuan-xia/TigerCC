@@ -1,0 +1,7 @@
+public class Test {
+    public String a;
+
+    public void main(String[] arg, String[] arg2) {
+        a = arg2[0];
+    }
+}

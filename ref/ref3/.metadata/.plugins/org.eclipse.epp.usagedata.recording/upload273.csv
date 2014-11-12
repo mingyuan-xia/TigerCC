@@ -1,0 +1,26 @@
+what,kind,bundleId,bundleVersion,description,time
+executed,command,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.commands.StepOver,1227372652265
+started,bundle,org.eclipse.compare,3.4.0.I20080604,org.eclipse.compare,1227372664546
+executed,command,org.eclipse.ui,3.4.1.M20080910-0800,org.eclipse.ui.edit.copy,1227372667000
+activated,view,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.BreakpointView,1227372668531
+activated,view,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.DebugView,1227372669515
+activated,view,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.ExpressionView,1227372671187
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227372674343
+executed,command,org.eclipse.ui,3.4.1.M20080910-0800,org.eclipse.ui.edit.paste,1227372675421
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227372676609
+no handler,command,org.eclipse.ui,3.4.1.M20080910-0800,org.eclipse.ui.edit.delete,1227372679625
+activated,editor,org.eclipse.jdt.ui,3.4.1.r341_v20080827-1100,org.eclipse.jdt.ui.CompilationUnitEditor,1227372682937
+executed,command,org.eclipse.ui,3.4.1.M20080910-0800,org.eclipse.ui.edit.copy,1227372690359
+activated,view,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.ExpressionView,1227372691343
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227372692703
+executed,command,org.eclipse.ui,3.4.1.M20080910-0800,org.eclipse.ui.edit.paste,1227372693906
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227372699937
+activated,editor,org.eclipse.jdt.ui,3.4.1.r341_v20080827-1100,org.eclipse.jdt.ui.CompilationUnitEditor,1227372701250
+executed,command,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.commands.StepOver,1227372702640
+executed,command,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.commands.StepOver,1227372703875
+executed,command,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.commands.StepOver,1227372704750
+executed,command,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.commands.Resume,1227372706281
+executed,command,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.commands.StepOver,1227372707468
+executed,command,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.commands.StepOver,1227372708671
+executed,command,org.eclipse.debug.ui,3.4.1.v20080811_r341,org.eclipse.debug.ui.commands.StepOver,1227372713937
+activated,editor,org.eclipse.jdt.ui,3.4.1.r341_v20080827-1100,org.eclipse.jdt.ui.CompilationUnitEditor,1227372714000

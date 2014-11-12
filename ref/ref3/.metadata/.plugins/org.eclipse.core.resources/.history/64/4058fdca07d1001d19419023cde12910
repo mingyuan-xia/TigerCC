@@ -1,0 +1,7 @@
+package Semantics.verifier;
+
+public class ErrorReporter {
+    public static NewError(Node node, String s) {
+
+    }
+}

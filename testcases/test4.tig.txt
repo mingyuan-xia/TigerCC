@@ -1,0 +1,153 @@
+.686
+.model flat, stdcall
+option casemap :none   ; case sensitive
+include windows.inc
+include user32.inc
+include kernel32.inc
+include masm32.inc
+.data
+__nfactor_fp dd ?
+__scope6_fp dd ?
+__scope0_fp dd ?
+.code
+extrn tg_print :near
+extrn tg_newrecord :near
+extrn tg_getchar :near
+extrn tg_newarray :near
+extrn tg_finalize :near
+extrn tg_ord :near
+extrn tg_chr :near
+extrn tg_printi :near
+extrn tg_streq :near
+extrn tg_strneq :near
+main PROC C
+	call scope0
+	call tg_finalize
+	call ExitProcess
+	ret 0
+main endp
+scope0:
+label0:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __scope0_fp
+sub esp,04h
+mov __scope0_fp,ebp
+;$0=call scope6of #0 args
+
+call scope6
+;frame_leave
+
+mov [ebp-04h],eax
+mov eax,ebx
+add esp,04h
+pop __scope0_fp
+pop ebp
+ret
+
+scope6:
+label1:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __scope6_fp
+sub esp,04h
+mov __scope6_fp,ebp
+;push #10
+
+mov eax,0ah
+push eax
+;$6=call nfactorof #1 args
+
+call nfactor
+add esp,04h
+;frame_leave$6
+
+mov [ebp-04h],eax
+mov eax,eax
+add esp,04h
+pop __scope6_fp
+pop ebp
+ret
+
+nfactor:
+label2:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __nfactor_fp
+sub esp,014h
+mov __nfactor_fp,ebp
+;$1=(n==#0)
+
+mov eax,[ebp-04h]
+mov ebx,[ebp+08h]
+mov ecx,00h
+mov eax,00h
+mov edx,01h
+cmp ebx,ecx
+cmove eax,edx
+;if $1!=0 then label3 else label4
+
+mov [ebp-04h],eax
+cmp eax,00h
+jne label3
+jmp label4
+
+label3:
+;$2=#1
+
+mov eax,01h
+;jump label5
+
+mov [ebp-08h],eax
+jmp label5
+
+label4:
+;$3=n-#1
+
+mov eax,[ebp+08h]
+mov ebx,01h
+sub eax,ebx
+;push $3
+
+push eax
+;$4=call nfactorof #1 args
+
+mov [ebp-0ch],eax
+call nfactor
+add esp,04h
+;$5=n*$4
+
+mov [ebp-010h],eax
+mov ebx,[ebp+08h]
+mov eax,ebx
+mov edx,00h
+mov ebx,[ebp-010h]
+imul ebx
+;$2=$5
+
+mov [ebp-014h],eax
+;jump label5
+
+mov [ebp-08h],eax
+jmp label5
+
+label5:
+;frame_leave$2
+
+mov eax,[ebp-08h]
+mov eax,eax
+add esp,014h
+pop __nfactor_fp
+pop ebp
+ret
+
+
+
+
+end

@@ -1,0 +1,14 @@
+<root>
+<sys_keys>id,comm,for,string,let,in,if,else,then,while,break,of,to,type,array,do,end,var,nil,function</sys_keys>
+<sys_ids>int,for,string,public,protected,private,void,class,implements,extends,interface,throw,throws,import,package,return,byte,double,float,boolean,abstract,final,static</sys_ids>
+<sys_keycolor>127,0,85</sys_keycolor>
+<sys_stringcolor>40,0,255</sys_stringcolor>
+<sys_normalcolor>0,0,0</sys_normalcolor>
+<sys_commcolor>63,127,95</sys_commcolor>
+<sys_errorimg>imgs/error.gif</sys_errorimg>
+<sys_warningimg>imgs/warning.gif</sys_warningimg>
+<sys_font>Courier New</sys_font>
+<sys_fontsize>13</sys_fontsize>
+<initial_folder>./tests/</initial_folder>
+<initial_type>int,string</initial_type>
+</root>

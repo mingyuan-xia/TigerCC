@@ -1,0 +1,1 @@
+error : detect loop recursive type alias!

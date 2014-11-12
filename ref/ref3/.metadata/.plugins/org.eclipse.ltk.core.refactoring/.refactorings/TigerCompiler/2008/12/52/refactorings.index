@@ -1,0 +1,91 @@
+1229875016328	Rename field 'text'
+1229875028953	Rename field 'count'
+1229875730125	Delete element
+1229875879750	Rename field 'comment_level'
+1229875883812	Rename field 'comment'
+1229875889265	Rename field 'comment_text'
+1229875894890	Rename field 'StringLiteral_text'
+1229881557687	Rename package 'Lexer'
+1230001947328	Delete element
+1230037364859	Rename package 'Semantic.lexer'
+1230037395484	Rename package 'Semantics.Verifier'
+1230047226390	Copy compilation unit
+1230047235828	Rename type 'ParserException'
+1230050488234	Rename field 'TypeNameTypeIdentifierMapping'
+1230050494171	Rename field 'TypeNameTypeMapping'
+1230050587031	Rename local variable 'id'
+1230098415078	Rename field 'NameTypeMapping'
+1230098537312	Rename field 'Types'
+1230098975578	Rename field 'Type'
+1230100168750	Rename local variable 'simpleName'
+1230100734843	Rename local variable 'SimpleTypeName'
+1230100747984	Rename local variable 'SimpleName'
+1230138669203	Rename method 'println'
+1230138674546	Rename method 'printlnWithPositionInfo'
+1230139189781	Rename local variable 'token'
+1230144756234	Rename local variable 'aliasName'
+1230144766625	Rename local variable 'alias'
+1230145255281	Rename local variable 'aliasNonArrayType'
+1230183716491	Rename local variable 'nonArrayType'
+1230183723663	Rename local variable 'targetNonArrayType'
+1230203009718	Rename local variable 'record'
+1230203064763	Rename field 'ReturnValue'
+1230211853879	Rename local variable 'ReturnType'
+1230211857551	Rename local variable 'teturnType'
+1230211862254	Rename local variable 'Parameters'
+1230215524659	Rename local variable 'retType'
+1230225240393	Rename local variable 'token'
+1230225346284	Rename local variable 'p'
+1230225725643	Rename local variable 'p'
+1230225739299	Rename local variable 'exprs'
+1230235223909	Rename type 'VerifierPass012'
+1230235229674	Rename type 'VerifierPass3'
+1230272151781	Rename package 'generator'
+1230276829296	Rename method 'TypeNameTranslate'
+1230276857593	Rename method 'GetTypeJVMName'
+1230277370156	Move compilation unit
+1230277490156	Move compilation unit
+1230277500875	Move compilation unit
+1230277931906	Rename local variable 'typeId'
+1230293955781	Rename local variable 'name'
+1230300889281	Rename local variable 'c'
+1230311654140	Move compilation unit
+1230311793734	Copy compilation unit
+1230311880515	Copy compilation unit
+1230311949609	Copy compilation unit
+1230319094546	Rename local variable 'mw'
+1230363464656	Change method 'ExprGenerator'
+1230363560578	Change method 'DoTest'
+1230364624953	Rename field 'MemberSignatures'
+1230365033187	Rename local variable 'parentObject'
+1230365040078	Rename field 'ParentObject'
+1230369240296	Move compilation unit
+1230369389265	Move compilation units
+1230377304125	Rename local variable 'e'
+1230380990343	Infer generic type arguments
+1230381003156	Delete element
+1230384664843	Rename field 'cv'
+1230385712656	Rename method 'save'
+1230385723609	Rename method 'print'
+1230385742203	Rename method 'print'
+1230389270500	Rename field 'Name'
+1230393236250	Rename field 'ExternalClosureIndices'
+1230393244609	Rename local variable 'externalClosureIndices'
+1230394912406	Delete element
+1230394923531	Rename type 'Test2'
+1230395142171	Rename local variable 'mv'
+1230395618812	Delete element
+1230398839593	Rename local variable 'mv'
+1230399908687	Rename type 'ClosureGenerator'
+1230400508468	Rename type 'ExprGenerator'
+1230400992687	Rename local variable 'cmv'
+1230403329843	Rename local variable 'mv'
+1230404243046	Rename type 'LetClosureAccess'
+1230405089312	Change method 'LetClosureSignature'
+1230406978187	Rename compilation unit 'Test.java'
+1230408478312	Delete element
+1230412112671	Copy compilation unit
+1230412217000	Rename local variable 'letExpr'
+1230412244671	Rename local variable 'letExpr'
+1230412724937	Copy compilation unit
+1230413187390	Rename local variable 'id'

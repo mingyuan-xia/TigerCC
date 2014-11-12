@@ -1,0 +1,21 @@
+/* define valid mutually recursive procedures */
+let
+
+function do_nothing1(a: int, b: string)=
+	let
+		var fuck = 1
+		function dofuck1(a:string, b:int) =
+			dofuck2(0)
+		function dofuck2(a:int) =
+			do_nothing2(a+1) /* the fucking recursive procedures declaration */
+	in
+		do_nothing2(a+1)
+	end
+var ddd:int := 1 /* interrrupt! */
+function do_nothing2(d: int) =
+		do_nothing1(d, "str")
+
+in
+	do_nothing1(0, "str2")
+end
+

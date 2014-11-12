@@ -1,0 +1,26 @@
+what,kind,bundleId,bundleVersion,description,time
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227346836062
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227346840015
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227346886390
+started,bundle,org.eclipse.pde.api.tools.ui,1.0.0.v20080730_r341,org.eclipse.pde.api.tools.ui,1227346893921
+started,bundle,org.eclipse.mylyn.java.ui,3.0.2.v20080918-1100-e3x,org.eclipse.mylyn.java.ui,1227346894000
+executed,command,org.eclipse.ui,3.4.1.M20080910-0800,org.eclipse.ui.file.save,1227346895968
+executed,command,org.eclipse.ui.workbench.texteditor,3.4.1.r341_v20080827-1100,org.eclipse.ui.edit.text.goto.lineEnd,1227346896890
+executed,command,org.eclipse.ui.workbench.texteditor,3.4.1.r341_v20080827-1100,org.eclipse.ui.edit.text.goto.lineStart,1227346897218
+executed,command,org.eclipse.ui,3.4.1.M20080910-0800,org.eclipse.ui.file.save,1227346900562
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227346914031
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227346927281
+executed,command,org.eclipse.ui.workbench.texteditor,3.4.1.r341_v20080827-1100,org.eclipse.ui.edit.text.goto.lineEnd,1227346934312
+executed,command,org.eclipse.ui,3.4.1.M20080910-0800,org.eclipse.ui.file.save,1227346934921
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227346942000
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227346945265
+no handler,command,org.eclipse.ui.workbench.texteditor,3.4.1.r341_v20080827-1100,org.eclipse.ui.edit.text.goto.lineEnd,1227346947500
+no handler,command,org.eclipse.ui.workbench.texteditor,3.4.1.r341_v20080827-1100,org.eclipse.ui.edit.text.goto.lineEnd,1227346948546
+executed,command,org.eclipse.ui.workbench.texteditor,3.4.1.r341_v20080827-1100,org.eclipse.ui.edit.text.hippieCompletion,1227346953890
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227346960359
+activated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227346964203
+executed,command,org.eclipse.ui.workbench.texteditor,3.4.1.r341_v20080827-1100,org.eclipse.ui.edit.text.hippieCompletion,1227346965750
+executed,command,org.eclipse.ui.workbench.texteditor,3.4.1.r341_v20080827-1100,org.eclipse.ui.edit.text.goto.lineEnd,1227346970703
+executed,command,org.eclipse.ui,3.4.1.M20080910-0800,org.eclipse.ui.file.save,1227346971312
+executed,command,org.eclipse.jdt.ui,3.4.1.r341_v20080827-1100,org.eclipse.jdt.ui.edit.text.java.add.import,1227346977718
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227346983703

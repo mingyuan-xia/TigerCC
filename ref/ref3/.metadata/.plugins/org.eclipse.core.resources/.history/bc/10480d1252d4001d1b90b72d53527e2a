@@ -1,0 +1,6 @@
+public class expr {
+    public static void main(String[] args) {
+        expr$1 a = new expr$1();
+        TigerStandardLibrary.printi(a.Eval());
+    }
+}

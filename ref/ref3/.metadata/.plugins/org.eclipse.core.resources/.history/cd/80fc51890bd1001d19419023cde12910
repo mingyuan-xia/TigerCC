@@ -1,0 +1,75 @@
+//==========================================================================
+//
+//  File:        ErrorReporter.java
+//  Location:    TigerCompiler <Java>
+//  Description: ErrorReporter
+//  Version:     2008.12.23.
+//  License:     BSD License
+//
+//  Copyright(C) F.R.C., All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in the
+//        documentation and/or other materials provided with the distribution.
+//      * Neither the name of the the copyright holders nor the
+//        names of its contributors may be used to endorse or promote products
+//        derived from this software without specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
+//  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//==========================================================================
+
+package Semantics.verifier;
+
+import Syntax.node.*;
+
+public class ErrorReporter {
+    private static int ErrorCount = 0;
+    private static int WarningCount = 0;
+
+    public static void NewError(Token token, String s) throws VerifierException {
+        ErrorCount += 1;
+        System.out.println(Format("SemanticsError at ({0}, {1}): {2}", token.getLine(), token.getPos(), s));
+        if (ErrorCount >= 100) { throw new VerifierException("Num of Error reached the maximum of 100."); }
+    }
+
+    public static void NewWarning(Token token, String s) {
+        if (WarningCount > 100) { return; }
+        WarningCount += 1;
+        System.out.println(Format("SemanticsWarning at ({0}, {1}): {2}", token.getLine(), token.getPos(), s));
+        if (WarningCount >= 100) {
+            System.out.println("Num of Warning reached the maximum of 100.");
+            WarningCount += 1;
+        }
+    }
+
+    public static int getErrorCount() {
+        return ErrorCount;
+    }
+
+    public static int getWarningCount() {
+        return WarningCount;
+    }
+
+    /**
+     * 模拟.Net格式化
+     */
+    private static String Format(String format, Object... args) {
+        for (int i = 0; i < args.length; i++) {
+            format = format.replace("{" + Integer.toString(i) + "}", args[i].toString());
+        }
+        return format;
+    }
+}

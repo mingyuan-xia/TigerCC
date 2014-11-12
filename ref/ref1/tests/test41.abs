@@ -1,0 +1,15 @@
+ LetExp(
+  DecList(
+   TypeDec(a,
+    NameTy(int)),
+   DecList()),
+  SeqExp(
+   ExpList(
+    LetExp(
+     DecList(
+      TypeDec(a,
+       NameTy(string)),
+      DecList()),
+     SeqExp(
+      ExpList(
+       IntExp(0)))))))

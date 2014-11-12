@@ -1,0 +1,1 @@
+error : mutli declaration in batch type decl list!

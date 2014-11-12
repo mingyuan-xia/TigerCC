@@ -1,0 +1,15 @@
+ WhileExp(
+  OpExp(
+   GT,
+   IntExp(10),
+   IntExp(5)),
+  SeqExp(
+   ExpList(
+    OpExp(
+     PLUS,
+     varExp(
+      SimpleVar(i)),
+     IntExp(1)),
+    ExpList(
+     SeqExp(
+      ExpList())))))

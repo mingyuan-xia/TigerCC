@@ -1,0 +1,7 @@
+Failed testcases in type-verifying
+
+test17.tig	Test conflicts with the specification.
+test18.tig	By design. Not compiler's responsiblity.
+test37.tig	By design.
+test47.tig	By design.
+test48.tig	By design.

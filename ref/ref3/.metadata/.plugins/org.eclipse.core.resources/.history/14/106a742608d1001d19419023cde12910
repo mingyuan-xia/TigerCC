@@ -1,0 +1,12 @@
+package Semantics.verifier;
+
+import Syntax.node.*;
+
+public class ErrorReporter {
+    private static int ErrorCount = 0;
+
+    public static void NewError(Node node, String s) {
+        ErrorCount += 1;
+        System.out.println("SemanticsError: ");
+    }
+}

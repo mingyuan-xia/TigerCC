@@ -1,0 +1,469 @@
+//==========================================================================
+//
+//  File:        VerifierBase.java
+//  Location:    TigerCompiler <Java>
+//  Description: Verifier data structure and util methods. 
+//  Version:     2008.12.26.
+//  License:     BSD License
+//
+//  Copyright(C) F.R.C., All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in the
+//        documentation and/or other materials provided with the distribution.
+//      * Neither the name of the the copyright holders nor the
+//        names of its contributors may be used to endorse or promote products
+//        derived from this software without specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
+//  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//==========================================================================
+
+package Semantics.verifier;
+
+import java.util.*;
+
+import Syntax.node.*;
+import Syntax.analysis.*;
+
+public abstract class VerifierBase extends DepthFirstAdapter {
+    public final BlockNamespace GlobalNamespace;
+    protected BlockNamespace CurrentNamespace;
+    protected int NamespaceIndex;
+    protected int Pass;
+    protected int NumPass;
+    public final Hashtable<Node, TypeIdentifier> NodeTypeIdentifierMapping;
+    public final Hashtable<Node, Identifier> NodeIdentifierMapping;
+    public final Hashtable<Node, Type> NodeTypeOfTypeMapping;
+    public final Hashtable<Node, Type> NodeTypeMapping;
+    public final ArrayList<Type> Types;
+
+    public VerifierBase(int numPass) {
+        GlobalNamespace = new BlockNamespace(0);
+        CurrentNamespace = GlobalNamespace;
+        NamespaceIndex = 0;
+        Pass = 0;
+        this.NumPass = numPass;
+        NodeTypeIdentifierMapping = new Hashtable<Node, TypeIdentifier>();
+        NodeIdentifierMapping = new Hashtable<Node, Identifier>();
+        NodeTypeOfTypeMapping = new Hashtable<Node, Type>();
+        NodeTypeMapping = new Hashtable<Node, Type>();
+        Types = new ArrayList<Type>();
+
+        TypeIdentifier IntTypeIdentifier = new TypeIdentifier("int");
+        TypeIdentifier StrTypeIdentifier = new TypeIdentifier("string");
+        IntTypeIdentifier.TypeOfType = IntType.GetInstance();
+        StrTypeIdentifier.TypeOfType = StrType.GetInstance();
+        GlobalNamespace.AddTypeIdentifier(IntTypeIdentifier);
+        GlobalNamespace.AddTypeIdentifier(StrTypeIdentifier);
+
+        Types.add(IntType.GetInstance());
+        Types.add(StrType.GetInstance());
+        Types.add(UnitType.GetInstance());
+        Types.add(AnyRecordType.GetInstance());
+    }
+
+    public void NextPass() {
+        Pass += 1;
+        NamespaceIndex = 0;
+    }
+
+    public boolean HasNextPass() {
+        return Pass < NumPass;
+    }
+
+    public static class BlockNamespace {
+        public final int Index;
+        public BlockNamespace Parent;
+        public final ArrayList<BlockNamespace> SubNamespaces;
+        public final Hashtable<Integer, Integer> IndexMap;
+        public final Hashtable<String, TypeIdentifier> TypeNameTypeIdentifierMapping;
+        public final Hashtable<String, Identifier> NameIdentifierMapping;
+        public final ArrayList<TypeIdentifier> TypeIdentifiers;
+        public final ArrayList<Identifier> Identifiers;
+
+        public BlockNamespace(int index) {
+            this.Index = index;
+            Parent = null;
+            SubNamespaces = new ArrayList<BlockNamespace>();
+            IndexMap = new Hashtable<Integer, Integer>();
+            TypeNameTypeIdentifierMapping = new Hashtable<String, TypeIdentifier>();
+            NameIdentifierMapping = new Hashtable<String, Identifier>();
+            TypeIdentifiers = new ArrayList<TypeIdentifier>();
+            Identifiers = new ArrayList<Identifier>();
+        }
+
+        public BlockNamespace(int index, BlockNamespace parent) {
+            this(index);
+            this.Parent = parent;
+        }
+
+        public boolean ContainTypeIdentifier(String name) {
+            return TypeNameTypeIdentifierMapping.containsKey(name);
+        }
+
+        public boolean ContainIdentifier(String name) {
+            return NameIdentifierMapping.containsKey(name);
+        }
+
+        public void AddTypeIdentifier(TypeIdentifier typeIdentifier) {
+            assert !ContainTypeIdentifier(typeIdentifier.SimpleName);
+            TypeNameTypeIdentifierMapping.put(typeIdentifier.SimpleName, typeIdentifier);
+            TypeIdentifiers.add(typeIdentifier);
+            typeIdentifier.Parent = this;
+        }
+
+        public void AddIdentifier(Identifier identifier) {
+            assert !ContainIdentifier(identifier.SimpleName);
+            NameIdentifierMapping.put(identifier.SimpleName, identifier);
+            Identifiers.add(identifier);
+            identifier.Parent = this;
+        }
+
+        public TypeIdentifier GetTypeIdentifier(String name) {
+            return TypeNameTypeIdentifierMapping.get(name);
+        }
+
+        public Identifier GetIdentifier(String name) {
+            return NameIdentifierMapping.get(name);
+        }
+    }
+
+    public static class Identifier {
+        public String SimpleName;
+        public Type Type;
+        public BlockNamespace Parent;
+
+        public Identifier() {
+        }
+
+        public Identifier(String simpleName) {
+            this.SimpleName = simpleName;
+        }
+
+        public Identifier(String simpleName, Type type) {
+            this.SimpleName = simpleName;
+            this.Type = type;
+        }
+    }
+
+    public static class TypeIdentifier {
+        public String SimpleName;
+        public Type TypeOfType;
+        public BlockNamespace Parent;
+
+        public TypeIdentifier() {
+        }
+
+        public TypeIdentifier(String simpleName) {
+            this.SimpleName = simpleName;
+        }
+    }
+
+    public abstract static class Type {
+        public abstract Type GetType();
+    }
+
+    public abstract static class PrimitiveType extends Type {
+        @Override
+        public Type GetType() {
+            return this;
+        }
+    }
+
+    //Singleton
+    public final static class IntType extends PrimitiveType {
+        private static IntType Instance;
+
+        private IntType() {
+        }
+
+        public static IntType GetInstance() {
+            if (Instance == null) {
+                Instance = new IntType();
+            }
+            return Instance;
+        }
+    }
+
+    //Singleton
+    public final static class StrType extends PrimitiveType {
+        private static StrType Instance;
+
+        private StrType() {
+        }
+
+        public static StrType GetInstance() {
+            if (Instance == null) {
+                Instance = new StrType();
+            }
+            return Instance;
+        }
+    }
+
+    //Singleton
+    public final static class UnitType extends PrimitiveType {
+        private static UnitType Instance;
+
+        private UnitType() {
+        }
+
+        public static UnitType GetInstance() {
+            if (Instance == null) {
+                Instance = new UnitType();
+            }
+            return Instance;
+        }
+    }
+
+    //Singleton
+    public static class AnyRecordType extends PrimitiveType {
+        private static AnyRecordType Instance;
+
+        private AnyRecordType() {
+        }
+
+        public static AnyRecordType GetInstance() {
+            if (Instance == null) {
+                Instance = new AnyRecordType();
+            }
+            return Instance;
+        }
+    }
+
+    public static class ArrayType extends Type {
+        public Type Type;
+
+        public ArrayType(Type type) {
+            this.Type = type;
+        }
+
+        @Override
+        public Type GetType() {
+            return this;
+        }
+    }
+
+    public static class Field {
+        public String Name;
+        public Type Type;
+
+        public Field(String name, Type type) {
+            this.Name = name;
+            this.Type = type;
+        }
+    }
+
+    public static class RecordType extends Type {
+        public Field[] Fields;
+        public Hashtable<String, Field> NameFieldMapping;
+
+        public RecordType(Field[] fields) {
+            this.Fields = fields;
+            NameFieldMapping = new Hashtable<String, Field>();
+            for (Field f : fields) {
+                Add(NameFieldMapping, f.Name, f);
+            }
+        }
+
+        @Override
+        public Type GetType() {
+            return this;
+        }
+    }
+
+    public static class CombinedType extends Type {
+        public TypeIdentifier TypeIdentifier;
+        public Type Type;
+
+        public CombinedType(TypeIdentifier typeIdentifier) {
+            this.TypeIdentifier = typeIdentifier;
+            this.Type = null;
+        }
+
+        public CombinedType(TypeIdentifier typeIdentifier, Type type) {
+            this.TypeIdentifier = typeIdentifier;
+            this.Type = type;
+        }
+
+        @Override
+        public Type GetType() {
+            return Type.GetType();
+        }
+    }
+
+    public static class MethodType extends Type {
+        public Identifier[] Parameters;
+        public Type ReturnType;
+
+        public MethodType(Identifier[] parameters, Type returnType) {
+            this.Parameters = parameters;
+            this.ReturnType = returnType;
+        }
+
+        @Override
+        public Type GetType() {
+            return ReturnType.GetType();
+        }
+    }
+
+    //Enter LetExpr / MethodDeclaration / ForExpr will summon a new namespace.
+
+    protected void StartNamespace() {
+        NamespaceIndex += 1;
+        if (Pass == 0) {
+            BlockNamespace Parent = CurrentNamespace;
+            CurrentNamespace = new BlockNamespace(NamespaceIndex, Parent);
+            Parent.IndexMap.put(NamespaceIndex, Parent.SubNamespaces.size());
+            Parent.SubNamespaces.add(CurrentNamespace);
+        }
+        else {
+            CurrentNamespace = CurrentNamespace.SubNamespaces.get(CurrentNamespace.IndexMap.get(NamespaceIndex));
+        }
+    }
+
+    protected void EndNamespace() {
+    }
+
+    @Override
+    public void inALetExpr(ALetExpr node) {
+        super.inALetExpr(node);
+        StartNamespace();
+    }
+
+    @Override
+    public void inAMethodDeclaration(AMethodDeclaration node) {
+        super.inAMethodDeclaration(node);
+        NamespaceIndex += 1;
+        if (Pass == 0) {
+            BlockNamespace Parent = CurrentNamespace;
+            CurrentNamespace = new BlockNamespace(NamespaceIndex, Parent);
+            Parent.IndexMap.put(NamespaceIndex, Parent.SubNamespaces.size());
+            Parent.SubNamespaces.add(CurrentNamespace);
+        }
+        else {
+            CurrentNamespace = CurrentNamespace.SubNamespaces.get(CurrentNamespace.IndexMap.get(NamespaceIndex));
+        }
+    }
+
+    @Override
+    public void inAForExpr(AForExpr node) {
+        super.inAForExpr(node);
+        NamespaceIndex += 1;
+        if (Pass == 0) {
+            BlockNamespace Parent = CurrentNamespace;
+            CurrentNamespace = new BlockNamespace(NamespaceIndex, Parent);
+            Parent.IndexMap.put(NamespaceIndex, Parent.SubNamespaces.size());
+            Parent.SubNamespaces.add(CurrentNamespace);
+        }
+        else {
+            CurrentNamespace = CurrentNamespace.SubNamespaces.get(CurrentNamespace.IndexMap.get(NamespaceIndex));
+        }
+    }
+
+    //Leave namespace
+    @Override
+    public void outALetExpr(ALetExpr node) {
+        CurrentNamespace = CurrentNamespace.Parent;
+        super.outALetExpr(node);
+    }
+
+    @Override
+    public void outAMethodDeclaration(AMethodDeclaration node) {
+        CurrentNamespace = CurrentNamespace.Parent;
+        super.outAMethodDeclaration(node);
+    }
+
+    @Override
+    public void outAForExpr(AForExpr node) {
+        CurrentNamespace = CurrentNamespace.Parent;
+        super.outAForExpr(node);
+    }
+
+    //Safe Add for Hashtable
+    protected static <K, V> void Add(Hashtable<K, V> h, K key, V value) {
+        assert !h.containsKey(key);
+        h.put(key, value);
+    }
+
+    //Try to find the namespace containing the type-identifier, return null if not found.
+    protected BlockNamespace TryResolveTypeIdentifier(String simpleTypeName) {
+        BlockNamespace c = CurrentNamespace;
+        while (c != null) {
+            if (c.ContainTypeIdentifier(simpleTypeName)) { return c; }
+            c = c.Parent;
+        }
+        return null;
+    }
+
+    //Try to find the namespace containing the identifier, return null if not found.
+    protected BlockNamespace TryResolveIdentifier(String simpleName) {
+        BlockNamespace c = CurrentNamespace;
+        while (c != null) {
+            if (c.ContainIdentifier(simpleName)) { return c; }
+            c = c.Parent;
+        }
+        return null;
+    }
+
+    //Evaluate the compability of two types. 
+    protected boolean IsTypeMatch(Type l, Type r) {
+        if (l instanceof CombinedType) { return IsTypeMatch(l.GetType(), r); }
+        if (r instanceof CombinedType) { return IsTypeMatch(l, r.GetType()); }
+        if (l instanceof AnyRecordType && r instanceof AnyRecordType) { return false; }
+        if (l == r) { return true; }
+        if (l instanceof RecordType && r instanceof AnyRecordType) { return true; }
+        if (l instanceof AnyRecordType && r instanceof RecordType) { return true; }
+        return false;
+    }
+
+    //Evaluate the compability of two types. 
+    protected boolean IsTypeMatch(Node l, Node r) {
+        return IsTypeMatch(NodeTypeMapping.get(l), NodeTypeMapping.get(r));
+    }
+
+    //Evaluate whether node is of IntType. 
+    protected boolean IsOfInt(Node node) {
+        Type t = NodeTypeMapping.get(node);
+        if (t == null) {
+            return false;
+        }
+        else {
+            return t instanceof IntType;
+        }
+    }
+
+    //Evaluate whether node is of StrType. 
+    protected boolean IsOfStr(Node node) {
+        Type t = NodeTypeMapping.get(node);
+        if (t == null) {
+            return false;
+        }
+        else {
+            return t instanceof StrType;
+        }
+    }
+
+    //Evaluate whether node is of UnitType. 
+    protected boolean IsOfUnit(Node node) {
+        Type t = NodeTypeMapping.get(node);
+        if (t == null) {
+            return false;
+        }
+        else {
+            return t instanceof UnitType;
+        }
+    }
+}

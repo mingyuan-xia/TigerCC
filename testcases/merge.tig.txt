@@ -1,0 +1,1193 @@
+.686
+.model flat, stdcall
+option casemap :none   ; case sensitive
+include windows.inc
+include user32.inc
+include kernel32.inc
+include masm32.inc
+.data
+stringConst0 db 030h,0
+stringConst1 db 039h,0
+stringConst2 db 020h,0
+stringConst3 db 0ah,0
+stringConst4 db 030h,0
+stringConst5 db 030h,0
+stringConst6 db 02dh,0
+stringConst7 db 030h,0
+stringConst8 db 0ah,0
+stringConst9 db 020h,0
+__isdigit_fp dd ?
+__skipto_fp dd ?
+__scope8_fp dd ?
+__readint_fp dd ?
+__scope15_fp dd ?
+__readlist_fp dd ?
+__merge_fp dd ?
+__f_fp dd ?
+__scope16_fp dd ?
+__printint_fp dd ?
+__printlist_fp dd ?
+__scope6_fp dd ?
+__scope0_fp dd ?
+.code
+extrn tg_print :near
+extrn tg_newrecord :near
+extrn tg_getchar :near
+extrn tg_newarray :near
+extrn tg_finalize :near
+extrn tg_ord :near
+extrn tg_chr :near
+extrn tg_printi :near
+extrn tg_streq :near
+extrn tg_strneq :near
+main PROC C
+	call scope0
+	call tg_finalize
+	call ExitProcess
+	ret 0
+main endp
+scope0:
+label0:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __scope0_fp
+sub esp,00h
+mov __scope0_fp,ebp
+;call scope6of #0 args
+
+call scope6
+;frame_leave
+
+mov eax,eax
+add esp,00h
+pop __scope0_fp
+pop ebp
+ret
+
+scope6:
+label1:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __scope6_fp
+sub esp,024h
+mov __scope6_fp,ebp
+;$0=call getcharof #0 args
+
+call tg_getchar
+;buffer=$0
+
+mov [ebp-010h],eax
+;$69=call readlistof #0 args
+
+mov [ebp-04h],eax
+call readlist
+;list1=$69
+
+mov [ebp-014h],eax
+;$70=call getcharof #0 args
+
+mov [ebp-08h],eax
+call tg_getchar
+;buffer=$70
+
+mov [ebp-018h],eax
+;$71=call readlistof #0 args
+
+mov [ebp-04h],eax
+call readlist
+;list2=$71
+
+mov [ebp-01ch],eax
+;push list1
+
+mov ebx,[ebp-08h]
+push ebx
+;push list2
+
+push eax
+;$72=call mergeof #2 args
+
+mov [ebp-0ch],eax
+call merge
+add esp,08h
+;push $72
+
+push eax
+;$73=call printlistof #1 args
+
+mov [ebp-020h],eax
+call printlist
+add esp,04h
+;frame_leave$73
+
+mov [ebp-024h],eax
+mov eax,eax
+add esp,024h
+pop __scope6_fp
+pop ebp
+ret
+
+readint:
+label2:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __readint_fp
+sub esp,04h
+mov __readint_fp,ebp
+;$1=call scope8of #0 args
+
+call scope8
+;frame_leave$1
+
+mov [ebp-04h],eax
+mov eax,eax
+add esp,04h
+pop __readint_fp
+pop ebp
+ret
+
+scope8:
+label3:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __scope8_fp
+sub esp,028h
+mov __scope8_fp,ebp
+;i=#0
+
+mov eax,00h
+;$13=call skiptoof #0 args
+
+mov [ebp-04h],eax
+call skipto
+;push buffer
+
+push ebp
+mov ebp,__scope6_fp
+mov ebx,[ebp-04h]
+pop ebp
+push ebx
+;$14=call isdigitof #1 args
+
+mov [ebp-08h],eax
+call isdigit
+add esp,04h
+;any.field[#0]=$14
+
+push ebp
+mov ebp,__readint_fp
+mov ecx,[ebp+08h]
+pop ebp
+mov edx,00h
+mov ebx,edx
+shl ebx,1
+shl ebx,1
+add ebx,ecx
+mov [ebx],eax
+;jump label9
+
+mov [ebp-0ch],eax
+jmp label9
+
+label9:
+;push buffer
+
+push ebp
+mov ebp,__scope6_fp
+mov eax,[ebp-04h]
+pop ebp
+push eax
+;$15=call isdigitof #1 args
+
+call isdigit
+add esp,04h
+;if $15!=0 then label10 else label11
+
+mov [ebp-010h],eax
+cmp eax,00h
+jne label10
+jmp label11
+
+label10:
+;$16=i*#10
+
+mov ebx,[ebp-04h]
+mov eax,ebx
+mov edx,00h
+mov ebx,0ah
+imul ebx
+;push buffer
+
+push ebp
+mov ebp,__scope6_fp
+mov ecx,[ebp-04h]
+pop ebp
+push ecx
+;$17=call ordof #1 args
+
+mov [ebp-014h],eax
+call tg_ord
+add esp,04h
+;$18=$16+$17
+
+mov ebx,[ebp-014h]
+add ebx,eax
+;push #
+
+lea ecx,stringConst4
+push ecx
+;$19=call ordof #1 args
+
+mov [ebp-018h],eax
+mov [ebp-01ch],ebx
+call tg_ord
+add esp,04h
+;$20=$18-$19
+
+mov ebx,[ebp-01ch]
+sub ebx,eax
+;i=$20
+
+mov [ebp-020h],ebx
+;$21=call getcharof #0 args
+
+mov [ebp-024h],eax
+mov [ebp-04h],ebx
+call tg_getchar
+;buffer=$21
+
+mov [ebp-028h],eax
+;jump label9
+
+push ebp
+mov ebp,__scope6_fp
+mov [ebp-04h],eax
+pop ebp
+jmp label9
+
+label11:
+;frame_leavei
+
+mov eax,[ebp-04h]
+mov eax,eax
+add esp,028h
+pop __scope8_fp
+pop ebp
+ret
+
+isdigit:
+label4:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __isdigit_fp
+sub esp,01ch
+mov __isdigit_fp,ebp
+;push buffer
+
+push ebp
+mov ebp,__scope6_fp
+mov eax,[ebp-04h]
+pop ebp
+push eax
+;$2=call ordof #1 args
+
+call tg_ord
+add esp,04h
+;push #
+
+lea ebx,stringConst0
+push ebx
+;$3=call ordof #1 args
+
+mov [ebp-04h],eax
+call tg_ord
+add esp,04h
+;$4=($2>=$3)
+
+mov ebx,[ebp-08h]
+mov ecx,[ebp-04h]
+mov ebx,00h
+mov edx,01h
+cmp ecx,eax
+cmovge ebx,edx
+;push buffer
+
+push ebp
+mov ebp,__scope6_fp
+mov edx,[ebp-04h]
+pop ebp
+push edx
+;$5=call ordof #1 args
+
+mov [ebp-0ch],eax
+mov [ebp-08h],ebx
+call tg_ord
+add esp,04h
+;push #
+
+lea ebx,stringConst1
+push ebx
+;$6=call ordof #1 args
+
+mov [ebp-010h],eax
+call tg_ord
+add esp,04h
+;$7=($5<=$6)
+
+mov ebx,[ebp-014h]
+mov ecx,[ebp-010h]
+mov ebx,00h
+mov edx,01h
+cmp ecx,eax
+cmovle ebx,edx
+;$8=$4&$7
+
+mov edx,[ebp-08h]
+and edx,ebx
+;frame_leave$8
+
+mov [ebp-018h],eax
+mov [ebp-014h],ebx
+mov [ebp-01ch],edx
+mov eax,edx
+add esp,01ch
+pop __isdigit_fp
+pop ebp
+ret
+
+
+skipto:
+label5:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __skipto_fp
+sub esp,010h
+mov __skipto_fp,ebp
+;jump label6
+
+jmp label6
+
+label6:
+;$9=(buffer==#)
+
+push ebp
+mov ebp,__scope6_fp
+mov ebx,[ebp-04h]
+pop ebp
+lea ecx,stringConst2
+push ecx
+push ebx
+call tg_streq
+add esp,08h
+;$10=(buffer==#)
+
+mov [ebp-04h],eax
+push ebp
+mov ebp,__scope6_fp
+mov ebx,[ebp-04h]
+pop ebp
+lea ecx,stringConst3
+push ecx
+push ebx
+call tg_streq
+add esp,08h
+;$11=$9|$10
+
+mov ebx,[ebp-04h]
+or ebx,eax
+;if $11!=0 then label7 else label8
+
+mov [ebp-08h],eax
+mov [ebp-0ch],ebx
+cmp ebx,00h
+jne label7
+jmp label8
+
+label7:
+;$12=call getcharof #0 args
+
+call tg_getchar
+;buffer=$12
+
+mov [ebp-010h],eax
+;jump label6
+
+push ebp
+mov ebp,__scope6_fp
+mov [ebp-04h],eax
+pop ebp
+jmp label6
+
+label8:
+;frame_leave
+
+mov eax,eax
+add esp,010h
+pop __skipto_fp
+pop ebp
+ret
+
+
+
+
+readlist:
+label12:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __readlist_fp
+sub esp,04h
+mov __readlist_fp,ebp
+;$22=call scope15of #0 args
+
+call scope15
+;frame_leave$22
+
+mov [ebp-04h],eax
+mov eax,eax
+add esp,04h
+pop __readlist_fp
+pop ebp
+ret
+
+scope15:
+label13:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __scope15_fp
+sub esp,020h
+mov __scope15_fp,ebp
+;$23=newrecord[#1]
+
+mov ebx,01h
+push ebx
+call tg_newrecord
+add esp,04h
+;$23.field[#0]=#0
+
+mov ecx,00h
+mov edx,00h
+mov ebx,ecx
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edx
+;any=$23
+
+mov [ebp-0ch],eax
+;push any
+
+push eax
+;$24=call readintof #1 args
+
+mov [ebp-04h],eax
+call readint
+add esp,04h
+;i=$24
+
+mov [ebp-010h],eax
+;$25= any.field[#0]
+
+mov ecx,[ebp-014h]
+mov edx,[ebp-04h]
+mov esi,00h
+mov ebx,esi
+shl ebx,1
+shl ebx,1
+add ebx,edx
+mov ecx,[ebx]
+;if $25!=0 then label14 else label15
+
+mov [ebp-08h],eax
+mov [ebp-014h],ecx
+cmp ecx,00h
+jne label14
+jmp label15
+
+label14:
+;$28=call readlistof #0 args
+
+call readlist
+;$27=newrecord[#2]
+
+mov [ebp-018h],eax
+mov ebx,02h
+push ebx
+call tg_newrecord
+add esp,04h
+;$27.field[#0]=i
+
+mov ecx,00h
+mov edx,[ebp-08h]
+mov ebx,ecx
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edx
+;$27.field[#1]=$28
+
+mov esi,01h
+mov edi,[ebp-018h]
+mov ebx,esi
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edi
+;$26=$27
+
+mov [ebp-01ch],eax
+;jump label16
+
+mov [ebp-020h],eax
+jmp label16
+
+label15:
+;$26=#0
+
+mov eax,00h
+;jump label16
+
+mov [ebp-020h],eax
+jmp label16
+
+label16:
+;frame_leave$26
+
+mov eax,[ebp-020h]
+mov eax,eax
+add esp,020h
+pop __scope15_fp
+pop ebp
+ret
+
+
+
+merge:
+label17:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __merge_fp
+sub esp,040h
+mov __merge_fp,ebp
+;$29=(a==#0)
+
+mov eax,[ebp-04h]
+mov ebx,[ebp+08h]
+mov ecx,00h
+mov eax,00h
+mov edx,01h
+cmp ebx,ecx
+cmove eax,edx
+;if $29!=0 then label18 else label19
+
+mov [ebp-04h],eax
+cmp eax,00h
+jne label18
+jmp label19
+
+label18:
+;$30=b
+
+mov eax,[ebp+0ch]
+;jump label20
+
+mov [ebp-08h],eax
+jmp label20
+
+label19:
+;$31=(b==#0)
+
+mov eax,[ebp-0ch]
+mov ebx,[ebp+0ch]
+mov ecx,00h
+mov eax,00h
+mov edx,01h
+cmp ebx,ecx
+cmove eax,edx
+;if $31!=0 then label21 else label22
+
+mov [ebp-0ch],eax
+cmp eax,00h
+jne label21
+jmp label22
+
+label21:
+;$32=a
+
+mov eax,[ebp+08h]
+;jump label23
+
+mov [ebp-010h],eax
+jmp label23
+
+label22:
+;$33= a.field[#0]
+
+mov eax,[ebp-014h]
+mov ecx,[ebp+08h]
+mov edx,00h
+mov ebx,edx
+shl ebx,1
+shl ebx,1
+add ebx,ecx
+mov eax,[ebx]
+;$34= b.field[#0]
+
+mov esi,[ebp-018h]
+mov edi,[ebp+0ch]
+mov ecx,00h
+mov ebx,ecx
+shl ebx,1
+shl ebx,1
+add ebx,edi
+mov esi,[ebx]
+;$35=($33<$34)
+
+mov ebx,[ebp-01ch]
+mov ebx,00h
+mov edx,01h
+cmp eax,esi
+cmovl ebx,edx
+;if $35!=0 then label24 else label25
+
+mov [ebp-014h],eax
+mov [ebp-01ch],ebx
+mov [ebp-018h],esi
+cmp ebx,00h
+jne label24
+jmp label25
+
+label23:
+;$30=$32
+
+mov eax,[ebp-010h]
+;jump label20
+
+mov [ebp-08h],eax
+jmp label20
+
+label24:
+;$38= a.field[#0]
+
+mov eax,[ebp-020h]
+mov ecx,[ebp+08h]
+mov edx,00h
+mov ebx,edx
+shl ebx,1
+shl ebx,1
+add ebx,ecx
+mov eax,[ebx]
+;$39= a.field[#1]
+
+mov esi,[ebp-024h]
+mov edi,01h
+mov ebx,edi
+shl ebx,1
+shl ebx,1
+add ebx,ecx
+mov esi,[ebx]
+;push $39
+
+push esi
+;push b
+
+mov ebx,[ebp+0ch]
+push ebx
+;$40=call mergeof #2 args
+
+mov [ebp-020h],eax
+mov [ebp-024h],esi
+call merge
+add esp,08h
+;$37=newrecord[#2]
+
+mov [ebp-028h],eax
+mov ebx,02h
+push ebx
+call tg_newrecord
+add esp,04h
+;$37.field[#0]=$38
+
+mov ecx,00h
+mov edx,[ebp-020h]
+mov ebx,ecx
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edx
+;$37.field[#1]=$40
+
+mov esi,01h
+mov edi,[ebp-028h]
+mov ebx,esi
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edi
+;$36=$37
+
+mov [ebp-02ch],eax
+;jump label26
+
+mov [ebp-030h],eax
+jmp label26
+
+label25:
+;$42= b.field[#0]
+
+mov eax,[ebp-034h]
+mov ecx,[ebp+0ch]
+mov edx,00h
+mov ebx,edx
+shl ebx,1
+shl ebx,1
+add ebx,ecx
+mov eax,[ebx]
+;$43= b.field[#1]
+
+mov esi,[ebp-038h]
+mov edi,01h
+mov ebx,edi
+shl ebx,1
+shl ebx,1
+add ebx,ecx
+mov esi,[ebx]
+;push a
+
+mov ebx,[ebp+08h]
+push ebx
+;push $43
+
+push esi
+;$44=call mergeof #2 args
+
+mov [ebp-034h],eax
+mov [ebp-038h],esi
+call merge
+add esp,08h
+;$41=newrecord[#2]
+
+mov [ebp-03ch],eax
+mov ebx,02h
+push ebx
+call tg_newrecord
+add esp,04h
+;$41.field[#0]=$42
+
+mov ecx,00h
+mov edx,[ebp-034h]
+mov ebx,ecx
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edx
+;$41.field[#1]=$44
+
+mov esi,01h
+mov edi,[ebp-03ch]
+mov ebx,esi
+shl ebx,1
+shl ebx,1
+add ebx,eax
+mov [ebx],edi
+;$36=$41
+
+mov [ebp-040h],eax
+;jump label26
+
+mov [ebp-030h],eax
+jmp label26
+
+label26:
+;$32=$36
+
+mov eax,[ebp-030h]
+;jump label23
+
+mov [ebp-010h],eax
+jmp label23
+
+label20:
+;frame_leave$30
+
+mov eax,[ebp-08h]
+mov eax,eax
+add esp,040h
+pop __merge_fp
+pop ebp
+ret
+
+
+printint:
+label27:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __printint_fp
+sub esp,00h
+mov __printint_fp,ebp
+;call scope16of #0 args
+
+call scope16
+;frame_leave
+
+mov eax,eax
+add esp,00h
+pop __printint_fp
+pop ebp
+ret
+
+scope16:
+label28:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __scope16_fp
+sub esp,01ch
+mov __scope16_fp,ebp
+;$55=(i<#0)
+
+mov eax,[ebp-04h]
+push ebp
+mov ebp,__printint_fp
+mov ebx,[ebp+08h]
+pop ebp
+mov ecx,00h
+mov eax,00h
+mov edx,01h
+cmp ebx,ecx
+cmovl eax,edx
+;if $55!=0 then label32 else label33
+
+mov [ebp-04h],eax
+cmp eax,00h
+jne label32
+jmp label33
+
+label32:
+;push #
+
+lea eax,stringConst6
+push eax
+;$56=call printof #1 args
+
+call tg_print
+add esp,04h
+;$57=-i
+
+push ebp
+mov ebp,__printint_fp
+mov ebx,[ebp+08h]
+pop ebp
+neg ebx
+;push $57
+
+push ebx
+;$58=call fof #1 args
+
+mov [ebp-08h],eax
+mov [ebp-0ch],ebx
+call f
+add esp,04h
+;jump label34
+
+mov [ebp-010h],eax
+jmp label34
+
+label33:
+;$59=(i>#0)
+
+mov eax,[ebp-014h]
+push ebp
+mov ebp,__printint_fp
+mov ebx,[ebp+08h]
+pop ebp
+mov ecx,00h
+mov eax,00h
+mov edx,01h
+cmp ebx,ecx
+cmovg eax,edx
+;if $59!=0 then label35 else label36
+
+mov [ebp-014h],eax
+cmp eax,00h
+jne label35
+jmp label36
+
+label35:
+;push i
+
+push ebp
+mov ebp,__printint_fp
+mov eax,[ebp+08h]
+pop ebp
+push eax
+;$60=call fof #1 args
+
+call f
+add esp,04h
+;jump label37
+
+mov [ebp-018h],eax
+jmp label37
+
+label36:
+;push #
+
+lea eax,stringConst7
+push eax
+;$61=call printof #1 args
+
+call tg_print
+add esp,04h
+;jump label37
+
+mov [ebp-01ch],eax
+jmp label37
+
+label37:
+;jump label34
+
+jmp label34
+
+label34:
+;frame_leave
+
+mov eax,eax
+add esp,01ch
+pop __scope16_fp
+pop ebp
+ret
+
+f:
+label29:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __f_fp
+sub esp,028h
+mov __f_fp,ebp
+;$45=(i>#0)
+
+mov eax,[ebp-04h]
+mov ebx,[ebp+08h]
+mov ecx,00h
+mov eax,00h
+mov edx,01h
+cmp ebx,ecx
+cmovg eax,edx
+;if $45!=0 then label30 else label31
+
+mov [ebp-04h],eax
+cmp eax,00h
+jne label30
+jmp label31
+
+label30:
+;$46=i/#10
+
+mov ebx,[ebp+08h]
+mov eax,ebx
+mov edx,00h
+mov ebx,0ah
+idiv ebx
+;push $46
+
+push eax
+;$47=call fof #1 args
+
+mov [ebp-08h],eax
+call f
+add esp,04h
+;$48=i/#10
+
+mov [ebp-0ch],eax
+mov ebx,[ebp+08h]
+mov eax,ebx
+mov edx,00h
+mov ebx,0ah
+idiv ebx
+;$49=$48*#10
+
+mov [ebp-010h],eax
+mov ecx,[ebp-010h]
+mov eax,ecx
+mov edx,00h
+mov ecx,0ah
+imul ecx
+;$50=i-$49
+
+mov edx,[ebp+08h]
+sub edx,eax
+;push #
+
+lea esi,stringConst5
+push esi
+;$51=call ordof #1 args
+
+mov [ebp-014h],eax
+mov [ebp-018h],edx
+call tg_ord
+add esp,04h
+;$52=$50+$51
+
+mov ebx,[ebp-018h]
+add ebx,eax
+;push $52
+
+push ebx
+;$53=call chrof #1 args
+
+mov [ebp-01ch],eax
+mov [ebp-020h],ebx
+call tg_chr
+add esp,04h
+;push $53
+
+push eax
+;$54=call printof #1 args
+
+mov [ebp-024h],eax
+call tg_print
+add esp,04h
+;jump label31
+
+mov [ebp-028h],eax
+jmp label31
+
+label31:
+;frame_leave
+
+mov eax,eax
+add esp,028h
+pop __f_fp
+pop ebp
+ret
+
+
+
+
+printlist:
+label38:
+;frame_enter
+
+push ebp
+mov ebp,esp
+push __printlist_fp
+sub esp,01ch
+mov __printlist_fp,ebp
+;$62=(l==#0)
+
+mov eax,[ebp-04h]
+mov ebx,[ebp+08h]
+mov ecx,00h
+mov eax,00h
+mov edx,01h
+cmp ebx,ecx
+cmove eax,edx
+;if $62!=0 then label39 else label40
+
+mov [ebp-04h],eax
+cmp eax,00h
+jne label39
+jmp label40
+
+label39:
+;push #
+
+lea eax,stringConst8
+push eax
+;$63=call printof #1 args
+
+call tg_print
+add esp,04h
+;jump label41
+
+mov [ebp-08h],eax
+jmp label41
+
+label40:
+;$64= l.field[#0]
+
+mov eax,[ebp-0ch]
+mov ecx,[ebp+08h]
+mov edx,00h
+mov ebx,edx
+shl ebx,1
+shl ebx,1
+add ebx,ecx
+mov eax,[ebx]
+;push $64
+
+push eax
+;$65=call printintof #1 args
+
+mov [ebp-0ch],eax
+call printint
+add esp,04h
+;push #
+
+lea ebx,stringConst9
+push ebx
+;$66=call printof #1 args
+
+mov [ebp-010h],eax
+call tg_print
+add esp,04h
+;$67= l.field[#1]
+
+mov ecx,[ebp-014h]
+mov edx,[ebp+08h]
+mov esi,01h
+mov ebx,esi
+shl ebx,1
+shl ebx,1
+add ebx,edx
+mov ecx,[ebx]
+;push $67
+
+push ecx
+;$68=call printlistof #1 args
+
+mov [ebp-018h],eax
+mov [ebp-014h],ecx
+call printlist
+add esp,04h
+;jump label41
+
+mov [ebp-01ch],eax
+jmp label41
+
+label41:
+;frame_leave
+
+mov eax,eax
+add esp,01ch
+pop __printlist_fp
+pop ebp
+ret
+
+
+
+
+end

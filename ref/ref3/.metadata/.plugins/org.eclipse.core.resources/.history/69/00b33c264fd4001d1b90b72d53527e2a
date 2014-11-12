@@ -1,0 +1,11 @@
+public class expr {
+    public int i = 1;
+
+    public static void Eval() {
+        Object a = new Object() {
+            public void Eval() {
+                
+            }
+        };
+    }
+}

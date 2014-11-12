@@ -1,0 +1,290 @@
+//==========================================================================
+//
+//  File:        VerifierPass0123.java
+//  Location:    TigerCompiler <Java>
+//  Description: Verifier responsible to check Naming, Typing and Variable Initializing
+//  Version:     2008.12.26.
+//  License:     BSD License
+//
+//  Copyright(C) F.R.C., All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in the
+//        documentation and/or other materials provided with the distribution.
+//      * Neither the name of the the copyright holders nor the
+//        names of its contributors may be used to endorse or promote products
+//        derived from this software without specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
+//  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//==========================================================================
+
+package Semantics.verifier;
+
+import java.util.*;
+
+import Syntax.node.*;
+import static Semantics.verifier.ErrorReporter.*;
+
+public class VerifierPass0123 extends VerifierBase {
+
+    //Pass 0: 
+    //        TypeDeclaration(In)
+    //        ---- 0.TypeName->TypeIdentifier, 3.TypeIdentifier->TypeOfType
+    //        MethodDeclaration(In)
+    //        ---- 0.Name->Identifier
+    //
+    //Pass 1: 
+    //        TypeDeclaration(In)
+    //        ---- 3.TypeBindDirectRecursion, 3.TypeBindEquivalenceRecursion, 3.type alias elimilation
+    //
+    //Pass 2: 
+    //        SingleTypeCombination(In), ArrayTypeCombination(Out), RecordTypeCombination(Out)
+    //        ---- 2.Node->TypeOfType
+    //        TypeDeclaration(Out)
+    //        ---- 4.TypeIdentifier->TypeOfType, 3.TypeBindEquivalenceRecursion
+    //
+    //Pass 3:
+    //        MethodDeclaration(Out)
+    //        ---- 3.Identifier->Type
+    //        ForExpr(In)
+    //        ---- 0.Name->Identifier, 3.Identifier->Type
+    //
+
+    public VerifierPass0123(int numPass) {
+        super(numPass);
+    }
+
+    //Pass 0, 1, 2, 3:
+
+    @Override
+    public void inATypeDeclaration(ATypeDeclaration node) {
+        super.inATypeDeclaration(node);
+        if (Pass == 0) {
+            //        TypeDeclaration(In)
+            //        ---- 0.TypeName->TypeIdentifier, 3.TypeIdentifier->TypeOfType
+            String Name = node.getId().getText();
+            if (CurrentNamespace.ContainTypeIdentifier(Name)) {
+                NewError(node.getId(), "TypeRedefination");
+            }
+            else {
+                TypeIdentifier typeId = new TypeIdentifier(Name);
+                typeId.TypeOfType = new CombinedType(typeId);
+                CurrentNamespace.AddTypeIdentifier(typeId);
+            }
+        }
+        else if (Pass == 1) {
+            //        TypeDeclaration(In)
+            //        ---- 3.TypeBindDirectRecursion, 3.TypeBindEquivalenceRecursion, 3.type alias elimilation
+            if (node.getTypeCombination() instanceof ASingleTypeCombination) {
+                String Name = node.getId().getText();
+                ASingleTypeCombination aliasTarget = (ASingleTypeCombination) (node.getTypeCombination());
+                String targetName = aliasTarget.getId().getText();
+                BlockNamespace targetNamespace = TryResolveTypeIdentifier(targetName);
+                assert targetNamespace != null;
+                TypeIdentifier typeId = CurrentNamespace.GetTypeIdentifier(Name);
+                TypeIdentifier target = targetNamespace.GetTypeIdentifier(targetName);
+
+                if (typeId == target) {
+                    NewError(node.getTypeCombination(), "TypeBindDirectRecursion");
+                }
+                else if (typeId.TypeOfType == target.TypeOfType) {
+                    NewError(node.getTypeCombination(), "TypeBindEquivalenceRecursion");
+                }
+                else {
+                    if (target.TypeOfType instanceof CombinedType) {
+                        TypeIdentifier targetTargetId = ((CombinedType) (target.TypeOfType)).TypeIdentifier;
+                        if (typeId.TypeOfType == targetTargetId.TypeOfType) {
+                            NewError(node.getTypeCombination(), "TypeBindEquivalenceRecursion");
+                        }
+                    }
+                    typeId.TypeOfType = target.TypeOfType;
+                }
+            }
+        }
+    };
+
+    @Override
+    public void outATypeDeclaration(ATypeDeclaration node) {
+        if (Pass == 2) {
+            //        TypeDeclaration(Out)
+            //        ---- 4.TypeIdentifier->TypeOfType, 3.TypeBindEquivalenceRecursion
+            String Name = node.getId().getText();
+            TypeIdentifier typeId = CurrentNamespace.GetTypeIdentifier(Name);
+            if (typeId != null) {
+                Type typeOfType = NodeTypeOfTypeMapping.get(node.getTypeCombination());
+                if (typeOfType != null) {
+                    if (node.getTypeCombination() instanceof ASingleTypeCombination) {
+                        //Eliminated alias type, or
+                        //TypeBindDirectRecursion, checked
+                    }
+                    else {
+                        Type finalType = typeId.TypeOfType;
+                        Type targetFinalType = typeOfType;
+                        while (true) {
+                            if (finalType instanceof ArrayType) {
+                                finalType = ((ArrayType) (finalType)).Type;
+                            }
+                            else if (finalType instanceof CombinedType) {
+                                finalType = ((CombinedType) (finalType)).Type;
+                            }
+                            else {
+                                break;
+                            }
+                        }
+                        while (true) {
+                            if (targetFinalType instanceof ArrayType) {
+                                targetFinalType = ((ArrayType) (targetFinalType)).Type;
+                            }
+                            else if (targetFinalType instanceof CombinedType) {
+                                targetFinalType = ((CombinedType) (targetFinalType)).Type;
+                            }
+                            else {
+                                break;
+                            }
+                        }
+                        if (finalType == targetFinalType) {
+                            NewError(node.getTypeCombination(), "TypeBindEquivalenceRecursion");
+                        }
+                        else if (typeId.TypeOfType instanceof CombinedType) {
+                            CombinedType typeIdType = (CombinedType) (typeId.TypeOfType);
+                            typeIdType.Type = typeOfType;
+                        }
+                    }
+                }
+            }
+        }
+        super.outATypeDeclaration(node);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void inAMethodDeclaration(AMethodDeclaration node) {
+        super.inAMethodDeclaration(node);
+        if (Pass == 0) {
+            //        MethodDeclaration(In)
+            //        ---- 0.Name->Identifier
+            String Name = node.getId().getText();
+            if (CurrentNamespace.Parent.ContainIdentifier(Name)) {
+                NewError(node.getId(), "VariableOrMethodRedefination");
+            }
+            else {
+                Identifier id = new Identifier(Name);
+                CurrentNamespace.Parent.AddIdentifier(id);
+            }
+        }
+        else if (Pass == 3) {
+            //        MethodDeclaration(Out)
+            //        ---- 3.Identifier->Type
+            String Name = node.getId().getText();
+            Identifier id = CurrentNamespace.Parent.GetIdentifier(Name);
+
+            LinkedList<ATypeField> params = (LinkedList<ATypeField>) (LinkedList) (node.getTypeField());
+            Node ret = node.getTypeCombination();
+
+            ArrayList<Identifier> parameters = new ArrayList<Identifier>();
+            for (ATypeField p : params) {
+                Identifier paramId = new Identifier(p.getV().getText(), NodeTypeOfTypeMapping.get(p.getT()));
+                CurrentNamespace.AddIdentifier(paramId);
+                parameters.add(paramId);
+            }
+
+            Type type;
+
+            if (ret == null) {
+                type = UnitType.GetInstance();
+            }
+            else {
+                type = NodeTypeOfTypeMapping.get(ret);
+            }
+            MethodType method = new MethodType(parameters.toArray(new Identifier[] {}), type);
+            id.Type = method;
+        }
+    };
+
+    @Override
+    public void inASingleTypeCombination(ASingleTypeCombination node) {
+        super.inASingleTypeCombination(node);
+        if (Pass == 2) {
+            //        SingleTypeCombination(In), ArrayTypeCombination(Out), RecordTypeCombination(Out)
+            //        ---- 2.Node->TypeOfType
+            String Name = node.getId().getText();
+            BlockNamespace c = TryResolveTypeIdentifier(Name);
+            if (c == null) {
+                NewError(node.getId(), "TypeNotFound");
+            }
+            else {
+                TypeIdentifier typeId = c.GetTypeIdentifier(Name);
+                Add(NodeTypeOfTypeMapping, node, typeId.TypeOfType);
+            }
+        }
+    }
+
+    @Override
+    public void outAArrayTypeCombination(AArrayTypeCombination node) {
+        if (Pass == 2) {
+            //        SingleTypeCombination(In), ArrayTypeCombination(Out), RecordTypeCombination(Out)
+            //        ---- 2.Node->TypeOfType
+            Type t = NodeTypeOfTypeMapping.get(node.getTypeCombination());
+            if (t != null) {
+                Add(NodeTypeOfTypeMapping, node, new ArrayType(t));
+            }
+        }
+        super.outAArrayTypeCombination(node);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void outARecordTypeCombination(ARecordTypeCombination node) {
+        if (Pass == 2) {
+            //        SingleTypeCombination(In), ArrayTypeCombination(Out), RecordTypeCombination(Out)
+            //        ---- 2.Node->TypeOfType
+            LinkedList<ATypeField> TypeFields = (LinkedList<ATypeField>) (LinkedList) (node.getTypeField());
+            Field[] Fields = new Field[TypeFields.size()];
+            int i = 0;
+            boolean Success = true;
+            for (ATypeField f : TypeFields) {
+                Node tNode = f.getT();
+                Type t = NodeTypeOfTypeMapping.get(tNode);
+                if (t == null) {
+                    Success = false;
+                }
+                else {
+                    Fields[i] = new Field(f.getV().getText(), t);
+                }
+                i += 1;
+            }
+            if (Success) {
+                Add(NodeTypeOfTypeMapping, node, new RecordType(Fields));
+            }
+        }
+        super.outARecordTypeCombination(node);
+    }
+
+    @Override
+    public void inAForExpr(AForExpr node) {
+        super.inAForExpr(node);
+        if (Pass == 3) {
+            //        ForExpr(In)
+            //        ---- 0.Name->Identifier, 3.Identifier->Type
+            String Name = node.getId().getText();
+            Identifier id = new Identifier(Name);
+            id.Type = IntType.GetInstance();
+            id.ReadOnly = true;
+
+            CurrentNamespace.AddIdentifier(id);
+        }
+    };
+}

@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Syntax_analyzer Plug-in
+Bundle-SymbolicName: syntax_analyzer
+Bundle-Version: 1.0.0
+Bundle-Vendor: Jessie
+Eclipse-LazyStart: true
+Main-class: syntax_analyzer.ui.TreeGUI
+Class-Path: ./lib/org.eclipse.swt.win32.win32.x86_3.3.3.v3349.jar
+ ./lib/org.eclipse.draw2d_3.2.100.v20070529.jar
+ ./lib/org.eclipse.jface_3.3.2.M20080207-0800.jar
+ ./lib/org.eclipse.swt_3.3.2.v3349d.jar

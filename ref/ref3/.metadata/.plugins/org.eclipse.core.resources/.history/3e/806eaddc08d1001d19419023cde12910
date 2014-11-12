@@ -1,0 +1,24 @@
+package Semantics.verifier;
+
+import Syntax.node.*;
+
+public class ErrorReporter {
+    private static int ErrorCount = 0;
+
+    public static void NewError(Token token, String s) {
+        ErrorCount += 1;
+        System.out.println(Format("SemanticsError at ({0}, {1}): {2}", token.getLine(), token.getPos(), s));
+        if (ErrorCount >= 100){
+        }
+    }
+
+    /**
+     * 模拟.Net格式化
+     */
+    private static String Format(String format, Object... args) {
+        for (int i = 0; i < args.length; i++) {
+            format = format.replace("{" + Integer.toString(i) + "}", args[i].toString());
+        }
+        return format;
+    }
+}

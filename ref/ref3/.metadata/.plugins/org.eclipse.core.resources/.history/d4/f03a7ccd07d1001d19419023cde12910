@@ -1,0 +1,9 @@
+package Semantics.verifier;
+
+import Syntax.node.*;
+
+public class ErrorReporter {
+    public static NewError(Node node, String s) {
+
+    }
+}

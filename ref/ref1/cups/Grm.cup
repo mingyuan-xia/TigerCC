@@ -1,0 +1,293 @@
+package Parse;
+
+import Absyn.*;
+
+action code {: static Symbol.Symbol sym(String s) {
+	         return Symbol.Symbol.symbol(s);
+	        }
+	    :};
+
+parser code  {: 
+  public Exp parseResult;
+  Lexer lexer;
+
+  public void syntax_error(java_cup.runtime.Symbol current) {
+   report_error("Syntax error (" + current.sym + ")", current);
+  }
+
+  ErrorMsg.ErrorMsg errorMsg;
+
+  public void report_error(String message, 
+			   java_cup.runtime.Symbol info) {
+      errorMsg.error(info.left, message);
+  }
+
+  public java_cup.runtime.lr_parser Grm(Lexer l, ErrorMsg.ErrorMsg err) {
+    errorMsg=err;
+    lexer=l;
+    return this;
+  }
+:};
+
+scan with {: java_cup.runtime.Symbol symb= lexer.nextToken(); for(;(symb.sym==sym.error||symb.sym==sym.COMM)&&symb.sym!=sym.EOF;) symb= lexer.nextToken(); return symb; :};
+
+
+terminal 			COMMA, COLON, SEMICOLON, LPAREN, RPAREN, 
+					LBRACK, RBRACK, LBRACE, RBRACE, DOT, PLUS, MINUS, 
+					TIMES, DIVIDE, EQ, NEQ, LT, LE, GT, GE, AND, OR, 
+					ASSIGN, ARRAY, IF, THEN, ELSE, WHILE, FOR, TO, DO, 
+					LET, IN, END, OF, BREAK, NIL, FUNCTION, VAR, TYPE;
+terminal    		UMINUS,COMM;
+
+terminal String ID, STRING;
+terminal Integer INT;
+
+
+
+non terminal Exp program,expression;
+
+//声明
+non terminal DecList declaration_lists;
+non terminal Dec declaration_list;
+//type定义的非终结符
+non terminal TypeDec type_declaration;
+non terminal VarDec variable_declaration;
+non terminal FunctionDec function_declaration;
+//non terminal TypeDec type_declarations;
+//non terminal VarDec variable_declarations;
+//non terminal FunctionDec function_declarations;
+non terminal Ty type;
+non terminal FieldList type_fields;
+non terminal FieldList type_field;
+
+//var定义的非终结符
+non terminal ExpList expr_list;
+non terminal FieldExpList field_list;
+non terminal SeqExp expr_seq;
+non terminal VarExp lvalue;
+
+non terminal VarExp array;
+/* Precedences */
+precedence right DO,ELSE,THEN;
+precedence right ASSIGN;
+precedence left AND, OR;
+precedence nonassoc EQ, NEQ;
+precedence left LT, LE,GT,GE;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE;
+precedence left UMINUS, LPAREN;
+precedence left LBRACK;
+
+
+start with program;
+
+program ::= expression:e
+ {: RESULT = e; :}
+         ;
+       
+              
+//定义         
+declaration_lists ::=
+      {: RESULT=null;:}
+     |	
+     declaration_lists:ts declaration_list:t
+      {: RESULT=new DecList(t,ts);:}
+
+;
+
+declaration_list ::=
+    type_declaration:t
+    {: RESULT=t;:}
+    |
+    variable_declaration:t
+    {: RESULT=t;:}
+    |
+    function_declaration:t
+    {: RESULT=t;:}
+
+;
+/*
+type_declarations ::=
+
+type_declaration:t
+{: RESULT=t;:}
+
+| type_declarations:ts type_declaration:t
+{: RESULT=new TypeDec(tsleft,t.name,t.ty,ts);:}
+;
+*/
+type_declaration ::=
+TYPE:ty ID:i EQ type:t
+{: RESULT=new TypeDec(tyleft,sym(i),t,null);:}
+;
+
+type ::=
+	ID:i 
+	{: RESULT=new NameTy(ileft,sym(i)); :}
+	
+	| LBRACE:l type_fields:t RBRACE
+	{: RESULT=new RecordTy(lleft,t); :}
+	
+	| ARRAY:a OF ID:i
+	{: RESULT=new ArrayTy(aleft,sym(i)); :}
+;
+
+type_fields ::=
+    {: RESULT=null; :}
+    
+	| type_field:t
+	{: RESULT=t; :}
+	
+	| type_fields:ts COMMA type_field:t
+	{: RESULT=new FieldList(tsleft,t.name,t.typ,ts); :}
+;
+
+type_field ::=
+     ID:i1 COLON ID:i2
+     {: RESULT=new FieldList(i1left,sym(i1),sym(i2),null); :}
+;
+/*
+function_declarations::=
+
+function_declaration:f
+{: RESULT=f;:}
+| function_declarations:fs function_declaration:f
+{: RESULT=new FunctionDec(fsleft,f.name,f.params,f.result,f.body,fs); :}
+;
+*/
+function_declaration ::=
+	FUNCTION:f ID:i LPAREN type_fields:t RPAREN EQ expression:e
+	{: RESULT=new FunctionDec(fleft,sym(i),t,null,e,null); :}
+	
+	| FUNCTION:f ID:i LPAREN type_fields:t RPAREN COLON ID:ty EQ expression:e
+	{: RESULT=new FunctionDec(fleft,sym(i),t,new NameTy(tyleft,sym(ty)),e,null); :}
+;
+
+variable_declaration ::=
+	VAR:v ID:i ASSIGN expression:e
+	{: RESULT= new VarDec(vleft,sym(i),null,e); :}
+			    
+	|  VAR:v ID:i1 COLON ID:i2 ASSIGN expression:e
+	{: RESULT= new VarDec(vleft,sym(i1),new NameTy(i2left,sym(i2)),e); :}
+;
+
+expression ::=
+		 STRING:s
+		 {: RESULT = new StringExp(sleft,s); :}
+		 | INT:n
+		 {: RESULT = new IntExp(nleft,n); :}
+		 | NIL:n
+		 {: RESULT = new NilExp(nleft); :}
+		 
+		 | expression:e1 AND expression:e2
+		 {: RESULT = new OpExp(e1left,e1,OpExp.AND,e2); :}
+		 | expression:e1 OR expression:e2
+		 {: RESULT = new OpExp(e1left,e1,OpExp.OR,e2); :}
+		 
+		 
+		 | expression:e1 NEQ expression:e2
+		 {: RESULT = new OpExp(e1left,e1,OpExp.NE,e2); :}
+		 | expression:e1 EQ expression:e2
+		 {: RESULT = new OpExp(e1left,e1,OpExp.EQ,e2); :}
+		 | expression:e1 GE expression:e2
+		 {: RESULT = new OpExp(e1left,e1,OpExp.GE,e2); :}
+		 | expression:e1 GT expression:e2
+		 {: RESULT = new OpExp(e1left,e1,OpExp.GT,e2); :}
+		 | expression:e1 LE expression:e2
+		 {: RESULT = new OpExp(e1left,e1,OpExp.LE,e2); :}
+		 | expression:e1 LT expression:e2
+		 {: RESULT = new OpExp(e1left,e1,OpExp.LT,e2); :}
+		 | expression:e1 MINUS expression:e2
+		 {: RESULT = new OpExp(e1left,e1,OpExp.MINUS,e2); :}
+		 | expression:e1 PLUS expression:e2
+		 {: RESULT = new OpExp(e1left,e1,OpExp.PLUS,e2); :}
+		 | expression:e1 TIMES expression:e2
+		 {: RESULT = new OpExp(e1left,e1,OpExp.MUL ,e2);:}
+		 | expression:e1 DIVIDE expression:e2
+		 {: RESULT = new OpExp(e1left,e1,OpExp.DIV,e2); :}
+		 | MINUS:m expression:e
+		 {: RESULT = new OpExp(mleft,new IntExp(mleft,0),OpExp.UMINUS,e); :}
+		 %prec UMINUS
+		 
+		 | lvalue:l
+		 {: RESULT = l; :}
+		 
+		 | lvalue:l ASSIGN expression:e
+		  {: RESULT = new AssignExp(lleft,((VarExp)l).var,e); :}
+		  
+		 | ID:i LPAREN expr_list:e RPAREN   
+		 {: RESULT = new CallExp(ileft,sym(i),e); :}
+		 
+		 | LPAREN expr_seq:e RPAREN  
+		  {: RESULT = e; :}
+		  
+		 | ID:i LBRACE field_list:f RBRACE   
+		  {: RESULT = new RecordExp(ileft,sym(i),f); :}
+		  
+		 | ID:i  LBRACK expression:e1 RBRACK OF expression:e2
+		  {: 
+		  RESULT = new ArrayExp(ileft,sym(i),e1,e2); 
+		  :}
+		  
+		 | WHILE:w expression:e1 DO expression:e2
+		  {: RESULT = new WhileExp(wleft,e1,e2); :}
+		  
+         | FOR:f ID:i ASSIGN expression:e1 TO expression:e2 DO expression:e3
+          {: RESULT = new ForExp(fleft,new VarDec(ileft,sym(i),null,e1),e2,e3); :}
+          
+		 | BREAK:b
+		  {: RESULT = new BreakExp(bleft); :}
+		  
+         | LET:l declaration_lists:d IN expr_seq:e END
+           {: RESULT = new LetExp(lleft,d,e); :}
+           
+         | IF:i expression:e1 THEN expression:e2
+          {: RESULT = new IfExp(ileft,e1,e2); :}
+          
+         | IF:i expression:e1 THEN expression:e2 ELSE expression:e3
+          {: RESULT = new IfExp(ileft,e1,e2,e3); :}
+       
+;
+
+expr_seq ::=
+	{: RESULT=null; :}
+	
+	| expression:e
+	{: RESULT=new SeqExp(eleft,new ExpList(e,null)); :}
+	
+	| expr_seq:l SEMICOLON expression:e
+	{: RESULT=new SeqExp(eleft,new ExpList(e,l.list)); :}
+;
+
+expr_list ::=
+	{: RESULT=null; :}
+	
+	|  expression:e
+	{: RESULT=new ExpList(e,null); :}
+	
+	|  expr_list:l COMMA expression:e
+	{: RESULT=new ExpList(e,l); :}
+   ;
+
+field_list ::=
+    {: RESULT=null; :}
+    
+	| ID:i EQ expression:e
+	{: RESULT=new FieldExpList(ileft,sym(i),e,null); :}
+	
+	| field_list:l COMMA ID:i EQ expression:e
+	{: RESULT=new FieldExpList(lleft,sym(i),e,l); :}
+   ;
+
+lvalue	::=	
+	ID:i
+	{: RESULT=new VarExp(ileft,new SimpleVar(ileft,sym(i))); :}
+			    
+	| lvalue:l DOT ID:i
+	{: RESULT= new VarExp(lleft,l.var); :}
+			    
+	| lvalue:l  LBRACK expression:e RBRACK 
+	{: RESULT=  new VarExp(lleft,new SubscriptVar(lleft,l.var,e)); :}
+;
+
+

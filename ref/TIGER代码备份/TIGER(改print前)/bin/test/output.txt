@@ -1,0 +1,157 @@
+line: 1 col: 1 match: --/*--
+action [126] { level = 1; yybegin(NESTED_COMMENT); }
+line: 1 col: 3 match: -- --
+action [130] { /* ignore */ }
+line: 1 col: 4 match: --v--
+action [130] { /* ignore */ }
+line: 1 col: 5 match: --a--
+action [130] { /* ignore */ }
+line: 1 col: 6 match: --l--
+action [130] { /* ignore */ }
+line: 1 col: 7 match: --i--
+action [130] { /* ignore */ }
+line: 1 col: 8 match: --d--
+action [130] { /* ignore */ }
+line: 1 col: 9 match: -- --
+action [130] { /* ignore */ }
+line: 1 col: 10 match: --f--
+action [130] { /* ignore */ }
+line: 1 col: 11 match: --o--
+action [130] { /* ignore */ }
+line: 1 col: 12 match: --r--
+action [130] { /* ignore */ }
+line: 1 col: 13 match: -- --
+action [130] { /* ignore */ }
+line: 1 col: 14 match: --a--
+action [130] { /* ignore */ }
+line: 1 col: 15 match: --n--
+action [130] { /* ignore */ }
+line: 1 col: 16 match: --d--
+action [130] { /* ignore */ }
+line: 1 col: 17 match: -- --
+action [130] { /* ignore */ }
+line: 1 col: 18 match: --l--
+action [130] { /* ignore */ }
+line: 1 col: 19 match: --e--
+action [130] { /* ignore */ }
+line: 1 col: 20 match: --t--
+action [130] { /* ignore */ }
+line: 1 col: 21 match: -- --
+action [130] { /* ignore */ }
+line: 1 col: 22 match: --*/--
+action [135] { --level; if(level == 0) yybegin(YYINITIAL); }
+line: 1 col: 24 match: --
+--
+action [130] { /* ignore */ }
+line: 2 col: 1 match: --
+--
+action [130] { /* ignore */ }
+line: 3 col: 1 match: --let--
+action [82] { return symbol(sym.LET); }
+line: 3 col: 4 match: --
+--
+action [130] { /* ignore */ }
+line: 4 col: 1 match: --	--
+action [130] { /* ignore */ }
+line: 4 col: 2 match: --var--
+action [88] { return symbol(sym.VAR); }
+line: 4 col: 5 match: -- --
+action [130] { /* ignore */ }
+line: 4 col: 6 match: --a--
+action [94] { return symbol(sym.IDENTIFIER,yytext()); }
+line: 4 col: 7 match: --:=--
+action [123] { return symbol(sym.ASSIGN); }
+line: 4 col: 9 match: -- --
+action [130] { /* ignore */ }
+line: 4 col: 10 match: --0--
+action [98] { return symbol(sym.NUM,new Integer(yytext())); }
+line: 4 col: 11 match: --
+--
+action [130] { /* ignore */ }
+line: 5 col: 1 match: --in--
+action [81] { return symbol(sym.IN); }
+line: 5 col: 3 match: -- --
+action [130] { /* ignore */ }
+line: 5 col: 4 match: --
+--
+action [130] { /* ignore */ }
+line: 6 col: 1 match: --	--
+action [130] { /* ignore */ }
+line: 6 col: 2 match: --for--
+action [78] { return symbol(sym.FOR); }
+line: 6 col: 5 match: -- --
+action [130] { /* ignore */ }
+line: 6 col: 6 match: --i--
+action [94] { return symbol(sym.IDENTIFIER,yytext()); }
+line: 6 col: 7 match: --:=--
+action [123] { return symbol(sym.ASSIGN); }
+line: 6 col: 9 match: --0--
+action [98] { return symbol(sym.NUM,new Integer(yytext())); }
+line: 6 col: 10 match: -- --
+action [130] { /* ignore */ }
+line: 6 col: 11 match: --to--
+action [86] { return symbol(sym.TO); }
+line: 6 col: 13 match: -- --
+action [130] { /* ignore */ }
+line: 6 col: 14 match: --100--
+action [98] { return symbol(sym.NUM,new Integer(yytext())); }
+line: 6 col: 17 match: -- --
+action [130] { /* ignore */ }
+line: 6 col: 18 match: --do--
+action [75] { return symbol(sym.DO); }
+line: 6 col: 20 match: -- --
+action [130] { /* ignore */ }
+line: 6 col: 21 match: --(--
+action [104] { return symbol(sym.L1); }
+line: 6 col: 22 match: --a--
+action [94] { return symbol(sym.IDENTIFIER,yytext()); }
+line: 6 col: 23 match: --:=--
+action [123] { return symbol(sym.ASSIGN); }
+line: 6 col: 25 match: --a--
+action [94] { return symbol(sym.IDENTIFIER,yytext()); }
+line: 6 col: 26 match: --+--
+action [111] { return symbol(sym.ADD); }
+line: 6 col: 27 match: --1--
+action [98] { return symbol(sym.NUM,new Integer(yytext())); }
+line: 6 col: 28 match: --;--
+action [103] { return symbol(sym.SEMICOLON); }
+line: 6 col: 29 match: --(--
+action [104] { return symbol(sym.L1); }
+line: 6 col: 30 match: --)--
+action [105] { return symbol(sym.R1); }
+line: 6 col: 31 match: --)--
+action [105] { return symbol(sym.R1); }
+line: 6 col: 32 match: --
+--
+action [130] { /* ignore */ }
+line: 7 col: 1 match: --end--
+action [77] { return symbol(sym.END); }
+line: 7 col: 4 match: --
+--
+action [130] { /* ignore */ }
+LetExp(
+ DecList(
+  VarDec(a,
+   IntExp(0),
+   true),
+  DecList()),
+ SeqExp(
+  ExpList(
+   ForExp(
+    VarDec(i,
+     int,
+     IntExp(0),
+     true),
+    IntExp(100),
+    SeqExp(
+     ExpList(
+      AssignExp(
+       SimpleVar(a),
+       OpExp(
+        PLUS,
+        varExp(
+         SimpleVar(a)),
+        IntExp(1))),
+      ExpList(
+       SeqExp(
+        ExpList()))))))))

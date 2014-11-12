@@ -1,0 +1,43 @@
+let
+    /* TypeNotFound */
+	type  rectype2 = {name:errortype, age:int}
+
+    /* TypeBindDirectRecursion */
+    type t = t
+
+    /* TypeBindEquivalenceRecursion */
+    type a = b
+    type b = a
+
+    /* TypeBindEquivalenceRecursion */
+    type c = array of d
+    type d = array of c
+
+    /* valid: TypeEquivalence */
+    type k = int 
+	type  rectype = {name:string, age:k}
+	var rec1:rectype := rectype {name="Nobody", age=1000}
+
+    type  recarraytype = {name:int, age:int}
+	type  recarraytype2 = {name:rectype2, age:int}
+
+    function readint(any: any) : int = 11111111111111111111111111
+
+    /* Record TypeMismatch */
+    type rectype1 = {name:string , id:int}
+	type rectype2 = {name:string , id:int}
+
+	var rec2: rectype1 := rectype2 {name="Name", id=0}
+
+    /* Array TypeMismatch */
+    type arrtype1 = array of int
+	type arrtype2 = array of int
+
+	var arr1: arrtype1 := arrtype2 [10] of 0
+
+in
+	rec1.name := "Somebody";
+    break;
+    - "a";
+	rec1
+end

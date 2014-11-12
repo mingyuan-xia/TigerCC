@@ -1,0 +1,9 @@
+what,kind,bundleId,bundleVersion,description,time
+started,bundle,org.eclipse.epp.usagedata.recording,1.0.1.R200809220400,org.eclipse.epp.usagedata.recording,1227935797953
+started,bundle,org.eclipse.m2m.atl.adt.wizard,2.0.1.v200809170426,org.eclipse.m2m.atl.adt.wizard,1227935798000
+started,bundle,org.eclipse.epp.usagedata.ui,1.0.1.R200809220400,org.eclipse.epp.usagedata.ui,1227935798062
+started,bundle,org.eclipse.jdt.debug,3.4.0.v20080604,org.eclipse.jdt.debug,1227935798156
+started,bundle,org.eclipse.m2m.atl.engine.vm,2.0.1.v200809170426,org.eclipse.m2m.atl.engine.vm,1227935798703
+started,bundle,org.eclipse.m2m.atl.adt.editor,2.0.1.v200809170426,org.eclipse.m2m.atl.adt.editor,1227935798718
+deactivated,workbench,org.eclipse.ui.workbench,3.4.1.M20080827-0800a,,1227935800953
+started,bundle,org.eclipse.mylyn.monitor.ui,3.0.2.v20080918-1100-e3x,org.eclipse.mylyn.monitor.ui,1227935801781

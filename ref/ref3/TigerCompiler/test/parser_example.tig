@@ -1,0 +1,20 @@
+(
+ if a & a & a then ();
+
+ if a | a | a then ();
+
+ if 1 then if 2 then if 3 then 4 else 5;
+
+ if while 1 do if 2 then 3 else 4 then 5 else 6;
+
+ if 1 then if 2 then if 3 then if 4 then if 5 then 6 else 7 else 8 else 9 else 10 else 11;
+
+/* an array type and an array variable */
+let
+	type  arrtype = array of int
+    var i := 1
+	var arr1:arrtype := arrtype [10] of 0
+in
+	arr1
+end
+)

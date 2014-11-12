@@ -1,0 +1,404 @@
+//==========================================================================
+//
+//  File:        Main.java
+//  Location:    TigerCompiler <Java>
+//  Description: Entry point for Tiger compiler
+//  Version:     2008.12.25.
+//  License:     BSD License
+//
+//  Copyright(C) F.R.C., All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//      * Redistributions of source code must retain the above copyright
+//        notice, this list of conditions and the following disclaimer.
+//      * Redistributions in binary form must reproduce the above copyright
+//        notice, this list of conditions and the following disclaimer in the
+//        documentation and/or other materials provided with the distribution.
+//      * Neither the name of the the copyright holders nor the
+//        names of its contributors may be used to endorse or promote products
+//        derived from this software without specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
+//  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//==========================================================================
+
+import java.io.*;
+
+import Syntax.node.*;
+import Syntax.lexer.*;
+import Syntax.parser.*;
+import Syntax.analysis.*;
+import Semantics.lexer.*;
+import Semantics.verifier.*;
+
+public class Main {
+    public static void main(String[] argv) {
+        DisplayInfo();
+
+        boolean ShowLexerDump = false;
+        boolean ShowParserDump = false;
+        boolean ShowVerifierDump = false;
+        boolean ShowGeneratorDump = false;
+
+        int n = 0;
+        while (true) {
+            if (n < argv.length) {
+                if (argv[n].toLowerCase().equals("/l")) {
+                    ShowLexerDump = true;
+                }
+                else if (argv[n].toLowerCase().equals("/p")) {
+                    ShowParserDump = true;
+                }
+                else if (argv[n].toLowerCase().equals("/v")) {
+                    ShowVerifierDump = true;
+                }
+                else if (argv[n].toLowerCase().equals("/g")) {
+                    ShowGeneratorDump = true;
+                }
+                else {
+                    break;
+                }
+                n += 1;
+            }
+            else {
+                DisplayUsage();
+                System.exit(0);
+            }
+        }
+
+        if (n + 1 != argv.length) {
+            DisplayUsage();
+            System.exit(0);
+        }
+
+        try {
+            String sourcePath = argv[n];
+            String source = "";
+            Reader i = null;
+            try {
+                StringBuffer sb = new StringBuffer();
+
+                //Using system default encoding.
+                i = new BufferedReader(new InputStreamReader(new FileInputStream(sourcePath), "GB2312"));
+                int b = i.read();
+                while (b != -1) {
+                    if (b == '\t') {
+                        sb.append("    ");
+                    }
+                    else {
+                        sb.append((char) b);
+                    }
+                    b = i.read();
+                }
+                source = sb.toString();
+            }
+            finally {
+                try {
+                    i.close();
+                }
+                catch (Throwable e) {
+                }
+            }
+
+            if (ShowLexerDump) {
+                Reader sourceReader = null;
+                try {
+                    sourceReader = new StringReader(source);
+
+                    PrintTokens(sourceReader);
+                }
+                finally {
+                    sourceReader.close();
+                }
+                System.out.println("");
+            }
+            if (ShowParserDump) {
+                Reader sourceReader = null;
+                try {
+                    sourceReader = new StringReader(source);
+
+                    PrintSyntaxTree(sourceReader);
+                }
+                finally {
+                    sourceReader.close();
+                }
+                System.out.println("");
+            }
+            if (ShowVerifierDump) {
+                Reader sourceReader = null;
+                try {
+                    sourceReader = new StringReader(source);
+
+                    PrintVerifierDump(sourceReader);
+                }
+                finally {
+                    sourceReader.close();
+                }
+                System.out.println("");
+            }
+            if (ShowGeneratorDump) {
+                Reader sourceReader = null;
+                try {
+                    sourceReader = new StringReader(source);
+
+                    PrintGeneratorDump(sourceReader);
+                }
+                finally {
+                    sourceReader.close();
+                }
+                System.out.println("");
+            }
+
+            if (!(ShowLexerDump || ShowParserDump || ShowVerifierDump || ShowGeneratorDump)) {
+                Reader sourceReader = null;
+                try {
+                    sourceReader = new StringReader(source);
+
+                    String destinationPath = sourcePath;
+                    if (destinationPath != null) {
+                        int index = destinationPath.lastIndexOf(".");
+                        destinationPath = destinationPath.substring(0, index);
+                    }
+
+                    destinationPath = destinationPath + ".class";
+
+                    Compile(sourceReader, destinationPath);
+                }
+                finally {
+                    sourceReader.close();
+                }
+                System.out.println("");
+            }
+
+            System.exit(0);
+        }
+        catch (LexerException e) {
+            System.out.println(e.getClass().getName());
+            System.out.println(e.getMessage());
+            System.exit(1); //Errorlevel 1
+        }
+        catch (ParserException e) {
+            System.out.println(e.getClass().getName());
+            System.out.println(e.getMessage());
+            System.out.println("Stop at token " + e.getToken().getClass().getSimpleName() + "( " + e.getToken().getText() + " )");
+            System.exit(1); //Errorlevel 1
+        }
+        catch (VerifierException e) {
+            System.out.println(e.getClass().getName());
+            System.out.println(e.getMessage());
+            System.exit(1); //Errorlevel 1
+        }
+        catch (Throwable e) {
+            System.out.println(e.getClass().getName());
+            System.out.println(e.getMessage());
+            for (StackTraceElement s : e.getStackTrace()) {
+                System.out.println(s);
+            }
+            System.exit(1); //Errorlevel 1
+        }
+    }
+
+    public static void Compile(Reader i, String targetPath) throws Throwable {
+        System.out.println("Compiling to " + targetPath);
+        System.out.println("Compiling stub.");
+        System.out.println();
+        PrintVerifierDump(i);
+    }
+
+    public static void PrintGeneratorDump(Reader i) throws Throwable {
+        System.out.println("GeneratorDump stub.");
+        System.out.println();
+        PrintSyntaxTree(i);
+    }
+
+    public static void PrintVerifierDump(Reader i) throws Throwable {
+        System.out.println("VerifingerDump...");
+        System.out.println();
+        Lexer lexer = new TigerLexer(new PushbackReader(i, 1024));
+        Parser parser = new Parser(lexer);
+        Start ast = parser.parse();
+        Verifier vf = new Verifier();
+
+        while (vf.HasNextPass()) {
+            ast.apply(vf);
+            vf.NextPass();
+        }
+        
+        DepthFirstAdapter df = new DepthFirstAdapter() {
+            public int level = 0;
+
+            public void print(String info) {
+                StringBuffer sb = new StringBuffer();
+                for (int i = 0; i < level; i += 1) {
+                    sb.append("    ");
+                }
+                sb.append(info);
+                System.out.println(sb.toString());
+            }
+
+            public void printWithPositionInfo(Node node, String info) {
+                print("[" + Integer.toString(node.getLine()) + ", " + Integer.toString(node.getPos()) + "]");
+                print(info);
+                System.out.println();
+            }
+
+            public void printlnNamePositionInfo(Node node) {
+                printWithPositionInfo(node, node.getClass().getSimpleName());
+            }
+
+            @Override
+            public void defaultIn(Node node) {
+                printlnNamePositionInfo(node);
+                level += 1;
+            }
+
+            @Override
+            public void defaultOut(Node node) {
+                level -= 1;
+            }
+
+            @Override
+            public void inStart(Start node) {
+            }
+
+            @Override
+            public void outStart(Start node) {
+            }
+
+            @Override
+            public void caseTStr(TStr node) {
+                printWithPositionInfo(node, "str ( \"" + node.getText() + "\" )");
+            }
+
+            @Override
+            public void caseTId(TId node) {
+                printWithPositionInfo(node, "id ( " + node.getText() + " )");
+            };
+
+            @Override
+            public void caseTInt(TInt node) {
+                printWithPositionInfo(node, "int ( " + node.getText() + " )");
+            }
+        };
+
+        ast.apply(df);
+    }
+
+    public static void PrintSyntaxTree(Reader i) throws Throwable {
+        Lexer lexer = new TigerLexer(new PushbackReader(i, 1024));
+        Parser parser = new Parser(lexer);
+        Start ast = parser.parse();
+
+        DepthFirstAdapter df = new DepthFirstAdapter() {
+            public int level = 0;
+
+            public void print(String info) {
+                StringBuffer sb = new StringBuffer();
+                for (int i = 0; i < level; i += 1) {
+                    sb.append("    ");
+                }
+                sb.append(info);
+                System.out.println(sb.toString());
+            }
+
+            public void printWithPositionInfo(Node node, String info) {
+                print("[" + Integer.toString(node.getLine()) + ", " + Integer.toString(node.getPos()) + "]");
+                print(info);
+                System.out.println();
+            }
+
+            public void printlnNamePositionInfo(Node node) {
+                printWithPositionInfo(node, node.getClass().getSimpleName());
+            }
+
+            @Override
+            public void defaultIn(Node node) {
+                printlnNamePositionInfo(node);
+                level += 1;
+            }
+
+            @Override
+            public void defaultOut(Node node) {
+                level -= 1;
+            }
+
+            @Override
+            public void inStart(Start node) {
+            }
+
+            @Override
+            public void outStart(Start node) {
+            }
+
+            @Override
+            public void caseTStr(TStr node) {
+                printWithPositionInfo(node, "str ( \"" + node.getText() + "\" )");
+            }
+
+            @Override
+            public void caseTId(TId node) {
+                printWithPositionInfo(node, "id ( " + node.getText() + " )");
+            };
+
+            @Override
+            public void caseTInt(TInt node) {
+                printWithPositionInfo(node, "int ( " + node.getText() + " )");
+            }
+        };
+
+        ast.apply(df);
+    }
+
+    public static void PrintTokens(Reader i) throws Throwable {
+        Lexer lexer = new TigerLexer(new PushbackReader(i, 1024));
+
+        Token t = lexer.next();
+        while ((t != null) && (!(t instanceof EOF))) {
+            if (t instanceof TWhitespace) {
+                System.out.println(Format("Line={0}, Column={1}, Token={2}", t.getLine(), t.getPos(), t.getClass().getSimpleName()));
+            }
+            else {
+                System.out.println(Format("Line={0}, Column={1}, Token={2}, Text={3}", t.getLine(), t.getPos(), t.getClass().getSimpleName(), t.getText()));
+            }
+            t = lexer.next();
+        }
+    }
+
+    public static void DisplayInfo() {
+        System.out.println("Tiger Compiler");
+        System.out.println("Copyright(C) F.R.C., All rights reserved.");
+        System.out.println("Licensed under BSD");
+        System.out.println("");
+    }
+
+    public static void DisplayUsage() {
+        System.out.println("Usage:");
+        System.out.println("tgc [options] <SourceFile>");
+        System.out.println("");
+        System.out.println("Options:");
+        System.out.println("/l Show lexer dump");
+        System.out.println("/p Show parser dump");
+        System.out.println("/v Show verifier dump");
+        System.out.println("/g Show generator dump");
+        System.out.println("");
+    }
+
+    /**
+     * 模拟.Net格式化
+     */
+    public static String Format(String format, Object... args) {
+        for (int i = 0; i < args.length; i++) {
+            format = format.replace("{" + Integer.toString(i) + "}", args[i].toString());
+        }
+        return format;
+    }
+}

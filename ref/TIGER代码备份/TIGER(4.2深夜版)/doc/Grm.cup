@@ -1,0 +1,322 @@
+package Parse;
+import Absyn.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
+action code {: static Symbol.Symbol sym(String s) {
+	         return Symbol.Symbol.symbol(s);
+	        }
+	    :};
+
+parser code  {: 
+
+  public static void main(String[] args){
+    try{
+     String filename = args[0];
+	 ErrorMsg.ErrorMsg errorMsg = new ErrorMsg.ErrorMsg(filename);
+	 InputStream inp = new FileInputStream(filename);
+	 System.out.println("here");
+	 Lexer lexer = new Lexer(inp, errorMsg);
+	 System.out.println("here2");
+	 parser p = new parser(lexer);
+	 System.out.println("here3");
+		
+     //Parser p = new Parser(new Lexer(new FileReader(args[0])));
+     Object result = p.parse().value;
+    }catch(Exception e ){System.out.println("ERROR!");} 
+  }
+   
+  //public Absyn.Exp parseResult;
+  Lexer lexer;
+
+  public void syntax_error(java_cup.runtime.Symbol current) {
+   report_error("Syntax error (" + current.sym + ")", current);
+  }
+
+  ErrorMsg.ErrorMsg errorMsg;
+
+  public void report_error(String message, 
+			   java_cup.runtime.Symbol info) {
+      errorMsg.error(info.left, message);
+  }
+
+  public parser(Lexer l, ErrorMsg.ErrorMsg err) {
+    this();
+    errorMsg=err;
+    lexer=l;
+  }
+:};
+
+scan with {: return lexer.next_token(); :};
+
+/*terminal String IDENTIFIER, STRING;
+terminal Integer NUM;
+terminal ARRAY, BREAK, DO, ELSE, END, FOR, FUNCTION,
+         IF, IN, LET, NIL, OF, THEN, TO, TYPE, VAR, WHILE,
+         COMMA, COLON, SEMICOLON, L1, R1, L2, R2, L3, R3,
+         DOT, ADD, SUB, MUL, DIV, EQ, NEQ, LESS, NGTR,
+         GTR, NLESS, AND, OR, ASSIGN, UMINUS;
+
+non terminal program,expr;
+non terminal lvalue;
+non terminal exprList,exprSeq;
+non terminal fldList;
+non terminal dec;
+non terminal decList;
+non terminal typeDec,tyDecList;
+non terminal type;
+non terminal typeFlds;
+non terminal varDec;
+non terminal funcDec,fcDecList;
+
+precedence right	TYPE,FUNCTION;
+precedence right	ELSE;
+precedence nonassoc ASSIGN;
+precedence nonassoc OR;
+precedence nonassoc AND;
+precedence nonassoc EQ, NEQ, LESS, NGTR, GTR, NLESS;
+precedence left     ADD, SUB;
+precedence left     MUL, DIV;
+precedence left     UMINUS;
+precedence left		L2;
+
+start with program;
+
+program   ::= expr:e {::}
+         	;
+         	
+expr      ::= STRING:s {::}
+		  	| NUM:i {::}
+		  	| NIL:n {::}
+		  	| lvalue:l {::}
+		  	| SUB expr:e {::} %prec UMINUS
+		  	| expr:e1 ADD expr:e2 {::}
+		  	| expr:e1 SUB expr:e2 {::}
+		  	| expr:e1 MUL expr:e2 {::}
+		  	| expr:e1 DIV expr:e2 {::}
+		  	| expr:e1 EQ expr:e2 {::}
+		  	| expr:e1 NEQ expr:e2 {::}
+		  	| expr:e1 LESS expr:e2 {::}
+		  	| expr:e1 NGTR expr:e2 {::}
+		  	| expr:e1 GTR expr:e2 {::}
+		  	| expr:e1 NLESS expr:e2 {::}
+		  	| expr:e1 AND expr:e2 {::}
+		  	| expr:e1 OR expr:e2 {::}
+		  	| lvalue:l ASSIGN expr:e {::}
+		  	| IDENTIFIER:i L1 R1 {::}
+		  	| IDENTIFIER:i L1 exprList:e R1 {::}
+		  	| L1:l R1 {::}
+		  	| L1 exprSeq:e R1 {::}
+		  	| IDENTIFIER:i L3 R3 {::}
+		  	| IDENTIFIER:i L3 fldList:f R3 {::}
+		  	| IDENTIFIER:i L2 expr:e1 R2 OF expr:e2 {::}
+		  	| IF expr:e1 THEN expr:e2 {::}
+		  	| IF expr:e1 THEN expr:e2 ELSE expr:e3 {::}
+		  	| WHILE expr:e1 DO expr:e2 {::}
+		  	| FOR IDENTIFIER:i ASSIGN expr:e1 TO expr:e2 DO expr:e3 {::}
+   		    | BREAK:b {::}
+   		    | LET decList:d IN END {::}
+		  	| LET decList:d IN exprSeq:e END {::}
+		  	;
+		  	
+lvalue    ::= lvalue:l L2 expr:e R2 {::}
+			| lvalue:l DOT IDENTIFIER:i {::}
+			| IDENTIFIER:i {::}
+			| IDENTIFIER:i L2 expr:e R2 {::}
+			;
+		  
+exprList  ::= expr:e {::}
+			| expr:e COMMA exprList:el {::}
+			;
+			
+exprSeq   ::= expr:e {::}
+			| expr:e SEMICOLON exprSeq:es {::}
+			;
+			
+fldList   ::= IDENTIFIER:i EQ expr:e {::}
+			| IDENTIFIER:i EQ expr:e COMMA fldList:f {::}
+			;
+				
+dec 	  ::= tyDecList:t {::}
+			| varDec:v {::}
+			| fcDecList:f {::}
+			;
+			
+decList	  ::= dec:d {::}
+			| dec:d decList:dl {::}
+			;
+						
+tyDecList ::= typeDec:t {::}
+			| typeDec:t tyDecList:tl {::}
+			;
+			
+typeDec   ::= TYPE IDENTIFIER:i EQ type:t {::}
+			;
+			
+type      ::= IDENTIFIER:i {::}
+			| L3:l R3 {::} 
+			| L3 typeFlds:t R3 {::}
+			| ARRAY OF IDENTIFIER:i {::}
+			;
+			
+typeFlds  ::= IDENTIFIER:i1 COLON IDENTIFIER:i2 {::}
+			| IDENTIFIER:i1 COLON IDENTIFIER:i2 COMMA typeFlds:ts {::}
+			;
+			
+varDec    ::= VAR IDENTIFIER:i ASSIGN expr:e {::}
+			| VAR IDENTIFIER:i1 COLON IDENTIFIER:i2 ASSIGN expr:e {::}
+			;
+			
+fcDecList ::= funcDec:f {::}
+			| funcDec:f fcDecList:fl {::}
+			;
+						
+funcDec   ::= FUNCTION IDENTIFIER:i L1 R1 EQ expr:e {::}
+			| FUNCTION IDENTIFIER:i L1 typeFlds:t R1 EQ expr:e {::}
+			| FUNCTION IDENTIFIER:i1 L1 R1 COLON IDENTIFIER:i2 EQ expr:e {::}
+			| FUNCTION IDENTIFIER:i1 L1 typeFlds:t R1 COLON IDENTIFIER:i2 EQ expr:e {::}
+			; 
+*/
+
+terminal String IDENTIFIER, STRING;
+terminal Integer NUM;
+terminal ARRAY, BREAK, DO, ELSE, END, FOR, FUNCTION,
+         IF, IN, LET, NIL, OF, THEN, TO, TYPE, VAR, WHILE,
+         COMMA, COLON, SEMICOLON, L1, R1, L2, R2, L3, R3,
+         DOT, ADD, SUB, MUL, DIV, EQ, NEQ, LESS, NGTR,
+         GTR, NLESS, AND, OR, ASSIGN, UMINUS;
+
+non terminal program;
+non terminal expr;
+non terminal lvalue;
+non terminal biOp;
+non terminal exprList;
+non terminal exprListOp;
+non terminal exprSeq;
+non terminal exprSeqOp;
+non terminal fldList;
+non terminal fldListOp;
+non terminal dec;
+non terminal decList;
+non terminal typeDec;
+non terminal type;
+non terminal typeFld;
+non terminal typeFlds;
+non terminal typeFldsOp;
+non terminal varDec;
+non terminal funcDec;
+
+precedence nonassoc ELSE;
+
+precedence nonassoc ASSIGN;
+precedence nonassoc OR;
+precedence nonassoc AND;
+precedence nonassoc EQ, NEQ, LESS, NGTR, GTR, NLESS;
+precedence left     ADD, SUB;
+precedence left     MUL, DIV;
+precedence left     UMINUS;
+
+precedence right    L2;
+
+start with program;
+
+program   ::= expr
+         	;
+expr      ::= STRING {:System.out.println("expr");:}
+		  	| NUM {:System.out.println("expr");:}
+		  	| NIL {:System.out.println("expr");:}
+		  	| lvalue {:System.out.println("expr");:}
+		  	| SUB expr {:System.out.println("expr");:} %prec UMINUS
+		  	| expr biOp expr {:System.out.println("expr");:}
+		  	| lvalue ASSIGN expr {:System.out.println("expr");:}
+		  	| IDENTIFIER L1 exprListOp R1 {:System.out.println("expr");:}
+		  	| L1 exprSeqOp R1 {:System.out.println("expr");:}
+		  	| IDENTIFIER L3 fldListOp R3 {:System.out.println("expr");:}
+		  	| IDENTIFIER L2 expr R2 OF expr {:System.out.println("expr");:}
+		  	| IF expr THEN expr {:System.out.println("expr");:}
+		  	| IF expr THEN expr ELSE expr {:System.out.println("expr");:}
+		  	| WHILE expr DO expr {:System.out.println("expr");:}
+		  	| FOR IDENTIFIER ASSIGN expr TO expr DO expr {:System.out.println("expr");:}
+   		    | BREAK {:System.out.println("expr");:}
+		  	| LET decList IN exprSeqOp END {:System.out.println("expr");:}
+		  	;
+		  	
+lvalue    ::= IDENTIFIER {:System.out.println("lvalue");:} 
+			| lvalue DOT IDENTIFIER {:System.out.println("lvalue");:}
+			| lvalue L2 expr R2 {:System.out.println("lvalue");:}
+			;
+		  
+biOp      ::= ADD {:System.out.println("biOp");:} 
+		  	| SUB {:System.out.println("biOp");:}
+		  	| MUL {:System.out.println("biOp");:}
+		  	| DIV {:System.out.println("biOp");:}
+		  	| EQ {:System.out.println("biOp");:}
+		  	| NEQ {:System.out.println("biOp");:}
+		  	| LESS {:System.out.println("biOp");:}
+		  	| NGTR {:System.out.println("biOp");:}
+		  	| GTR {:System.out.println("biOp");:}
+		  	| NLESS {:System.out.println("biOp");:}
+		  	| AND {:System.out.println("biOp");:}
+		  	| OR {:System.out.println("biOp");:}
+		 	 ;
+		  
+exprList  ::= expr {:System.out.println("exprList");:} 
+			| exprList COMMA expr {:System.out.println("exprList");:}
+			;
+			
+exprListOp::=  {:System.out.println("exprListOp");:}
+			| exprList {:System.out.println("exprListOp");:}
+			;
+			
+exprSeq   ::= expr {:System.out.println("exprSeq");:} 
+			| exprSeq SEMICOLON expr {:System.out.println("exprSeq");:}
+			;
+			
+exprSeqOp ::=  {:System.out.println("exprSeqOp");:}
+			| exprSeq {:System.out.println("exprSeqOp");:}
+			;
+	
+fldList   ::= IDENTIFIER EQ expr {:System.out.println("fldList");:} 
+			| fldList COMMA IDENTIFIER EQ expr {:System.out.println("fldList");:}
+			;
+			
+fldListOp ::=  {:System.out.println("fldListOp");:}
+			| fldList {:System.out.println("fldListOp");:}
+			;
+			
+dec 	  ::= typeDec {:System.out.println("dec");:} 
+			| varDec {:System.out.println("dec");:}
+			| funcDec {:System.out.println("dec");:}
+			;
+			
+decList	  ::= dec {:System.out.println("decList");:}
+			| decList dec {:System.out.println("decList");:}
+			;
+			
+typeDec   ::= TYPE IDENTIFIER EQ type {:System.out.println("typeDec");:}
+			;
+			
+type      ::= IDENTIFIER {:System.out.println("type");:}
+			| L3 typeFldsOp R3 {:System.out.println("type");:}
+			| ARRAY OF IDENTIFIER {:System.out.println("type");:}
+			;
+			
+typeFld	  ::= IDENTIFIER COMMA IDENTIFIER {:System.out.println("typeFld");:}
+			;
+			
+typeFlds  ::= typeFld {:System.out.println("typeFlds");:}
+			| typeFlds COMMA typeFld {:System.out.println("typeFlds");:}
+			;
+			
+typeFldsOp::=  {:System.out.println("typeFldsOp");:}
+			| typeFlds {:System.out.println("typeFldsOp");:}
+			;
+			
+varDec    ::= VAR IDENTIFIER ASSIGN expr {:System.out.println("varDec");:}
+			| VAR IDENTIFIER COLON IDENTIFIER ASSIGN expr {:System.out.println("varDec");:}
+			;
+			
+funcDec   ::= FUNCTION IDENTIFIER L1 typeFldsOp R1 EQ expr {:System.out.println("funcDec");:}
+			| FUNCTION IDENTIFIER L1 typeFldsOp R1 COLON IDENTIFIER EQ expr {:System.out.println("funcDec");:}
+			;

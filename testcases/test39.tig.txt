@@ -1,0 +1,1 @@
+error : mutli declaration in batch func decl list!

@@ -1,0 +1,14 @@
+what,kind,bundleId,bundleVersion,description,time
+stopped,bundle,org.eclipse.uml2.search.common.ui,0.7.0.v200806130939,org.eclipse.uml2.search.common.ui,1227276871468
+stopped,bundle,org.eclipse.emf.search.common.ui,0.7.0.v200806130939,org.eclipse.emf.search.common.ui,1227276871546
+stopped,bundle,org.eclipse.uml2.search.ocl.ui,0.7.0.v200806130939,org.eclipse.uml2.search.ocl.ui,1227276871609
+stopped,bundle,org.eclipse.emf.search.ecore.ocl.ui,0.7.0.v200806130939,org.eclipse.emf.search.ecore.ocl.ui,1227276871796
+stopped,bundle,org.eclipse.uml2.search.ocl,0.7.0.v200806130939,org.eclipse.uml2.search.ocl,1227276871812
+stopped,bundle,org.eclipse.uml2.search.ui,0.7.0.v200806130939,org.eclipse.uml2.search.ui,1227276871875
+stopped,bundle,org.eclipse.uml2.search,0.7.0.v200806130939,org.eclipse.uml2.search,1227276871875
+stopped,bundle,org.eclipse.emf.search.common,0.7.0.v200806130939,org.eclipse.emf.search.common,1227276871875
+stopped,bundle,org.eclipse.emf.search.ecore.ocl,0.7.0.v200806130939,org.eclipse.emf.search.ecore.ocl,1227276871875
+stopped,bundle,org.eclipse.emf.search.genmodel.ui,0.7.0.v200806130939,org.eclipse.emf.search.genmodel.ui,1227276871968
+stopped,bundle,org.eclipse.emf.search.ecore.ui,0.7.0.v200806130939,org.eclipse.emf.search.ecore.ui,1227276872015
+stopped,bundle,org.eclipse.emf.search.genmodel,0.7.0.v200806130939,org.eclipse.emf.search.genmodel,1227276872015
+stopped,bundle,org.eclipse.emf.search.ecore,0.7.0.v200806130939,org.eclipse.emf.search.ecore,1227276872015
